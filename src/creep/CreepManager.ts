@@ -4,13 +4,11 @@ class CreepDefinition {
   public readonly type: CreepRole;
   public readonly parts: BodyPartConstant[];
   public readonly cost: number;
-  public readonly symbol: string;
 
-  public constructor(type: CreepRole, parts: BodyPartConstant[], cost: number, symbol: string) {
+  public constructor(type: CreepRole, parts: BodyPartConstant[], cost: number) {
     this.type = type;
     this.parts = parts;
     this.cost = cost;
-    this.symbol = symbol;
   }
 }
 
@@ -48,22 +46,22 @@ export enum CreepRole {
 
 const creepDefinitions: Record<CreepRole, CreepDefinition[]> = {
   [CreepRole.HARVESTER]: [
-    new CreepDefinition(CreepRole.HARVESTER, [MOVE, MOVE, MOVE, MOVE, WORK, WORK, CARRY, CARRY], 500, "🌾"),
-    new CreepDefinition(CreepRole.HARVESTER, [MOVE, WORK, CARRY], 200, "🌾"),
+    new CreepDefinition(CreepRole.HARVESTER, [MOVE, MOVE, MOVE, MOVE, WORK, WORK, CARRY, CARRY], 500),
+    new CreepDefinition(CreepRole.HARVESTER, [MOVE, WORK, CARRY], 200),
   ],
   [CreepRole.UPGRADER]: [
-    new CreepDefinition(CreepRole.UPGRADER, [MOVE, MOVE, MOVE, MOVE, WORK, CARRY, CARRY, CARRY, CARRY, CARRY], 550, "⚡"),
-    new CreepDefinition(CreepRole.UPGRADER, [MOVE, WORK, CARRY], 200, "⚡"),
+    new CreepDefinition(CreepRole.UPGRADER, [MOVE, MOVE, MOVE, MOVE, WORK, CARRY, CARRY, CARRY, CARRY, CARRY], 550),
+    new CreepDefinition(CreepRole.UPGRADER, [MOVE, WORK, CARRY], 200),
   ],
   [CreepRole.BUILDER]: [
-    new CreepDefinition(CreepRole.BUILDER, [MOVE, MOVE, MOVE, MOVE, WORK, WORK, CARRY, CARRY, CARRY], 550, "🔨"),
-    new CreepDefinition(CreepRole.BUILDER, [MOVE, MOVE, WORK, CARRY, CARRY], 300, "🔨"),
+    new CreepDefinition(CreepRole.BUILDER, [MOVE, MOVE, MOVE, MOVE, WORK, WORK, CARRY, CARRY, CARRY], 550),
+    new CreepDefinition(CreepRole.BUILDER, [MOVE, MOVE, WORK, CARRY, CARRY], 300),
   ],
   [CreepRole.MINER]: [
-    new CreepDefinition(CreepRole.MINER, [MOVE, WORK, WORK, WORK, WORK, WORK], 550, "⛏️"),
+    new CreepDefinition(CreepRole.MINER, [MOVE, WORK, WORK, WORK, WORK, WORK], 550),
   ],
   [CreepRole.CARRIER]: [
-    new CreepDefinition(CreepRole.CARRIER, [MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY], 550, "📦"),
+    new CreepDefinition(CreepRole.CARRIER, [MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY], 550),
   ],
 };
 
@@ -75,7 +73,15 @@ const creepAmounts: Record<CreepRole, number> = {
   [CreepRole.CARRIER]: 2,
 }
 
-export function CreepManager() {
+const creepSymbols: Record<CreepRole, string> = {
+  [CreepRole.HARVESTER]: "🌾",
+  [CreepRole.UPGRADER]: "⚡",
+  [CreepRole.BUILDER]: "🔨",
+  [CreepRole.MINER]: "⛏️",
+  [CreepRole.CARRIER]: "📦",
+}
+
+export function CreepManager(): void {
   forEverySpawn(spawn => {
     if (spawn.spawning) drawSpawning(spawn);
     else {
@@ -107,7 +113,7 @@ export function CreepManager() {
     if (spawn.spawning) {
       const spawningCreep = Game.creeps[spawn.spawning.name];
       const role = spawningCreep.memory.role as CreepRole;
-      const creepSymbol = creepDefinitions[role][0].symbol
+      const creepSymbol = creepSymbols[role]
       spawn.room.visual.text(
         creepSymbol,
         spawn.pos.x + 1,
@@ -122,6 +128,4 @@ export function CreepManager() {
       onSpawn(spawn);
     }
   }
-
-  return;
 }
