@@ -5,11 +5,6 @@ interface CreepMemory {
   param: Record<string, string>
 }
 
-interface Memory {
-  uuid: number;
-  log: any;
-}
-
 // `global` extension samples
 declare namespace NodeJS {
   interface Global {

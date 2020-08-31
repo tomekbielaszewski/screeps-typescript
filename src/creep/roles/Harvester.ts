@@ -1,4 +1,8 @@
 export function HarvesterJob(creep: Creep): void {
+  // if(creep.store.getFreeCapacity() === creep.store.getCapacity()) {
+  //   creep.memory.room
+  // }
+
   if(creep.store.getFreeCapacity() > 0) {
     const sources = creep.room.find(FIND_SOURCES);
     if(creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {

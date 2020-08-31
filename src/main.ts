@@ -1,10 +1,8 @@
-import { ErrorMapper } from "utils/ErrorMapper";
-import { CreepManager } from "creep/CreepManager";
-import { CreepWorker } from "creep/Worker";
+import {ErrorMapper} from "utils/ErrorMapper";
+import {CreepManager} from "creep/CreepManager";
+import {CreepWorker} from "creep/Worker";
 
-// When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
-// This utility uses source maps to get the line numbers and file names of the original, TS source code
-export const loop = ErrorMapper.wrapLoop(() => {
+function unwrappedLoop() {
   CreepManager();
   CreepWorker();
   console.log(`Current game tick is ${Game.time}`);
@@ -15,4 +13,13 @@ export const loop = ErrorMapper.wrapLoop(() => {
       delete Memory.creeps[name];
     }
   }
-});
+}
+
+// When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
+// This utility uses source maps to get the line numbers and file names of the original, TS source code
+const loop = ErrorMapper.wrapLoop(unwrappedLoop);
+
+export {
+  loop,
+  unwrappedLoop
+};
