@@ -98,7 +98,8 @@ export function CreepManager(): void {
               spawn.spawnCreep(creepDef.parts, _role + ":" + Game.time, {
                 memory: {
                   role: _role,
-                  room: spawn.room.name
+                  room: spawn.room.name,
+                  param: {}
                 }
               });
               break;
