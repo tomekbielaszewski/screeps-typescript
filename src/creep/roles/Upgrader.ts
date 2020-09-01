@@ -31,15 +31,23 @@ export function UpgraderJob(creep: Creep): void {
 const VISITED_ENERGY_STORAGE = "E"
 
 function calculateState(creep: Creep): UpgraderState {
+  if (!creep.memory.state) { // this creep has just spawned
+    creep.memory.state = UpgraderState.REFILLING;
+  }
+
   if (creep.memory.state === UpgraderState.UPGRADING && creep.store[RESOURCE_ENERGY] === 0) {
     creep.memory.state = UpgraderState.REFILLING;
     creep.say('🌾');
+    return creep.memory.state;
   }
   if (creep.memory.state === UpgraderState.REFILLING && creep.store.getFreeCapacity() === 0) {
     creep.memory.state = UpgraderState.UPGRADING;
     delete creep.memory.param[VISITED_ENERGY_STORAGE]
     creep.say('⚡');
+    return creep.memory.state;
   }
+
+  console.log("Upgrader.calculateState: this shouldn't happen");
   return creep.memory.state = UpgraderState.REFILLING;
 }
 
@@ -54,7 +62,7 @@ function upgradeController(creep: Creep): void {
 }
 
 function refillCreep(creep: Creep): void {
-  let foundEnergyStorage = creep.memory.param[VISITED_ENERGY_STORAGE] as EnergySource;
+  let foundEnergyStorage = creep.memory.param[VISITED_ENERGY_STORAGE] as EnergySource | undefined;
   if (!foundEnergyStorage || isEmpty(foundEnergyStorage)) {
     creep.memory.param[VISITED_ENERGY_STORAGE] = foundEnergyStorage = findClosestEnergyStorage(creep);
   }
