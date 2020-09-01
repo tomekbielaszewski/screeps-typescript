@@ -3,6 +3,20 @@ export enum UpgraderState {
   REFILLING
 }
 
+type EnergyTakeMethod =
+  | Harvest
+  | Pickup
+  | Withdraw;
+
+type Harvest = "harvest";
+type Pickup = "pickup";
+type Withdraw = "withdraw";
+
+interface EnergySource {
+  id: Id<Structure | Source | Resource>,
+  take: EnergyTakeMethod | undefined
+}
+
 export function UpgraderJob(creep: Creep): void {
   switch (calculateState(creep)) {
     case UpgraderState.UPGRADING:
@@ -67,29 +81,15 @@ function refillCreep(creep: Creep): void {
 
 function isEmpty(energySource: EnergySource): boolean {
   const object = Game.getObjectById(energySource.id);
-  if(energySource.take) {
-    if (energySource.take === "withdraw")
+  switch (energySource.take) {
+    case "withdraw":
       return isStorageEmpty(object as StructureStorage | StructureContainer);
-    if (object instanceof Resource)
-      return object.amount <= 0;
-    if (object instanceof Source)
-      return object.energy <= 0;
+    case "pickup":
+      return (object as Resource).amount <= 0;
+    case "harvest":
+      return (object as Source).energy <= 0;
   }
   return true;
-}
-
-type ENERGY_TAKE_METHOD =
-  | HARVEST
-  | PICKUP
-  | WITHDRAW;
-
-type HARVEST = "harvest";
-type PICKUP = "pickup";
-type WITHDRAW = "withdraw";
-
-interface EnergySource {
-  id: Id<Structure | Source | Resource>,
-  take: ENERGY_TAKE_METHOD | undefined
 }
 
 function findClosestEnergyStorage(creep: Creep): EnergySource {
@@ -114,14 +114,14 @@ function findClosestEnergyStorage(creep: Creep): EnergySource {
   };
 }
 
-function obtainTakeMethod(energySource: Structure | Source | Resource): ENERGY_TAKE_METHOD | undefined {
-  if(_.has(energySource, "structureType")) {
+function obtainTakeMethod(energySource: Structure | Source | Resource): EnergyTakeMethod | undefined {
+  if (_.has(energySource, "structureType")) {
     return "withdraw";
   }
-  if(_.has(energySource, "energy")) {
+  if (_.has(energySource, "energy")) {
     return "harvest";
   }
-  if(_.has(energySource, "resourceType")) {
+  if (_.has(energySource, "resourceType")) {
     return "pickup";
   }
   return undefined;
