@@ -2,7 +2,7 @@ interface CreepMemory {
   role: string;
   room: string;
   state?: number
-  param: Record<string, string>
+  param: Record<string, any>
 }
 
 // `global` extension samples

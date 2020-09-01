@@ -1,4 +1,4 @@
-enum UpgraderState {
+export enum UpgraderState {
   UPGRADING,
   REFILLING
 }
@@ -11,8 +11,6 @@ export function UpgraderJob(creep: Creep): void {
     case UpgraderState.REFILLING:
       refillCreep(creep);
       break;
-    default:
-      creep.say("I'm in unknown UpgraderState! state: " + (creep.memory.state || "null").toString())
   }
 }
 
@@ -42,44 +40,59 @@ function upgradeController(creep: Creep): void {
 }
 
 function refillCreep(creep: Creep): void {
-  let foundEnergyStorage = creep.memory.param[VISITED_ENERGY_STORAGE];
+  let foundEnergyStorage = creep.memory.param[VISITED_ENERGY_STORAGE] as EnergySource;
   if (!foundEnergyStorage || isEmpty(foundEnergyStorage)) {
     creep.memory.param[VISITED_ENERGY_STORAGE] = foundEnergyStorage = findClosestEnergyStorage(creep);
   }
 
-  const object = Game.getObjectById<RoomObject>(foundEnergyStorage);
-  if (object instanceof Structure) {
-    const storage = object as StructureStorage | StructureContainer;
-    if (creep.withdraw(storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-      creep.moveTo(storage, {visualizePathStyle: {stroke: '#ffaa00'}});
-    }
-  }
-  if (object instanceof Resource) {
-    const resource = object;
-    if (creep.pickup(resource) === ERR_NOT_IN_RANGE) {
-      creep.moveTo(resource, {visualizePathStyle: {stroke: '#ffaa00'}});
-    }
-  }
-  if (object instanceof Source) {
-    const source = object;
-    if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
-      creep.moveTo(source, {visualizePathStyle: {stroke: '#ffaa00'}});
-    }
+  const object = Game.getObjectById(foundEnergyStorage.id);
+  switch (foundEnergyStorage.take) {
+    case "harvest":
+      if (creep.harvest(object as Source) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(object as Source, {visualizePathStyle: {stroke: '#ffaa00'}});
+      }
+      break;
+    case "pickup":
+      if (creep.pickup(object as Resource) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(object as Resource, {visualizePathStyle: {stroke: '#ffaa00'}});
+      }
+      break;
+    case "withdraw":
+      if (creep.withdraw(object as StructureStorage | StructureContainer, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(object as StructureStorage | StructureContainer, {visualizePathStyle: {stroke: '#ffaa00'}});
+      }
+      break;
   }
 }
 
-function isEmpty(id: string): boolean {
-  const object = Game.getObjectById<RoomObject>(id);
-  if (object instanceof Structure)
-    return isStorageEmpty(object);
-  if (object instanceof Resource)
-    return object.amount > 0;
-  if (object instanceof Source)
-    return object.energy > 0;
+function isEmpty(energySource: EnergySource): boolean {
+  const object = Game.getObjectById(energySource.id);
+  if(energySource.take) {
+    if (energySource.take === "withdraw")
+      return isStorageEmpty(object as StructureStorage | StructureContainer);
+    if (object instanceof Resource)
+      return object.amount <= 0;
+    if (object instanceof Source)
+      return object.energy <= 0;
+  }
   return true;
 }
 
-function findClosestEnergyStorage(creep: Creep): string {
+type ENERGY_TAKE_METHOD =
+  | HARVEST
+  | PICKUP
+  | WITHDRAW;
+
+type HARVEST = "harvest";
+type PICKUP = "pickup";
+type WITHDRAW = "withdraw";
+
+interface EnergySource {
+  id: Id<Structure | Source | Resource>,
+  take: ENERGY_TAKE_METHOD | undefined
+}
+
+function findClosestEnergyStorage(creep: Creep): EnergySource {
   const pos = creep.pos;
   const room = creep.room;
   const structures = room.find(FIND_STRUCTURES, {
@@ -94,12 +107,29 @@ function findClosestEnergyStorage(creep: Creep): string {
     filter: s => s.energy > 0
   }) as RoomObject[];
   const closestByPath = pos.findClosestByPath(structures.concat(resources).concat(sources)) as Structure | Source | Resource;
-  return closestByPath.id;
+  const takeMethod = obtainTakeMethod(closestByPath);
+  return {
+    id: closestByPath.id,
+    take: takeMethod
+  };
 }
 
-function isStorageEmpty(storage: Structure): boolean {
-  if (storage instanceof StructureStorage ||
-    storage instanceof StructureContainer)
+function obtainTakeMethod(energySource: Structure | Source | Resource): ENERGY_TAKE_METHOD | undefined {
+  if(_.has(energySource, "structureType")) {
+    return "withdraw";
+  }
+  if(_.has(energySource, "energy")) {
+    return "harvest";
+  }
+  if(_.has(energySource, "resourceType")) {
+    return "pickup";
+  }
+  return undefined;
+}
+
+function isStorageEmpty(storage: StructureStorage | StructureContainer): boolean {
+  if (storage.structureType === STRUCTURE_STORAGE ||
+    storage.structureType === STRUCTURE_CONTAINER)
     return storage.store.getUsedCapacity(RESOURCE_ENERGY) === 0;
   return true;
 }
