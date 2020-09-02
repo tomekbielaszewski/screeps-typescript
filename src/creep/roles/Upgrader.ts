@@ -32,7 +32,8 @@ const VISITED_ENERGY_STORAGE = "E"
 
 function calculateState(creep: Creep): UpgraderState {
   if (!creep.memory.state) { // this creep has just spawned
-    creep.memory.state = UpgraderState.REFILLING;
+    creep.say('🌾');
+    return creep.memory.state = UpgraderState.REFILLING;
   }
 
   if (creep.memory.state === UpgraderState.UPGRADING && creep.store[RESOURCE_ENERGY] === 0) {
