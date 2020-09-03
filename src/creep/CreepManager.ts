@@ -85,15 +85,15 @@ export function CreepManager(): void {
   forEverySpawn(spawn => {
     if (spawn.spawning) drawSpawning(spawn);
     else {
-      for (const _role in CreepRole) {
+      for (const _role of Object.values(CreepRole)) {
         const role = _role as CreepRole
-        const amountOfLive = _.filter(Game.creeps, creep => creep.memory.role === role)
+        const amountOfLive = _.filter(Game.creeps, creep => creep && creep.memory.role === role)
           .filter(creep => creep.memory.room === spawn.room.name)
           .length;
         if (amountOfLive < creepAmounts[role]) {
           for (const creepDef of creepDefinitions[role]) {
             const availableEnergy = spawn.room.energyAvailable;
-            if (availableEnergy >= creepDef.cost) {
+            if (availableEnergy >= creepDef.cost && !spawn.spawning) {
               // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
               spawn.spawnCreep(creepDef.parts, _role + ":" + Game.time, {
                 memory: {
