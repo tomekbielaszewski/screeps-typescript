@@ -63,6 +63,25 @@ describe("Creep manager", () => {
     expect(spawn.spawnCreep).toBeCalledTimes(1);
   });
 
+  it('should create mid level of harvester when energy available', () => {
+    const mocks = mockAll({
+      energyAvailable: 300
+    });
+    const spawn = mocks.spawnMock;
+    const room = mocks.roomMock;
+
+    CreepManager();
+
+    expect(spawn.spawnCreep).toBeCalledWith([MOVE, WORK, WORK, CARRY], anything(), {
+      memory: {
+        param: {},
+        role: CreepRole.HARVESTER,
+        room: room.name
+      }
+    });
+    expect(spawn.spawnCreep).toBeCalledTimes(1);
+  });
+
   it('should create higher level of harvester when energy available', () => {
     const mocks = mockAll({
       energyAvailable: 500
