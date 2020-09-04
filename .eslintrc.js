@@ -46,6 +46,7 @@ module.exports = {
     "@typescript-eslint/unified-signatures": "error",
     "@typescript-eslint/unbound-method": "off",
     "@typescript-eslint/no-unnecessary-type-assertion": "off",
+    "@typescript-eslint/ban-ts-comment": "off",
     "arrow-parens": ["off", "as-needed"],
     camelcase: "error",
     complexity: "off",
