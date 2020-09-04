@@ -1,7 +1,6 @@
+import {UpgraderJob} from "./Upgrader";
+
 export function HarvesterJob(creep: Creep): void {
-  // if(creep.store.getFreeCapacity() === creep.store.getCapacity()) {
-  //   creep.memory.room
-  // }
 
   if(creep.store.getFreeCapacity() > 0) {
     const sources = creep.room.find(FIND_SOURCES);
@@ -27,8 +26,9 @@ export function HarvesterJob(creep: Creep): void {
       const spawn = creep.room.find(FIND_MY_STRUCTURES, {
         filter: structure => structure.structureType === STRUCTURE_SPAWN
       })[0];
-      creep.moveTo(spawn.pos.x, spawn.pos.y + 5);
-      creep.say("🕜 idle")
+      // creep.moveTo(spawn.pos.x, spawn.pos.y + 5);
+      // creep.say("🕜 idle")
+      UpgraderJob(creep);
     }
   }
 }
