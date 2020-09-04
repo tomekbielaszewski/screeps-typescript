@@ -682,30 +682,30 @@ function mockAll(roomProps: any = {}, creepMemoryProps: any = {}, creepProps: an
   const roomMock = mockInstanceOf<Room>(_.assign({
     name: 'W1R1',
   }, roomProps));
-  const creepMemory = _.assign({
+  const creepMemory = _.merge({
     role: CreepRole.UPGRADER,
     room: roomMock.name,
-    state: UpgraderState.REFILLING,
-    param: {}
+    state: undefined,
+    param: { E: undefined }
   }, creepMemoryProps) as CreepMemory;
-  const creepPos = mockInstanceOf<RoomPosition>(_.assign({
+  const creepPos = mockInstanceOf<RoomPosition>(_.merge({
     x: 0,
     y: 0,
     roomName: creepMemory.room,
   }, creepPosProps));
-  const creep = mockInstanceOf<Creep>(_.assign({
+  const creep = mockInstanceOf<Creep>(_.merge({
     name: 'myHero',
     pos: creepPos,
     room: roomMock,
     memory: creepMemory,
     say: () => OK
   }, creepProps));
-  mockGlobal<Game>('Game', _.assign({
+  mockGlobal<Game>('Game', _.merge({
     creeps: {myHero: creep},
     rooms: {W1R1: roomMock},
     time: 1,
   }, gameProps));
-  mockGlobal<Memory>('Memory', _.assign({
+  mockGlobal<Memory>('Memory', _.merge({
     creeps: {
       myHero: creepMemory
     }
