@@ -20,6 +20,7 @@ describe("Creep manager", () => {
         room: room.name
       }
     });
+    expect(spawn.spawnCreep).toBeCalledTimes(1);
   });
 
   it("should create Upgrader as second creep", () => {
@@ -59,6 +60,7 @@ describe("Creep manager", () => {
         room: room.name
       }
     });
+    expect(spawn.spawnCreep).toBeCalledTimes(1);
   });
 
   it('should create higher level of harvester when energy available', () => {
@@ -76,7 +78,8 @@ describe("Creep manager", () => {
         role: CreepRole.HARVESTER,
         room: room.name
       }
-    })
+    });
+    expect(spawn.spawnCreep).toBeCalledTimes(1);
   });
 });
 

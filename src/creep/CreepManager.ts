@@ -102,15 +102,14 @@ export function CreepManager(): void {
           for (const creepDef of creepDefinitions[role]) {
             const availableEnergy = spawn.room.energyAvailable;
             if (availableEnergy >= creepDef.cost && !spawn.spawning) {
-              // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-              spawn.spawnCreep(creepDef.parts, _role + ":" + Game.time, {
+              spawn.spawnCreep(creepDef.parts, `${role}:${Game.time}`, {
                 memory: {
                   role: _role,
                   room: spawn.room.name,
                   param: {}
                 }
               });
-              break;
+              return;
             }
           }
         }
