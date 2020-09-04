@@ -55,15 +55,17 @@ const creepRoleOrder = [
 const creepDefinitions: Record<CreepRole, CreepDefinition[]> = {
   [CreepRole.HARVESTER]: [
     new CreepDefinition(CreepRole.HARVESTER, [MOVE, MOVE, MOVE, MOVE, WORK, WORK, CARRY, CARRY], 500),
+    new CreepDefinition(CreepRole.HARVESTER, [MOVE, WORK, WORK, CARRY], 300),
     new CreepDefinition(CreepRole.HARVESTER, [MOVE, WORK, CARRY], 200),
   ],
   [CreepRole.UPGRADER]: [
     new CreepDefinition(CreepRole.UPGRADER, [MOVE, MOVE, MOVE, MOVE, WORK, CARRY, CARRY, CARRY, CARRY, CARRY], 550),
+    new CreepDefinition(CreepRole.UPGRADER, [MOVE, WORK, WORK, CARRY], 300),
     new CreepDefinition(CreepRole.UPGRADER, [MOVE, WORK, CARRY], 200),
   ],
   [CreepRole.BUILDER]: [
     new CreepDefinition(CreepRole.BUILDER, [MOVE, MOVE, MOVE, MOVE, WORK, WORK, CARRY, CARRY, CARRY], 550),
-    new CreepDefinition(CreepRole.BUILDER, [MOVE, MOVE, WORK, CARRY, CARRY], 300),
+    new CreepDefinition(CreepRole.BUILDER, [MOVE, MOVE, WORK, CARRY, CARRY], /* 300 */500),
   ],
   [CreepRole.MINER]: [
     new CreepDefinition(CreepRole.MINER, [MOVE, WORK, WORK, WORK, WORK, WORK], 550),
