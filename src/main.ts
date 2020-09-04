@@ -3,6 +3,7 @@ import {CreepManager} from "creep/CreepManager";
 import {CreepWorker} from "creep/Worker";
 import * as Profiler from "./profiler/Profiler";
 import {StatPublisher} from "utils/StatPublisher";
+import {PixelGenerator} from "utils/PixelGenerator";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -24,6 +25,7 @@ function unwrappedLoop() {
     }
   }
 
+  PixelGenerator();
   StatPublisher();
 }
 

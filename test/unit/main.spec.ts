@@ -6,6 +6,7 @@ import {CreepWorker} from "../../src/creep/Worker";
 jest.mock("creep/CreepManager");
 jest.mock("creep/Worker");
 jest.mock("utils/StatPublisher");
+jest.mock("utils/PixelGenerator");
 
 describe("main", () => {
 
