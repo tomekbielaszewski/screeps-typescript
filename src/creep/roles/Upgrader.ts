@@ -1,6 +1,6 @@
 export enum UpgraderState {
-  UPGRADING,
-  REFILLING
+  UPGRADING = '⚡',
+  REFILLING = '🌾'
 }
 
 type EnergyTakeMethod =
@@ -31,25 +31,21 @@ export function UpgraderJob(creep: Creep): void {
 const VISITED_ENERGY_STORAGE = "E"
 
 function calculateState(creep: Creep): UpgraderState {
-  if (!creep.memory.state) { // this creep has just spawned
-    creep.say('🌾');
-    return creep.memory.state = UpgraderState.REFILLING;
+  creep.memory.state = creep.memory.state ? creep.memory.state : UpgraderState.REFILLING;
+
+  if (creep.memory.state === UpgraderState.UPGRADING) {
+    if (creep.store[RESOURCE_ENERGY] === 0) {
+      creep.memory.state = UpgraderState.REFILLING;
+    }
+  } else if (creep.memory.state === UpgraderState.REFILLING) {
+    if (creep.store.getFreeCapacity() === 0) {
+      creep.memory.state = UpgraderState.UPGRADING;
+      delete creep.memory.param[VISITED_ENERGY_STORAGE]
+    }
   }
 
-  if (creep.memory.state === UpgraderState.UPGRADING && creep.store[RESOURCE_ENERGY] === 0) {
-    creep.memory.state = UpgraderState.REFILLING;
-    creep.say('🌾');
-    return creep.memory.state;
-  }
-  if (creep.memory.state === UpgraderState.REFILLING && creep.store.getFreeCapacity() === 0) {
-    creep.memory.state = UpgraderState.UPGRADING;
-    delete creep.memory.param[VISITED_ENERGY_STORAGE]
-    creep.say('⚡');
-    return creep.memory.state;
-  }
-
-  console.log("Upgrader.calculateState: this shouldn't happen");
-  return creep.memory.state = UpgraderState.REFILLING;
+  creep.say(creep.memory.state);
+  return creep.memory.state as UpgraderState;
 }
 
 function upgradeController(creep: Creep): void {
@@ -74,17 +70,17 @@ function refillCreep(creep: Creep): void {
       if (creep.harvest(object as Source) === ERR_NOT_IN_RANGE) {
         creep.moveTo(object as Source, {visualizePathStyle: {stroke: '#ffaa00'}});
       }
-      break;
+      return;
     case "pickup":
       if (creep.pickup(object as Resource) === ERR_NOT_IN_RANGE) {
         creep.moveTo(object as Resource, {visualizePathStyle: {stroke: '#ffaa00'}});
       }
-      break;
+      return;
     case "withdraw":
       if (creep.withdraw(object as StructureStorage | StructureContainer, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
         creep.moveTo(object as StructureStorage | StructureContainer, {visualizePathStyle: {stroke: '#ffaa00'}});
       }
-      break;
+      return;
   }
 }
 
@@ -124,13 +120,13 @@ function findClosestEnergyStorage(creep: Creep): EnergySource {
 }
 
 function obtainTakeMethod(energySource: Structure | Source | Resource): EnergyTakeMethod | undefined {
-  if (_.has(energySource, "structureType")) {
+  if (_.get(energySource, "structureType")) {
     return "withdraw";
   }
-  if (_.has(energySource, "energy")) {
+  if (_.get(energySource, "energy")) {
     return "harvest";
   }
-  if (_.has(energySource, "resourceType")) {
+  if (_.get(energySource, "resourceType")) {
     return "pickup";
   }
   return undefined;

@@ -1,7 +1,7 @@
 interface CreepMemory {
   role: string;
   room: string;
-  state?: number
+  state?: string
   param: Record<string, any>
 }
 

@@ -182,7 +182,9 @@ describe('Upgrader role', () => {
         id: 'resourcesId' as Id<Resource>,
         amount: 50,
         resourceType: RESOURCE_ENERGY,
-        length: undefined // lodash looking for this but Jest does not allow undefined access on mocks
+        length: undefined,
+        structureType: undefined,
+        energy: undefined
       });
       const mocks = mockAll(
         {find: (finder: FindConstant) => finder === FIND_DROPPED_RESOURCES ? [droppedResources] : []},
@@ -217,7 +219,9 @@ describe('Upgrader role', () => {
         id: 'resourcesId' as Id<Resource>,
         amount: 50,
         resourceType: RESOURCE_ENERGY,
-        length: undefined // lodash looking for this but Jest does not allow undefined access on mocks
+        length: undefined,
+        structureType: undefined,
+        energy: undefined
       });
       const mocks = mockAll(
         {find: (finder: FindConstant) => finder === FIND_DROPPED_RESOURCES ? [droppedResources] : []},
@@ -251,7 +255,8 @@ describe('Upgrader role', () => {
       const source = mockInstanceOf<Source>({
         id: 'sourceId' as Id<Source>,
         energy: 50,
-        length: undefined // lodash looking for this but Jest does not allow undefined access on mocks
+        length: undefined,
+        structureType: undefined
       });
       const mocks = mockAll(
         {find: (finder: FindConstant) => finder === FIND_SOURCES ? [source] : []},
@@ -285,7 +290,9 @@ describe('Upgrader role', () => {
       const source = mockInstanceOf<Source>({
         id: 'sourceId' as Id<Source>,
         energy: 50,
-        length: undefined // lodash looking for this but Jest does not allow undefined access on mocks
+        pos: undefined,
+        length: undefined,
+        structureType: undefined
       });
       const mocks = mockAll(
         {find: (finder: FindConstant) => finder === FIND_SOURCES ? [source] : []},
@@ -541,7 +548,9 @@ describe('Upgrader role', () => {
         id: 'resourcesId' as Id<Resource>,
         amount: 50,
         resourceType: RESOURCE_ENERGY,
-        length: undefined // lodash looking for this but Jest does not allow undefined access on mocks
+        length: undefined,
+        structureType: undefined,
+        energy: undefined
       });
       const mocks = mockAll(
         {find: (finder: FindConstant) => finder === FIND_DROPPED_RESOURCES ? [droppedResources] : []},
@@ -576,7 +585,9 @@ describe('Upgrader role', () => {
         id: 'resourcesId' as Id<Resource>,
         amount: 50,
         resourceType: RESOURCE_ENERGY,
-        length: undefined // lodash looking for this but Jest does not allow undefined access on mocks
+        length: undefined,
+        structureType: undefined,
+        energy: undefined
       });
       const mocks = mockAll(
         {find: (finder: FindConstant) => finder === FIND_DROPPED_RESOURCES ? [droppedResources] : []},
@@ -610,7 +621,8 @@ describe('Upgrader role', () => {
       const source = mockInstanceOf<Source>({
         id: 'sourceId' as Id<Source>,
         energy: 50,
-        length: undefined // lodash looking for this but Jest does not allow undefined access on mocks
+        length: undefined,
+        structureType: undefined
       });
       const mocks = mockAll(
         {find: (finder: FindConstant) => finder === FIND_SOURCES ? [source] : []},
@@ -644,7 +656,9 @@ describe('Upgrader role', () => {
       const source = mockInstanceOf<Source>({
         id: 'sourceId' as Id<Source>,
         energy: 50,
-        length: undefined // lodash looking for this but Jest does not allow undefined access on mocks
+        pos: undefined,
+        length: undefined,
+        structureType: undefined
       });
       const mocks = mockAll(
         {find: (finder: FindConstant) => finder === FIND_SOURCES ? [source] : []},
