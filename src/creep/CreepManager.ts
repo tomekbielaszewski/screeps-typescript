@@ -44,6 +44,14 @@ export enum CreepRole {
   CARRIER = "5"
 }
 
+const creepRoleOrder = [
+  CreepRole.HARVESTER,
+  CreepRole.UPGRADER,
+  CreepRole.BUILDER,
+  CreepRole.MINER,
+  CreepRole.CARRIER,
+];
+
 const creepDefinitions: Record<CreepRole, CreepDefinition[]> = {
   [CreepRole.HARVESTER]: [
     new CreepDefinition(CreepRole.HARVESTER, [MOVE, MOVE, MOVE, MOVE, WORK, WORK, CARRY, CARRY], 500),
@@ -85,7 +93,7 @@ export function CreepManager(): void {
   forEverySpawn(spawn => {
     if (spawn.spawning) drawSpawning(spawn);
     else {
-      for (const _role of Object.values(CreepRole)) {
+      for (const _role of creepRoleOrder) {
         const role = _role as CreepRole
         const amountOfLive = _.filter(Game.creeps, creep => creep && creep.memory.role === role)
           .filter(creep => creep.memory.room === spawn.room.name)
