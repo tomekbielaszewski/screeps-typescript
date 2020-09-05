@@ -60,7 +60,7 @@ function upgradeController(creep: Creep): void {
 
 function refillCreep(creep: Creep): void {
   let foundEnergyStorage = creep.memory.param[VISITED_ENERGY_STORAGE] as EnergySource | undefined;
-  if (!foundEnergyStorage || isEmpty(foundEnergyStorage)) {
+  if (!foundEnergyStorage || !Game.getObjectById(foundEnergyStorage.id) || isEmpty(foundEnergyStorage)) {
     creep.memory.param[VISITED_ENERGY_STORAGE] = foundEnergyStorage = findClosestEnergyStorage(creep);
   }
 

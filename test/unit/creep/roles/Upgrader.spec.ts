@@ -687,6 +687,49 @@ describe('Upgrader role', () => {
       expect(creep.memory.param.E).toEqual(expect.objectContaining({id: source.id}));
       expect(creep.memory.param.E).toEqual(expect.objectContaining({take: "harvest"}));
     });
+
+    it('should search for new source when it regenerates and changes id', () => {
+      const source = mockInstanceOf<Source>({
+        id: 'sourceId1' as Id<Source>,
+        energy: 50,
+        pos: undefined,
+        length: undefined,
+        structureType: undefined
+      });
+      const mocks = mockAll(
+        {find: (finder: FindConstant) => finder === FIND_SOURCES ? [source] : []},
+        {
+          state: UpgraderState.UPGRADING,
+          param: {
+            E: {
+              id: 'nonExistingSource',
+              take: 'harvest'
+            }
+          }
+        },
+        {
+          withdraw: () => OK,
+          pickup: () => OK,
+          harvest: () => OK,
+          moveTo: () => OK,
+          store: emptyStore
+        },
+        {findClosestByPath: () => source},
+        {getObjectById: (id: Id<Source>) => id === 'sourceId1' ? source : undefined},
+        {}
+      );
+      const creep = mocks.creep;
+
+      UpgraderJob(creep);
+
+      expect(creep.withdraw).not.toBeCalled();
+      expect(creep.say).toBeCalledWith('🌾');
+      expect(creep.pickup).not.toBeCalled();
+      expect(creep.harvest).toBeCalled();
+      expect(creep.memory.state).toEqual(UpgraderState.REFILLING);
+      expect(creep.memory.param.E).toEqual(expect.objectContaining({id: source.id}));
+      expect(creep.memory.param.E).toEqual(expect.objectContaining({take: "harvest"}));
+    });
   });
 
 });
