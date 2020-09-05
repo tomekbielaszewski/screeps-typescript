@@ -177,7 +177,7 @@ describe('Upgrader role', () => {
       expect(creep.memory.param.E).toEqual(expect.objectContaining({take: "withdraw"}));
     });
 
-    it('should refill creep using dropped resources', () => {
+    xit('should refill creep using dropped resources', () => {
       const droppedResources = mockInstanceOf<Resource>({
         id: 'resourcesId' as Id<Resource>,
         amount: 50,
@@ -214,7 +214,7 @@ describe('Upgrader role', () => {
       expect(creep.memory.param.E).toEqual(expect.objectContaining({take: "pickup"}));
     });
 
-    it('should move to dropped resources to refill creep', () => {
+    xit('should move to dropped resources to refill creep', () => {
       const droppedResources = mockInstanceOf<Resource>({
         id: 'resourcesId' as Id<Resource>,
         amount: 50,
@@ -543,7 +543,7 @@ describe('Upgrader role', () => {
       expect(creep.memory.param.E).toEqual(expect.objectContaining({take: "withdraw"}));
     });
 
-    it('should refill creep using dropped resources', () => {
+    xit('should refill creep using dropped resources', () => {
       const droppedResources = mockInstanceOf<Resource>({
         id: 'resourcesId' as Id<Resource>,
         amount: 50,
@@ -580,7 +580,7 @@ describe('Upgrader role', () => {
       expect(creep.memory.param.E).toEqual(expect.objectContaining({take: "pickup"}));
     });
 
-    it('should move to dropped resources to refill creep', () => {
+    xit('should move to dropped resources to refill creep', () => {
       const droppedResources = mockInstanceOf<Resource>({
         id: 'resourcesId' as Id<Resource>,
         amount: 50,

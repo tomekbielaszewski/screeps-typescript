@@ -72,9 +72,9 @@ function refillCreep(creep: Creep): void {
       }
       return;
     case "pickup":
-      if (creep.pickup(object as Resource) === ERR_NOT_IN_RANGE) {
-        creep.moveTo(object as Resource, {visualizePathStyle: {stroke: '#ffaa00'}});
-      }
+      // if (creep.pickup(object as Resource) === ERR_NOT_IN_RANGE) {
+      //   creep.moveTo(object as Resource, {visualizePathStyle: {stroke: '#ffaa00'}});
+      // }
       return;
     case "withdraw":
       if (creep.withdraw(object as StructureStorage | StructureContainer, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
