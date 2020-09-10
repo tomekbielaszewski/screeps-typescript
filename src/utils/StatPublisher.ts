@@ -10,15 +10,30 @@ function cpu(): Record<string, any> {
   return cpuStats;
 }
 
+interface HarvestEvent {
+  targetId: string,
+  amount: number
+}
+
 function rcl(): Record<string, any> {
   const rooms = {} as { [roomName: string]: Record<string, any> } ;
+
+  function calcEnergyHarvested(room: Room): number {
+    return room.getEventLog()
+      .filter(e => EVENT_HARVEST === e.event)
+      .map(e => e.data as HarvestEvent)
+      .map(e => e.amount)
+      .reduce((sum, amount) => sum + amount, 0)
+  }
+
   for (const roomName in Game.rooms) {
     const room = Game.rooms[roomName];
     rooms[roomName] = {
       name: roomName,
       progress: room.controller ? room.controller.progress : 0,
       energy: room.energyAvailable,
-      energyCap: room.energyCapacityAvailable
+      energyCap: room.energyCapacityAvailable,
+      energyHarvested: calcEnergyHarvested(room)
     };
   }
   return rooms
