@@ -1,18 +1,10 @@
 import {ErrorMapper} from "utils/ErrorMapper";
 import {CreepManager} from "creep/CreepManager";
 import {CreepWorker} from "creep/Worker";
-import * as Profiler from "./profiler/Profiler";
 import {StatPublisher} from "utils/StatPublisher";
 import {PixelGenerator} from "utils/PixelGenerator";
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-// global.__PROFILER_ENABLED__ = true
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-// global.Profiler = Profiler.init();
+global.legacy = true;
 
 function unwrappedLoop() {
   CreepManager();

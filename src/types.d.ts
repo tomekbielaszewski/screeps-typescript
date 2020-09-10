@@ -1,7 +1,15 @@
 interface CreepMemory {
+  storage?: string;
+  source?: string;
   role: string;
   room: string;
   state?: string
+  lastState?: string;
+  targetPos?: {
+    x: number,
+    y: number,
+    room: string,
+  }
   param: Record<string, any>
 }
 
@@ -18,5 +26,6 @@ interface Memory {
 declare namespace NodeJS {
   interface Global {
     log: any;
+    legacy: boolean;
   }
 }
