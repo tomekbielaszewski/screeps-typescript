@@ -45,15 +45,6 @@ function stateAfterMoving(creep: Creep) {
 
 function initialize(creep: Creep, state: StateResolver) {
   if (creep.spawning) return;
-
-  const source = _.shuffle(creep.room.find(FIND_SOURCES))[0];
-  creep.memory.source = source.id;
-  creep.memory.targetPos = {
-    x: source.pos.x,
-    y: source.pos.y,
-    room: source.pos.roomName,
-  };
-
   creep.memory.state = resolve(state);
 }
 
