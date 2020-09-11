@@ -84,6 +84,6 @@ module.exports = {
     "quote-props": "off",
     radix: "error",
     "sort-imports": "off",
-    "spaced-comment": "error",
+    "spaced-comment": "off",
   }
 };
