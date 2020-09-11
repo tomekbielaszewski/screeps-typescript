@@ -1,7 +1,7 @@
 import {MovingState, resolve, StateResolver} from "./CreepState";
 
-export function harvest(creep: Creep, state: StateResolver): void {
-  if (creep.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
+export function harvest(creep: Creep, checkCapacity: boolean, state: StateResolver): void {
+  if (checkCapacity && creep.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
     creep.memory.state = resolve(state);
     return;
   }
@@ -31,6 +31,7 @@ function goToSource(creep: Creep, source: Source) {
     y: source.pos.y,
     room: source.pos.roomName,
   };
+  creep.say("🥾");
   creep.memory.state = resolve({nextState: MovingState});
 }
 

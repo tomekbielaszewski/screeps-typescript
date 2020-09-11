@@ -23,19 +23,16 @@ export function HarvesterJob(creep: Creep): void {
       initialize(creep, {nextState: HarvestingState});
       break;
     case MovingState:
-      // creep.say("🥾");
       move(creep, {getNextState: stateAfterMoving(creep)});
       break;
     case HarvestingState:
-      // creep.say("🌾");
-      harvest(creep, {nextState: StoringState});
+      harvest(creep, true,{nextState: StoringState});
       break;
     case StoringState:
-      // creep.say("🛢️");
       storeEnergy(creep, {nextState: HarvestingState});
       break;
     case IdleState:
-      upgradeController(creep);
+      upgradeController(creep, {nextState: HarvestingState});
       break;
   }
 }
