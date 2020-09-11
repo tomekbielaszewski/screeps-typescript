@@ -38,6 +38,8 @@ const fullStore = {
   energy: 50
 }
 
+global.legacy = true;
+
 describe('Upgrader role', () => {
 
   describe('When the creep has just be spawned so no memory is set', () => {

@@ -4,6 +4,8 @@ import {CreepWorker} from "creep/Worker";
 import {StatPublisher} from "utils/StatPublisher";
 import {PixelGenerator} from "utils/PixelGenerator";
 
+global.legacy = true;
+
 function unwrappedLoop(): void {
   CreepManager();
   CreepWorker();
