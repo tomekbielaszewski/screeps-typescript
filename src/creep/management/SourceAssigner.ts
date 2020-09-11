@@ -16,11 +16,12 @@ export function assignToSource(creep: Creep, source: Source): boolean {
 
 function calculateAvailableSpots(source: Source): number {
   let availableSpots = 0;
-  for (let x = source.pos.x - 1; x < 3; x++) {
-    for (let y = source.pos.y - 1; y < 3; y++) {
-      if (x !== source.pos.x && y !== source.pos.y) {
-        const lookAt = source.room.lookAt(x, y);
-        if (isWalkable(lookAt)) availableSpots++;
+  for (let x = source.pos.x - 1; x <= source.pos.x + 1; x++) {
+    for (let y = source.pos.y - 1; y <= source.pos.y + 1; y++) {
+      const lookAt = source.room.lookAt(x, y);
+      if (isWalkable(lookAt)) {
+        availableSpots++;
+        source.room.visual.circle(x, y, {radius: 0.5, stroke: '#00aa00', fill: '#005500'});
       }
     }
   }
@@ -31,7 +32,8 @@ function isWalkable(objects: LookAtResult[]): boolean {
   return objects
     .filter(o =>
       o.type === LOOK_TERRAIN && isNonWalkableTerrain(o) ||
-      o.type === LOOK_STRUCTURES && !isWalkableStructure(o)
+      o.type === LOOK_STRUCTURES && !isWalkableStructure(o) ||
+      o.type === LOOK_SOURCES
     )
     .length === 0;
 }
