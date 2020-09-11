@@ -22,16 +22,16 @@ export function HarvesterJob(creep: Creep): void {
 
     switch (creep.memory.state) {
       case SpawningState:
-        initialize(creep, {nextState: MovingState});
+        initialize(creep, {nextState: HarvestingState});
         break;
       case MovingState:
         move(creep, {getNextState: stateAfterMoving(creep)});
         break;
       case HarvestingState:
-        harvest(creep, {nextState: MovingState});
+        harvest(creep, {nextState: StoringState});
         break;
       case StoringState:
-        storeEnergy(creep, {nextState: MovingState});
+        storeEnergy(creep, {nextState: HarvestingState});
         break;
     }
   }
