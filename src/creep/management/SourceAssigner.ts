@@ -1,4 +1,5 @@
 export function assignToSource(creep: Creep, source: Source): boolean {
+  Memory.sources = Memory.sources || {};
   if (!Memory.sources[source.id]) {
     const sourceMemory = Memory.sources[source.id] || {};
     sourceMemory.spots = calculateAvailableSpots(source);
