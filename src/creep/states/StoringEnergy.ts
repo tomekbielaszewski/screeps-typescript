@@ -25,6 +25,7 @@ export function storeEnergy(creep: Creep, state: StateResolver): void {
     return;
   }
   if (transferResult === ERR_NOT_IN_RANGE) {
+    creep.say("🥾");
     creep.memory.state = resolve({nextState: MovingState});
   }
 }
