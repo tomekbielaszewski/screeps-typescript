@@ -1,39 +1,42 @@
-import {UpgraderJob} from "./Upgrader";
 import {
   CreepState,
   HarvestingState,
+  IdleState,
   MovingState,
+  resolve,
   SpawningState,
   StateResolver,
-  StoringState,
-  resolve
+  StoringState
 } from "../states/CreepState";
 import {harvest} from "../states/HarvestingEnergy";
 import {move} from "../states/Moving";
 import {storeEnergy} from "../states/StoringEnergy";
+import {upgradeController} from "../states/UpgradingController";
 
 export function HarvesterJob(creep: Creep): void {
-  if (global.legacy) {
-    runLegacy(creep);
-  } else {
-    if (!creep.memory.state) {
-      creep.memory.state = SpawningState
-    }
+  if (!creep.memory.state) {
+    creep.memory.state = SpawningState
+  }
 
-    switch (creep.memory.state) {
-      case SpawningState:
-        initialize(creep, {nextState: HarvestingState});
-        break;
-      case MovingState:
-        move(creep, {getNextState: stateAfterMoving(creep)});
-        break;
-      case HarvestingState:
-        harvest(creep, {nextState: StoringState});
-        break;
-      case StoringState:
-        storeEnergy(creep, {nextState: HarvestingState});
-        break;
-    }
+  switch (creep.memory.state) {
+    case SpawningState:
+      initialize(creep, {nextState: HarvestingState});
+      break;
+    case MovingState:
+      // creep.say("🥾");
+      move(creep, {getNextState: stateAfterMoving(creep)});
+      break;
+    case HarvestingState:
+      // creep.say("🌾");
+      harvest(creep, {nextState: StoringState});
+      break;
+    case StoringState:
+      // creep.say("🛢️");
+      storeEnergy(creep, {nextState: HarvestingState});
+      break;
+    case IdleState:
+      upgradeController(creep);
+      break;
   }
 }
 
