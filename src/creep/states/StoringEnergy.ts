@@ -28,6 +28,9 @@ export function storeEnergy(creep: Creep, state: StateResolver): void {
     creep.say("🥾");
     resolveAndReplay(creep, {nextState: MovingState})
   }
+  if (transferResult === ERR_FULL) {
+    assignStorage(creep);
+  }
 }
 
 function assignStorage(creep: Creep) {
