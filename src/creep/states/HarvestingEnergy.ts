@@ -36,6 +36,6 @@ function goToSource(creep: Creep, source: Source) {
 }
 
 function findSource(creep: Creep) {
-  const newSource = _.shuffle(creep.room.find(FIND_SOURCES))[0];
-  creep.memory.source = newSource.id;
+  const newSource = creep.pos.findClosestByRange(FIND_SOURCES);
+  creep.memory.source = newSource?.id;
 }
