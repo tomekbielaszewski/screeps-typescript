@@ -25,8 +25,7 @@ export function storeEnergy(creep: Creep, state: StateResolver): void {
     return;
   }
   if (transferResult === ERR_NOT_IN_RANGE) {
-    creep.say("🥾");
-    resolveAndReplay(creep, {nextState: MovingState})
+    goToStorage(creep, assignedStorage);
   }
   if (transferResult === ERR_FULL) {
     assignStorage(creep);
@@ -67,6 +66,12 @@ function findClosestStorage(creep: Creep): Structure | undefined {
   });
   if (storage) return storage;
   return undefined;
+}
+
+function goToStorage(creep: Creep, assignedStorage: Structure) {
+  setTargetStorage(creep, assignedStorage);
+  creep.say("🥾");
+  resolveAndReplay(creep, {nextState: MovingState})
 }
 
 function setTargetStorage(creep: Creep, storage: Structure): void {
