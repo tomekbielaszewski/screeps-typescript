@@ -9,7 +9,6 @@ export function storeEnergy(creep: Creep, state: StateResolver): void {
 
   if (!creep.memory.storage) {
     assignStorage(creep);
-    creep.memory.state = resolve({nextState: MovingState});
     return;
   }
 
