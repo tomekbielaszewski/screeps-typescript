@@ -2,8 +2,8 @@ import {
   CreepState,
   HarvestingState,
   IdleState,
-  MovingState, replay,
-  resolve, resolveAndReplay,
+  MovingState,
+  resolveAndReplay,
   SpawningState,
   StateResolver,
   StoringState
@@ -26,7 +26,7 @@ export function HarvesterJob(creep: Creep): void {
       move(creep, {getNextState: stateAfterMoving(creep), replay: HarvesterJob});
       break;
     case HarvestingState:
-      harvest(creep, true,{nextState: StoringState, replay: HarvesterJob});
+      harvest(creep, true, {nextState: StoringState, replay: HarvesterJob});
       break;
     case StoringState:
       storeEnergy(creep, {nextState: HarvestingState, replay: HarvesterJob});

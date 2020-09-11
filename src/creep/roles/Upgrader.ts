@@ -2,7 +2,8 @@ import {
   CreepState,
   HarvestingState,
   IdleState,
-  MovingState, resolve,
+  MovingState,
+  resolve,
   SpawningState,
   StateResolver,
   UpgradingState
@@ -31,7 +32,7 @@ interface EnergySource {
 }
 
 export function UpgraderJob(creep: Creep): void {
-  if(global.legacy) {
+  if (global.legacy) {
     runLegacy(creep);
   } else {
     if (!creep.memory.state) {
