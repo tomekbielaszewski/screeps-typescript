@@ -1,3 +1,16 @@
+import {
+  CreepState,
+  HarvestingState,
+  IdleState,
+  MovingState, resolve,
+  SpawningState,
+  StateResolver,
+  UpgradingState
+} from "../states/CreepState";
+import {harvest} from "../states/HarvestingEnergy";
+import {move} from "../states/Moving";
+import {upgradeController} from "../states/UpgradingController";
+
 export enum UpgraderState {
   UPGRADING = '⚡',
   REFILLING = '🌾'
@@ -18,9 +31,47 @@ interface EnergySource {
 }
 
 export function UpgraderJob(creep: Creep): void {
+  if(global.legacy) {
+    runLegacy(creep);
+  } else {
+    if (!creep.memory.state) {
+      creep.memory.state = SpawningState
+    }
+
+    switch (creep.memory.state) {
+      case SpawningState:
+        initialize(creep, {nextState: HarvestingState});
+        break;
+      case HarvestingState:
+        harvest(creep, true, {nextState: UpgradingState});
+        break;
+      case MovingState:
+        move(creep, {getNextState: stateAfterMoving(creep)});
+        break;
+      case UpgradingState:
+        upgradeController(creep, {nextState: HarvestingState})
+        break;
+      case IdleState:
+        break;
+    }
+  }
+}
+
+function stateAfterMoving(creep: Creep) {
+  return function (): CreepState {
+    return creep.store.getFreeCapacity(RESOURCE_ENERGY) === 0 ? UpgradingState : HarvestingState;
+  };
+}
+
+function initialize(creep: Creep, state: StateResolver) {
+  if (creep.spawning) return;
+  creep.memory.state = resolve(state);
+}
+
+function runLegacy(creep: Creep) {
   switch (calculateState(creep)) {
     case UpgraderState.UPGRADING:
-      upgradeController(creep);
+      _upgradeController(creep);
       break;
     case UpgraderState.REFILLING:
       refillCreep(creep);
@@ -48,7 +99,7 @@ function calculateState(creep: Creep): UpgraderState {
   return creep.memory.state as UpgraderState;
 }
 
-function upgradeController(creep: Creep): void {
+function _upgradeController(creep: Creep): void {
   if (creep.room.controller) {
     if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
       creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: '#ffffff'}});
