@@ -1,9 +1,8 @@
-import {HarvestingState, IdleState, MovingState, resolve} from "./CreepState";
+import {HarvestingState, IdleState, MovingState, resolve, StateResolver} from "./CreepState";
 
-export function upgradeController(creep: Creep): void {
+export function upgradeController(creep: Creep, state: StateResolver): void {
   if (creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0) {
-    creep.say("🌾");
-    creep.memory.state = resolve({nextState: HarvestingState});
+    creep.memory.state = resolve(state);
   }
 
   const controller = creep.room.controller;
@@ -18,7 +17,6 @@ export function upgradeController(creep: Creep): void {
   if (upgradeResult === ERR_NOT_IN_RANGE) {
     goToController(creep, controller);
   }
-
 }
 
 function goToController(creep: Creep, controller: StructureController) {
@@ -27,5 +25,6 @@ function goToController(creep: Creep, controller: StructureController) {
     y: controller.pos.y,
     room: controller.pos.roomName,
   };
+  creep.say("🥾");
   creep.memory.state = resolve({nextState: MovingState});
 }
