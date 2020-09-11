@@ -1,4 +1,5 @@
 import {MovingState, resolveAndReplay, StateResolver} from "./CreepState";
+import {assignToSource} from "../management/SourceAssigner";
 
 export function harvest(creep: Creep, checkCapacity: boolean, state: StateResolver): void {
   if (checkCapacity && creep.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
@@ -36,6 +37,8 @@ function goToSource(creep: Creep, source: Source) {
 }
 
 function findSource(creep: Creep) {
-  const newSource = creep.pos.findClosestByRange(FIND_SOURCES);
-  creep.memory.source = newSource?.id;
+  const foundSource = creep.room.find(FIND_SOURCES)
+    .sort((s1, s2) => creep.pos.getRangeTo(s1.pos) - creep.pos.getRangeTo(s2.pos))
+    .find(source => assignToSource(creep, source));
+  creep.memory.source = foundSource?.id;
 }
