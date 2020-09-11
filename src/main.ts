@@ -4,26 +4,35 @@ import {CreepWorker} from "creep/Worker";
 import {StatPublisher} from "utils/StatPublisher";
 import {PixelGenerator} from "utils/PixelGenerator";
 
-global.legacy = true;
+global.legacy = false;
 
 function unwrappedLoop(): void {
-  CreepManager();
-  CreepWorker();
+  measure(CreepManager, "CreepManager");
+  measure(CreepWorker, "CreepWorker");
+  measure(RecycleDead, "RecycleDead");
+  measure(PixelGenerator, "PixelGenerator");
+  measure(StatPublisher, "StatPublisher");
+}
 
-  // Automatically delete memory of missing creeps
+// When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
+// This utility uses source maps to get the line numbers and file names of the original, TS source code
+
+const loop = ErrorMapper.wrapLoop(unwrappedLoop);
+
+function measure(fn: () => void, name: string): void {
+  const start = Game.cpu.getUsed();
+  fn();
+  const end = Game.cpu.getUsed();
+  Memory.stats[name] = end - start;
+}
+
+function RecycleDead() {
   for (const name in Memory.creeps) {
     if (!(name in Game.creeps)) {
       delete Memory.creeps[name];
     }
   }
-
-  PixelGenerator();
-  StatPublisher();
 }
-
-// When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
-// This utility uses source maps to get the line numbers and file names of the original, TS source code
-const loop = ErrorMapper.wrapLoop(unwrappedLoop);
 
 export {
   loop,
