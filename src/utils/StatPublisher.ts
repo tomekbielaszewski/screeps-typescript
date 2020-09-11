@@ -1,6 +1,7 @@
 function cpu(): Record<string, any> {
   const cpuStats = {
     used: Game.cpu.getUsed(),
+    mainComponents: Memory.mainComponentsTime,
     bucket: Game.cpu.bucket,
     heap: undefined as unknown as HeapStatistics
   };

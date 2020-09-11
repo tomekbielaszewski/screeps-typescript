@@ -19,7 +19,8 @@ interface Memory {
   flags: { [name: string]: FlagMemory };
   rooms: { [name: string]: RoomMemory };
   spawns: { [name: string]: SpawnMemory };
-  stats: Record<string, any>
+  stats: Record<string, any>;
+  mainComponentsTime: Record<string, any>;
 }
 
 // `global` extension samples

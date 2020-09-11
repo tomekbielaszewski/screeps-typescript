@@ -23,7 +23,7 @@ function measure(fn: () => void, name: string): void {
   const start = Game.cpu.getUsed();
   fn();
   const end = Game.cpu.getUsed();
-  Memory.stats[name] = end - start;
+  Memory.mainComponentsTime[name] = end - start;
 }
 
 function RecycleDead() {
