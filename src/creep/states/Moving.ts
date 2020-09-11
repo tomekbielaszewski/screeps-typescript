@@ -8,7 +8,7 @@ export function move(creep: Creep, state: StateResolver) {
   const target = new RoomPosition(targetPos.x, targetPos.y, targetPos.room)
 
   if (creep.pos.getRangeTo(target) > 1) {
-    creep.moveTo(target);
+    creep.moveTo(target, {visualizePathStyle: {stroke: '#ffaa00'}});
     return;
   }
 
