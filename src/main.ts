@@ -3,13 +3,14 @@ import {CreepManager} from "creep/CreepManager";
 import {CreepWorker} from "creep/Worker";
 import {StatPublisher} from "utils/StatPublisher";
 import {PixelGenerator} from "utils/PixelGenerator";
+import {CleanMemory} from "./utils/MemoryCleaner";
 
 global.legacy = false;
 
 function unwrappedLoop(): void {
   measure(CreepManager, "CreepManager");
   measure(CreepWorker, "CreepWorker");
-  measure(RecycleDead, "RecycleDead");
+  measure(CleanMemory, "CleanMemory");
   measure(PixelGenerator, "PixelGenerator");
   measure(StatPublisher, "StatPublisher");
 }
@@ -25,14 +26,6 @@ function measure(fn: () => void, name: string): void {
   const end = Game.cpu.getUsed();
   Memory.mainComponentsTime = Memory.mainComponentsTime || {};
   Memory.mainComponentsTime[name] = end - start;
-}
-
-function RecycleDead() {
-  for (const name in Memory.creeps) {
-    if (!(name in Game.creeps)) {
-      delete Memory.creeps[name];
-    }
-  }
 }
 
 export {
