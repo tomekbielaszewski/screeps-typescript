@@ -1,9 +1,9 @@
-import {MovingState, resolve, StateResolver} from "./CreepState";
+import {IdleState, MovingState, resolve, resolveAndReplay, StateResolver} from "./CreepState";
 
 export function storeEnergy(creep: Creep, state: StateResolver): void {
   if (creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0) {
     delete creep.memory.storage;
-    creep.memory.state = resolve(state);
+    resolveAndReplay(creep, state);
     return;
   }
 
@@ -26,7 +26,7 @@ export function storeEnergy(creep: Creep, state: StateResolver): void {
   }
   if (transferResult === ERR_NOT_IN_RANGE) {
     creep.say("🥾");
-    creep.memory.state = resolve({nextState: MovingState});
+    resolveAndReplay(creep, {nextState: MovingState})
   }
 }
 
@@ -39,7 +39,7 @@ function assignStorage(creep: Creep) {
     if (storage) {
       setTargetStorage(creep, storage);
     } else {
-      // TODO idle
+      resolveAndReplay(creep, {nextState: IdleState});
     }
   }
 }

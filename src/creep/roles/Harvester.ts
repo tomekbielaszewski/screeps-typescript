@@ -2,8 +2,8 @@ import {
   CreepState,
   HarvestingState,
   IdleState,
-  MovingState,
-  resolve,
+  MovingState, replay,
+  resolve, resolveAndReplay,
   SpawningState,
   StateResolver,
   StoringState
@@ -20,19 +20,19 @@ export function HarvesterJob(creep: Creep): void {
 
   switch (creep.memory.state) {
     case SpawningState:
-      initialize(creep, {nextState: HarvestingState});
+      initialize(creep, {nextState: HarvestingState, replay: HarvesterJob});
       break;
     case MovingState:
-      move(creep, {getNextState: stateAfterMoving(creep)});
+      move(creep, {getNextState: stateAfterMoving(creep), replay: HarvesterJob});
       break;
     case HarvestingState:
-      harvest(creep, true,{nextState: StoringState});
+      harvest(creep, true,{nextState: StoringState, replay: HarvesterJob});
       break;
     case StoringState:
-      storeEnergy(creep, {nextState: HarvestingState});
+      storeEnergy(creep, {nextState: HarvestingState, replay: HarvesterJob});
       break;
     case IdleState:
-      upgradeController(creep, {nextState: HarvestingState});
+      upgradeController(creep, {nextState: HarvestingState, replay: HarvesterJob});
       break;
   }
 }
@@ -45,5 +45,5 @@ function stateAfterMoving(creep: Creep) {
 
 function initialize(creep: Creep, state: StateResolver) {
   if (creep.spawning) return;
-  creep.memory.state = resolve(state);
+  resolveAndReplay(creep, state);
 }

@@ -37,11 +37,21 @@ export const IdleState: IdleState = "idle-state"
 
 export interface StateResolver {
   nextState?: CreepState,
-  getNextState?: () => CreepState
+  getNextState?: () => CreepState,
+  replay?: (creep: Creep) => void
 }
 
 export function resolve(stateResolver: StateResolver): CreepState {
-  if(stateResolver.nextState) return stateResolver.nextState;
-  if(stateResolver.getNextState) return stateResolver.getNextState();
+  if (stateResolver.nextState) return stateResolver.nextState;
+  if (stateResolver.getNextState) return stateResolver.getNextState();
   throw new Error('Unresolvable state');
+}
+
+export function replay(creep: Creep, stateResolver: StateResolver): void {
+  if (stateResolver.replay) stateResolver.replay(creep);
+}
+
+export function resolveAndReplay(creep: Creep, stateResolver: StateResolver): void {
+  creep.memory.state = resolve(stateResolver);
+  replay(creep, stateResolver);
 }

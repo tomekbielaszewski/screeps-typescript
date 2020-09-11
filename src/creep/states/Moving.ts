@@ -1,4 +1,4 @@
-import {resolve, StateResolver} from "./CreepState";
+import {resolveAndReplay, StateResolver} from "./CreepState";
 
 export function move(creep: Creep, state: StateResolver) {
   const targetPos = creep.memory.targetPos;
@@ -13,5 +13,5 @@ export function move(creep: Creep, state: StateResolver) {
   }
 
   delete creep.memory.targetPos;
-  creep.memory.state = resolve(state);
+  resolveAndReplay(creep, state);
 }
