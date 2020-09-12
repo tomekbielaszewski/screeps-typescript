@@ -3,19 +3,19 @@ interface CreepMemory {
   source?: string;
   role: string;
   room: string;
-  state?: string
+  state?: string;
   lastState?: string;
   targetPos?: {
     x: number,
     y: number,
     room: string,
-  }
-  param: Record<string, any>
+  };
+  param: Record<string, any>;
 }
 
 interface SourceMemory {
   creeps: string[],
-  spots: number
+  spots: number;
 }
 
 interface Memory {

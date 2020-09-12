@@ -8,13 +8,12 @@ export function harvest(creep: Creep, checkCapacity: boolean, state: StateResolv
   }
 
   if (!creep.memory.source) {
-    findSource(creep)
-    return;
+    findSource(creep);
   }
 
   const source = Game.getObjectById(creep.memory.source as Id<Source>);
   if (!source) {
-    findSource(creep)
+    findSource(creep);
     return;
   }
 
@@ -37,8 +36,7 @@ function goToSource(creep: Creep, source: Source) {
 }
 
 function findSource(creep: Creep) {
-  const foundSource = creep.room.find(FIND_SOURCES)
+  creep.room.find(FIND_SOURCES)
     .sort((s1, s2) => creep.pos.getRangeTo(s1.pos) - creep.pos.getRangeTo(s2.pos))
     .find(source => assignToSource(creep, source));
-  creep.memory.source = foundSource?.id;
 }
