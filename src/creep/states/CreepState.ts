@@ -38,7 +38,8 @@ export const IdleState: IdleState = "idle-state"
 export interface StateResolver {
   nextState?: CreepState,
   getNextState?: () => CreepState,
-  replay?: (creep: Creep) => void
+  replay?: (creep: Creep) => void,
+  params?: Record<string, any>
 }
 
 export function resolve(stateResolver: StateResolver): CreepState {
@@ -53,5 +54,6 @@ export function replay(creep: Creep, stateResolver: StateResolver): void {
 
 export function resolveAndReplay(creep: Creep, stateResolver: StateResolver): void {
   creep.memory.state = resolve(stateResolver);
+  creep.memory.param = stateResolver?.params;
   replay(creep, stateResolver);
 }

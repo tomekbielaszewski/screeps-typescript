@@ -92,7 +92,7 @@ function calculateState(creep: Creep): UpgraderState {
   } else if (creep.memory.state === UpgraderState.REFILLING) {
     if (creep.store.getFreeCapacity() === 0) {
       creep.memory.state = UpgraderState.UPGRADING;
-      delete creep.memory.param[VISITED_ENERGY_STORAGE]
+      // delete creep.memory.param[VISITED_ENERGY_STORAGE]
     }
   }
 
@@ -111,8 +111,9 @@ function _upgradeController(creep: Creep): void {
 }
 
 function refillCreep(creep: Creep): void {
-  let foundEnergyStorage = creep.memory.param[VISITED_ENERGY_STORAGE] as EnergySource | undefined;
+  let foundEnergyStorage = {} as EnergySource | undefined;//creep.memory.param[VISITED_ENERGY_STORAGE] as EnergySource | undefined;
   if (!foundEnergyStorage || !Game.getObjectById(foundEnergyStorage.id) || isEmpty(foundEnergyStorage)) {
+    if (!creep.memory.param) return;//compilation fix
     creep.memory.param[VISITED_ENERGY_STORAGE] = foundEnergyStorage = findClosestEnergyStorage(creep);
   }
 

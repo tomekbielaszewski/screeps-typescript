@@ -10,7 +10,7 @@ interface CreepMemory {
     y: number,
     room: string,
   };
-  param: Record<string, any>;
+  param?: Record<string, any>;
 }
 
 interface SourceMemory {

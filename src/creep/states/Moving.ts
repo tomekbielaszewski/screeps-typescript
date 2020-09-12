@@ -8,12 +8,14 @@ export function move(creep: Creep, state: StateResolver) {
     return;
   }
   const target = new RoomPosition(targetPos.x, targetPos.y, targetPos.room);
+  const range = creep.memory.param?.range as number || 1;
 
-  if (creep.pos.getRangeTo(target) > 1) {
+  if (creep.pos.getRangeTo(target) > range) {
     creep.moveTo(target, {visualizePathStyle: {stroke: '#ffaa00'}});
     return;
   }
 
+  delete creep.memory.param?.range
   delete creep.memory.targetPos;
   resolveAndReplay(creep, state);
 }
