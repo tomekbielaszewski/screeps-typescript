@@ -1,13 +1,14 @@
 export function assignToSource(creep: Creep, source: Source): boolean {
   Memory.sources = Memory.sources || {};
   if (!Memory.sources[source.id]) {
-    const sourceMemory = Memory.sources[source.id] || {};
-    sourceMemory.spots = calculateAvailableSpots(source);
-    sourceMemory.creeps = [];
-    Memory.sources[source.id] = sourceMemory;
+    const newSourceMemory = Memory.sources[source.id] || {};
+    newSourceMemory.spots = calculateAvailableSpots(source);
+    newSourceMemory.creeps = [];
+    Memory.sources[source.id] = newSourceMemory;
   }
-  if (Memory.sources[source.id].creeps.length < Memory.sources[source.id].spots) {
-    Memory.sources[source.id].creeps.push(creep.name);
+  const sourceMemory = Memory.sources[source.id];
+  if (sourceMemory.creeps.length < sourceMemory.spots) {
+    sourceMemory.creeps.push(creep.name);
     creep.memory.source = source.id;
     return true;
   }

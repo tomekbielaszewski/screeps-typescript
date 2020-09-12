@@ -3,8 +3,10 @@ export function CleanMemory(): void {
     if (!(name in Game.creeps)) {
       if (Memory.creeps[name].source) {
         const source = Memory.creeps[name].source || "";
-        Memory.sources[source].creeps = Memory.sources[source].creeps
-          .filter(c => c !== name);
+        if (Memory.sources[source]) {
+          Memory.sources[source].creeps = Memory.sources[source].creeps
+            .filter(c => c !== name);
+        }
       }
       delete Memory.creeps[name];
     }
