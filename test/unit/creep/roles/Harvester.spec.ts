@@ -1,6 +1,9 @@
 import {HarvesterJob} from "../../../../src/creep/roles/Harvester";
 import {mockGlobal, mockInstanceOf} from "screeps-jest/index";
-import {HarvestingState, SpawningState} from "../../../../src/creep/states/CreepState";
+import {HarvestingState, MovingState, SpawningState} from "../../../../src/creep/states/CreepState";
+import anything = jasmine.anything;
+import objectContaining = jasmine.objectContaining;
+import ObjectContaining = jasmine.ObjectContaining;
 
 const FULL_STORE = {
   getFreeCapacity: () => 0,
@@ -65,4 +68,118 @@ describe('Harvester role', () => {
     expect(creep.harvest).toBeCalledWith(source);
     expect(creep.moveTo).not.toBeCalled();
   });
+
+  it('should go to source when out of reach', () => {
+    const creepMemory = {
+      state: undefined,
+      targetPos: undefined,
+      source: "sourceId",
+      param: {},
+    } as CreepMemory;
+    const creep = mockInstanceOf<Creep>({
+      memory: creepMemory,
+      spawning: false,
+      store: EMPTY_STORE,
+      harvest: () => ERR_NOT_IN_RANGE,
+      moveTo: () => OK,
+      transfer: () => OK,
+      say: () => OK,
+      pos: {x: 0, y: 0, roomName: 'room', getRangeTo: () => 10}
+    });
+    const sourcePos = new RoomPosition(10, 0, 'room');
+    const source = mockInstanceOf<Source>({
+      pos: sourcePos
+    });
+    mockGlobal<Game>('Game', {
+      creeps: {myHero: creep},
+      getObjectById: () => source,
+    });
+
+    HarvesterJob(creep);
+
+    expect(creep.memory.state).toEqual(MovingState);
+    expect(creep.harvest).toBeCalledWith(source);
+    expect(creep.say).toBeCalledWith("🥾");
+    expect(creep.pos.getRangeTo).toBeCalled();
+    expect(creep.moveTo).toBeCalledWith(roomPosition(sourcePos), anything());
+    expect(creep.memory.targetPos).toEqual(targetPos(sourcePos));
+  });
+
+  it('should transfer energy to storage when creep full', () => {
+    const creepMemory = {
+      state: undefined,
+      storage: undefined,
+    } as CreepMemory;
+    const spawnPos = new RoomPosition(10, 0, 'room');
+    const spawn = mockInstanceOf<StructureSpawn>({
+      id: 'spawnId' as Id<StructureSpawn>,
+      pos: spawnPos
+    })
+    const room = mockInstanceOf<RoomPosition>({
+      find: () => [spawn]
+    })
+    const creep = mockInstanceOf<Creep>({
+      memory: creepMemory,
+      room,
+      spawning: false,
+      store: FULL_STORE,
+      say: () => OK,
+      transfer: () => OK,
+    });
+    mockGlobal<Game>('Game', {
+      creeps: {myHero: creep},
+      getObjectById: () => spawn,
+    });
+
+    HarvesterJob(creep);
+
+    expect(creep.transfer).toBeCalledWith(spawn, RESOURCE_ENERGY);
+    expect(creep.memory.state).toEqual(HarvestingState);
+  });
+
+  it('should move to storage when creep full and storage out of reach', () => {
+    const creepMemory = {
+      state: undefined,
+      storage: undefined,
+    } as CreepMemory;
+    const spawnPos = new RoomPosition(10, 0, 'room');
+    const spawn = mockInstanceOf<StructureSpawn>({
+      id: 'spawnId' as Id<StructureSpawn>,
+      pos: spawnPos
+    })
+    const room = mockInstanceOf<RoomPosition>({
+      find: () => [spawn]
+    })
+    const creep = mockInstanceOf<Creep>({
+      memory: creepMemory,
+      room,
+      spawning: false,
+      store: FULL_STORE,
+      say: () => OK,
+      transfer: () => ERR_NOT_IN_RANGE,
+      moveTo: () => OK,
+      pos: {x: 0, y: 0, roomName: 'room', getRangeTo: () => 10},
+    });
+    mockGlobal<Game>('Game', {
+      creeps: {myHero: creep},
+      getObjectById: () => spawn,
+    });
+
+    HarvesterJob(creep);
+
+    expect(creep.memory.state).toEqual(MovingState);
+    expect(creep.transfer).toBeCalledWith(spawn, RESOURCE_ENERGY);
+    expect(creep.say).toBeCalledWith("🥾");
+    expect(creep.memory.targetPos).toEqual(targetPos(spawnPos));
+    expect(creep.pos.getRangeTo).toBeCalledWith(roomPosition(spawnPos));
+    expect(creep.moveTo).toBeCalledWith(roomPosition(spawnPos), anything());
+  });
 })
+
+function roomPosition(pos: RoomPosition): ObjectContaining {
+  return objectContaining({x: pos.x, y: pos.y, roomName: pos.roomName});
+}
+
+function targetPos(pos: RoomPosition): ObjectContaining {
+  return objectContaining({x: pos.x, y: pos.y, room: pos.roomName});
+}

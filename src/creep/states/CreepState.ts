@@ -35,10 +35,12 @@ export const RepairingState: RepairingState = "repairing-state"
 export const UpgradingState: UpgradingState = "upgrading-state"
 export const IdleState: IdleState = "idle-state"
 
+export type ReplayFunction = (creep: Creep) => void;
+
 export interface StateResolver {
   nextState?: CreepState,
   getNextState?: () => CreepState,
-  replay?: (creep: Creep) => void,
+  replay?: ReplayFunction,
   params?: Record<string, any>
 }
 

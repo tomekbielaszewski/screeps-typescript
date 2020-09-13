@@ -1,4 +1,4 @@
-import {MovingState, resolveAndReplay, StateResolver} from "./CreepState";
+import {MovingState, ReplayFunction, resolveAndReplay, StateResolver} from "./CreepState";
 import {assignToSource} from "../management/SourceAssigner";
 
 export function harvest(creep: Creep, checkCapacity: boolean, state: StateResolver): void {
@@ -20,19 +20,19 @@ export function harvest(creep: Creep, checkCapacity: boolean, state: StateResolv
   const harvestResult = creep.harvest(source);
   if (harvestResult === OK) return;
   if (harvestResult === ERR_NOT_IN_RANGE) {
-    goToSource(creep, source)
+    goToSource(creep, source, state?.replay)
     return;
   }
 }
 
-function goToSource(creep: Creep, source: Source) {
+function goToSource(creep: Creep, source: Source, replay: ReplayFunction | undefined) {
   creep.memory.targetPos = {
     x: source.pos.x,
     y: source.pos.y,
     room: source.pos.roomName,
   };
   creep.say("🥾");
-  resolveAndReplay(creep, {nextState: MovingState})
+  resolveAndReplay(creep, {nextState: MovingState, replay});
 }
 
 function findSource(creep: Creep) {
