@@ -9,7 +9,7 @@ export function upgradeController(creep: Creep, state: StateResolver): void {
   const controller = creep.room.controller;
   if (!controller) {
     creep.say("💤");
-    resolveAndReplay(creep, {nextState: IdleState});
+    resolveAndReplay(creep, {nextState: IdleState, replay: state.replay});
     return;
   }
 

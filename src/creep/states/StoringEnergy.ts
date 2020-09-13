@@ -8,8 +8,8 @@ export function storeEnergy(creep: Creep, state: StateResolver): void {
   }
 
   if (!creep.memory.storage) {
-    assignStorage(creep);
-    return;
+    const assigned = assignStorage(creep, state?.replay);
+    if (!assigned) return;
   }
 
   const assignedStorage = Game.getObjectById(creep.memory.storage as Id<StructureSpawn | StructureExtension | StructureLink | StructureStorage | StructureContainer>);
@@ -25,10 +25,12 @@ export function storeEnergy(creep: Creep, state: StateResolver): void {
     return;
   }
   if (transferResult === ERR_NOT_IN_RANGE) {
-    goToStorage(creep, assignedStorage);
+    goToStorage(creep, assignedStorage, state?.replay);
+    return;
   }
   if (transferResult === ERR_FULL) {
-    assignStorage(creep);
+    assignStorage(creep, state?.replay);
+    return;
   }
 }
 
@@ -73,7 +75,7 @@ function findClosestStorage(creep: Creep): Structure | undefined {
 function goToStorage(creep: Creep, assignedStorage: Structure, replay: ReplayFunction | undefined) {
   setTargetStorage(creep, assignedStorage);
   creep.say("🥾");
-  resolveAndReplay(creep, {nextState: MovingState})
+  resolveAndReplay(creep, {nextState: MovingState, replay});
 }
 
 function setTargetStorage(creep: Creep, storage: Structure): void {
