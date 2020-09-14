@@ -49,6 +49,7 @@ function rcl(): Record<string, any> {
     rooms[roomName] = {
       name: roomName,
       progress: room.controller ? room.controller.progress : 0,
+      progressTotal: room.controller ? room.controller.progressTotal : 0,
       upgraded: calcUpgrade(room),
       energy: room.energyAvailable,
       energyCap: room.energyCapacityAvailable,
