@@ -19,6 +19,20 @@ export function refillCreep(creep: Creep, state: StateResolver): void {
         (s.structureType === STRUCTURE_CONTAINER && s.store.getUsedCapacity(RESOURCE_ENERGY) > 0)
     });
   }
+  if (!storage) { // in case of lack of any storage facility other than spawn
+    const storageAvailable = creep.room.find(FIND_STRUCTURES, {
+      filter: s =>
+        (s.structureType === STRUCTURE_STORAGE && s.my) ||
+        (s.structureType === STRUCTURE_LINK && s.my) ||
+        (s.structureType === STRUCTURE_CONTAINER)
+    });
+    if (!storageAvailable.length) {
+      const spawns = creep.room.find(FIND_MY_STRUCTURES, {
+        filter: s => s.structureType === STRUCTURE_SPAWN
+      });
+      storage = spawns.length ? spawns[0] : undefined;
+    }
+  }
 
   if (storage) {
     const result = creep.withdraw(storage, RESOURCE_ENERGY)
