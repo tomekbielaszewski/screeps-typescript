@@ -37,7 +37,7 @@ export function building(creep: Creep, state: StateResolver): void {
 function goToConstruction(creep: Creep, construction: ConstructionSite, replay: ReplayFunction | undefined) {
   setTarget(creep, construction);
   creep.say("🥾");
-  resolveAndReplay(creep, {nextState: MovingState, replay});
+  resolveAndReplay(creep, {nextState: MovingState, params: {range: 3}, replay});
 }
 
 function setTarget(creep: Creep, construction: ConstructionSite): void {
