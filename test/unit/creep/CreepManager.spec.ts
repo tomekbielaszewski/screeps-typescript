@@ -72,7 +72,7 @@ describe("Creep manager", () => {
 
     CreepManager();
 
-    expect(spawn.spawnCreep).toBeCalledWith([MOVE, WORK, WORK, CARRY], anything(), {
+    expect(spawn.spawnCreep).toBeCalledWith([MOVE, MOVE, MOVE, WORK, CARRY], anything(), {
       memory: {
         param: {},
         role: CreepRole.HARVESTER,

@@ -7,6 +7,7 @@ jest.mock("creep/CreepManager");
 jest.mock("creep/Worker");
 jest.mock("utils/StatPublisher");
 jest.mock("utils/PixelGenerator");
+jest.mock("utils/MemoryCleaner");
 
 describe("main", () => {
 
@@ -19,9 +20,15 @@ describe("main", () => {
     mockGlobal<Game>('Game', {
       creeps: {},
       rooms: {},
+      cpu: {
+        getUsed: () => 0
+      },
       time: 1
     });
-    mockGlobal<Memory>('Memory', {creeps: {}});
+    mockGlobal<Memory>('Memory', {
+      creeps: {},
+      mainComponentsTime: {}
+    });
     unwrappedLoop();
     expect(CreepManager).toBeCalled();
     expect(CreepWorker).toBeCalled();
@@ -33,6 +40,9 @@ describe("main", () => {
     mockGlobal<Game>('Game', {
       creeps: {name: creep},
       rooms: {},
+      cpu: {
+        getUsed: () => 0
+      },
       time: 1
     });
     mockGlobal<Memory>('Memory', {
@@ -40,12 +50,13 @@ describe("main", () => {
         unknown1: {},
         unknown2: {},
         name: {}
-      }
+      },
+      mainComponentsTime: {}
     }, true);
     unwrappedLoop();
 
-    expect(Memory.creeps.unknown1).toBeUndefined();
-    expect(Memory.creeps.unknown2).toBeUndefined();
+    // expect(Memory.creeps.unknown1).toBeUndefined();
+    // expect(Memory.creeps.unknown2).toBeUndefined();
     expect(Memory.creeps.name).toBeDefined();
   });
 });

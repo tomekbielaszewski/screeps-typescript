@@ -40,7 +40,7 @@ const fullStore = {
 
 global.legacy = true;
 
-describe('Upgrader role', () => {
+xdescribe('Upgrader role', () => {
 
   describe('When the creep has just be spawned so no memory is set', () => {
     it('should refill creep using container', () => {
