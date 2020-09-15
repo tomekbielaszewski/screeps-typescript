@@ -10,7 +10,7 @@
     "push-main": "jest && rollup -c --environment DEST:main",
     "push-pserver": "jest && rollup -c --environment DEST:pserver",
     "push-local": "jest && rollup -c --environment DEST:local",
-    "push-sim": "jest && rollup -c --environment DEST:sim",
+    "push-sim": "rollup -c --environment DEST:sim",
     "test": "jest",
     "test-watch": "jest --watch",
     "test-cov": "jest --coverage",
