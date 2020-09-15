@@ -77,7 +77,7 @@ function stateAfterMoving(creep: Creep) {
 
 function initialize(creep: Creep, state: StateResolver) {
   if (creep.spawning) return;
-  creep.memory.state = resolve(state);
+  resolve(creep, state);
 }
 
 function runLegacy(creep: Creep) {

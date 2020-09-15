@@ -22,7 +22,7 @@ export function storeEnergy(creep: Creep, state: StateResolver): void {
   switch (transferResult) {
     case OK:
       delete creep.memory.storage;
-      creep.memory.state = resolve(state);
+      resolve(creep, state);
       break;
     case ERR_NOT_IN_RANGE:
       goToStorage(creep, assignedStorage, state?.replay);

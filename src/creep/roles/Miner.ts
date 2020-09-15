@@ -22,5 +22,5 @@ export function MinerJob(creep: Creep): void {
 
 function initialize(creep: Creep, state: StateResolver) {
   if (creep.spawning) return;
-  creep.memory.state = resolve(state);
+  resolve(creep, state);
 }

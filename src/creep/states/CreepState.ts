@@ -44,10 +44,16 @@ export interface StateResolver {
   params?: Record<string, any>
 }
 
-export function resolve(stateResolver: StateResolver): CreepState {
-  if (stateResolver.nextState) return stateResolver.nextState;
-  if (stateResolver.getNextState) return stateResolver.getNextState();
-  throw new Error('Unresolvable state');
+export function resolve(creep: Creep, stateResolver: StateResolver): CreepState {
+  let nextState;
+  if (stateResolver.nextState) nextState = stateResolver.nextState;
+  if (stateResolver.getNextState) nextState = stateResolver.getNextState();
+  if (!nextState) {
+    throw new Error('Unresolvable state');
+  }
+  creep.memory.lastState = creep.memory.state;
+  creep.memory.state = nextState;
+  return nextState as CreepState;
 }
 
 export function replay(creep: Creep, stateResolver: StateResolver): void {
@@ -55,7 +61,7 @@ export function replay(creep: Creep, stateResolver: StateResolver): void {
 }
 
 export function resolveAndReplay(creep: Creep, stateResolver: StateResolver): void {
-  creep.memory.state = resolve(stateResolver);
+  resolve(creep, stateResolver);
   creep.memory.param = stateResolver?.params;
   replay(creep, stateResolver);
 }

@@ -24,7 +24,7 @@ export function refillCreep(creep: Creep, state: StateResolver): void {
     const result = creep.withdraw(storage, RESOURCE_ENERGY)
     switch (result) {
       case OK:
-        creep.memory.state = resolve(state);
+        resolve(creep, state);
         break;
       case ERR_NOT_IN_RANGE:
         goToStorage(creep, storage, state.replay);
