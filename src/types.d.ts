@@ -1,6 +1,6 @@
 interface CreepMemory {
   construction?: any;
-  container?: Id<StructureContainer>;
+  container?: string;
   storage?: string;
   source?: string;
   role: string;

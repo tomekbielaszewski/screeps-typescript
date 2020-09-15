@@ -1,4 +1,4 @@
-import {MovingState, ReplayFunction, resolveAndReplay, StateResolver} from "./CreepState";
+import {MovingState, ReplayFunction, resolve, resolveAndReplay, StateResolver} from "./CreepState";
 
 export function refill(creep: Creep, state: StateResolver): void {
   if (creep.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
@@ -9,8 +9,8 @@ export function refill(creep: Creep, state: StateResolver): void {
   let storage;
 
   if (creep.memory.container &&
-    Game.getObjectById(creep.memory.container)?.store.getUsedCapacity(RESOURCE_ENERGY)) {
-    storage = Game.getObjectById(creep.memory.container);
+    Game.getObjectById(creep.memory.container as Id<StructureContainer>)?.store.getUsedCapacity(RESOURCE_ENERGY)) {
+    storage = Game.getObjectById(creep.memory.container as Id<Structure>);
   } else {
     storage = creep.pos.findClosestByRange(FIND_STRUCTURES, {
       filter: s =>
@@ -24,6 +24,7 @@ export function refill(creep: Creep, state: StateResolver): void {
     const result = creep.withdraw(storage, RESOURCE_ENERGY)
     switch (result) {
       case OK:
+        creep.memory.state = resolve(state);
         break;
       case ERR_NOT_IN_RANGE:
         goToStorage(creep, storage, state.replay);
@@ -41,7 +42,6 @@ function goToStorage(creep: Creep, assignedStorage: Structure, replay: ReplayFun
 }
 
 function setTargetStorage(creep: Creep, storage: Structure): void {
-  creep.memory.storage = storage.id;
   creep.memory.targetPos = {
     x: storage.pos.x,
     y: storage.pos.y,
