@@ -65,7 +65,7 @@ const creepDefinitions: Record<CreepRole, CreepDefinition[]> = {
   ],
   [CreepRole.BUILDER]: [
     new CreepDefinition(CreepRole.BUILDER, [MOVE, MOVE, MOVE, MOVE, WORK, WORK, CARRY, CARRY, CARRY], 550),
-    new CreepDefinition(CreepRole.BUILDER, [MOVE, MOVE, WORK, CARRY, CARRY], 300),
+    new CreepDefinition(CreepRole.BUILDER, [MOVE, MOVE, MOVE, WORK, CARRY], 300),
   ],
   [CreepRole.MINER]: [
     new CreepDefinition(CreepRole.MINER, [MOVE, WORK, WORK, WORK, WORK, WORK], 550),
@@ -78,7 +78,7 @@ const creepDefinitions: Record<CreepRole, CreepDefinition[]> = {
 const creepAmounts: Record<CreepRole, number> = {
   [CreepRole.HARVESTER]: 3,
   [CreepRole.UPGRADER]: 2,
-  [CreepRole.BUILDER]: 2,
+  [CreepRole.BUILDER]: 1,
   [CreepRole.MINER]: 2,
   [CreepRole.CARRIER]: 2,
 }
