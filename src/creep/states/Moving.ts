@@ -15,6 +15,8 @@ export function move(creep: Creep, state: StateResolver) {
     switch (moveToResult) {
       case OK:
         break;
+      case ERR_TIRED:
+        break;
       default:
         console.log(`Moving: moveTo result ${moveToResult}`);
     }
