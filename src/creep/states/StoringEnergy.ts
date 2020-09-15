@@ -60,14 +60,12 @@ function findSpawn(creep: Creep): Structure | undefined {
 }
 
 function findClosestStorage(creep: Creep): Structure | undefined {
-  const storage = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
+  const storage = creep.pos.findClosestByPath(FIND_STRUCTURES, {
     filter: s => (
-      (s.structureType === STRUCTURE_EXTENSION || s.structureType === STRUCTURE_LINK) &&
-      s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
-    ) || (
-      s.structureType === STRUCTURE_STORAGE &&
-      s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
-    )
+      (s.structureType === STRUCTURE_EXTENSION && s.my && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0) ||
+      (s.structureType === STRUCTURE_LINK) && s.my && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0) ||
+      (s.structureType === STRUCTURE_STORAGE && s.my && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0) ||
+      (s.structureType === STRUCTURE_CONTAINER && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0) //&& Memory.containers[s.id]?.type === ContainerType.STORAGE)
   });
   if (storage) return storage;
   return undefined;
