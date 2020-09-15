@@ -20,6 +20,10 @@ interface SourceMemory {
   spots: number;
 }
 
+interface ContainerMemory {
+  type: number
+}
+
 interface Memory {
   creeps: { [name: string]: CreepMemory };
   powerCreeps: { [name: string]: PowerCreepMemory };
@@ -27,6 +31,7 @@ interface Memory {
   rooms: { [name: string]: RoomMemory };
   spawns: { [name: string]: SpawnMemory };
   sources: { [id: string]: SourceMemory };
+  containers: { [id: string]: ContainerMemory };
   stats: Record<string, any>;
   mainComponentsTime: Record<string, any>;
 }
