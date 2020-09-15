@@ -1,8 +1,11 @@
 import {
   BuildingState,
+  CreepState,
   IdleState,
   MovingState,
   RefillingState,
+  RepairingState,
+  resolveAndReplay,
   SpawningState,
   StateResolver
 } from "../states/CreepState";
@@ -17,28 +20,35 @@ export function BuilderJob(creep: Creep): void {
 
   switch (creep.memory.state) {
     case SpawningState:
-      initialize(creep, {nextState: RefillingState, replay: BuilderJob});
+      initialize(creep, {getNextState: buildingOrRepairing(creep), replay: BuilderJob});
       break;
     case RefillingState:
-      refillCreep(creep, {nextState: BuildingState, replay: BuilderJob});
+      refillCreep(creep, {getNextState: buildingOrRepairing(creep), replay: BuilderJob});
       break;
     case MovingState:
       move(creep, {replay: BuilderJob});
       break;
     case BuildingState:
-      building(creep, {getNextState: stateAfterBuilding(creep), replay: BuilderJob});
+      building(creep, {nextState: RefillingState, replay: BuilderJob});
       break;
+    case RepairingState:
     case IdleState:
+      if (creep.room.find(FIND_MY_CONSTRUCTION_SITES)) {
+        resolveAndReplay(creep, {nextState: BuildingState, replay: BuilderJob});
+      }
       break;
   }
 }
 
-function stateAfterBuilding(creep: Creep) {
-  return function () {
-    return creep.store.getUsedCapacity(RESOURCE_ENERGY) > 0 ? BuildingState : RefillingState;
+function buildingOrRepairing(creep: Creep) {
+  return function (): CreepState {
+    const constructionSite = creep.room.find(FIND_MY_CONSTRUCTION_SITES);
+    if (constructionSite) return BuildingState;
+    return RepairingState;
   };
 }
 
 function initialize(creep: Creep, state: StateResolver): void {
-
+  if (creep.spawning) return;
+  resolveAndReplay(creep, state);
 }

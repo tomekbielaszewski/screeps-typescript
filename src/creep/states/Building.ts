@@ -41,7 +41,7 @@ function goToConstruction(creep: Creep, construction: ConstructionSite, replay: 
 }
 
 function setTarget(creep: Creep, construction: ConstructionSite): void {
-  creep.memory.storage = construction.id;
+  creep.memory.construction = construction.id;
   creep.memory.targetPos = {
     x: construction.pos.x,
     y: construction.pos.y,
