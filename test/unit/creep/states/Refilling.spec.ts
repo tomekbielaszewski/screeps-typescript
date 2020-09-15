@@ -28,7 +28,7 @@ describe('Refilling state', () => {
       time: 1,
     });
 
-    refillCreep(creep, {nextState: IdleState});
+    refillCreep(creep, false, {nextState: IdleState});
 
     expect(creep.memory.state).toEqual(IdleState)
   });
@@ -53,7 +53,7 @@ describe('Refilling state', () => {
       time: 1,
     });
 
-    refillCreep(creep, {nextState: IdleState});
+    refillCreep(creep, false, {nextState: IdleState});
 
     expect(creep.withdraw).toBeCalledWith(storage, RESOURCE_ENERGY);
     expect(creep.memory.targetPos).toBeUndefined();
@@ -86,7 +86,7 @@ describe('Refilling state', () => {
       getObjectById: () => containerMock
     });
 
-    refillCreep(creep, {nextState: IdleState});
+    refillCreep(creep, false, {nextState: IdleState});
 
     expect(creep.withdraw).toBeCalledWith(storage, RESOURCE_ENERGY);
     expect(creep.memory.targetPos).toBeUndefined();
@@ -115,7 +115,7 @@ describe('Refilling state', () => {
       getObjectById: () => containerMock
     });
 
-    refillCreep(creep, {nextState: IdleState});
+    refillCreep(creep, false, {nextState: IdleState});
 
     expect(creep.withdraw).toBeCalledWith(containerMock, RESOURCE_ENERGY);
     expect(creep.memory.targetPos).toBeUndefined();
@@ -146,7 +146,7 @@ describe('Refilling state', () => {
       getObjectById: () => containerMock
     });
 
-    refillCreep(creep, {nextState: IdleState});
+    refillCreep(creep, false, {nextState: IdleState});
 
     expect(creep.withdraw).toBeCalledWith(containerMock, RESOURCE_ENERGY);
     expect(creep.memory.targetPos).toEqual({x: 1, y: 1, room: 'room'});
@@ -182,7 +182,7 @@ describe('Refilling state', () => {
       getObjectById: () => containerMock
     });
 
-    refillCreep(creep, {nextState: IdleState});
+    refillCreep(creep, false, {nextState: IdleState});
 
     expect(creep.withdraw).toBeCalledWith(storage, RESOURCE_ENERGY);
     expect(creep.memory.targetPos).toEqual({x: 1, y: 1, room: 'room'});

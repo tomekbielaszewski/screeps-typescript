@@ -46,7 +46,7 @@ export function UpgraderJob(creep: Creep): void {
         initialize(creep, {nextState: RefillingState, replay: UpgraderJob});
         break;
       case RefillingState:
-        refillCreep(creep, {getNextState: stateAfterRefill(creep), replay: UpgraderJob});
+        refillCreep(creep, false, {getNextState: stateAfterRefill(creep), replay: UpgraderJob});
         break;
       case HarvestingState:
         harvest(creep, true, {nextState: UpgradingState, replay: UpgraderJob});
@@ -58,6 +58,7 @@ export function UpgraderJob(creep: Creep): void {
         upgradeController(creep, {nextState: RefillingState, replay: UpgraderJob})
         break;
       case IdleState:
+        resolveAndReplay(creep, {nextState: HarvestingState, replay: UpgraderJob})
         break;
     }
   }

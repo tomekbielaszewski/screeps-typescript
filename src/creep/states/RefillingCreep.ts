@@ -1,6 +1,6 @@
 import {IdleState, MovingState, ReplayFunction, resolve, resolveAndReplay, StateResolver} from "./CreepState";
 
-export function refillCreep(creep: Creep, state: StateResolver): void {
+export function refillCreep(creep: Creep, takeFromSpawn: boolean, state: StateResolver): void {
   if (creep.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
     resolveAndReplay(creep, state);
     return;
@@ -19,7 +19,7 @@ export function refillCreep(creep: Creep, state: StateResolver): void {
         (s.structureType === STRUCTURE_CONTAINER && s.store.getUsedCapacity(RESOURCE_ENERGY) > 0)
     });
   }
-  if (!storage) { // in case of lack of any storage facility other than spawn
+  if (!storage && takeFromSpawn) { // in case of lack of any storage facility other than spawn
     const storageAvailable = creep.room.find(FIND_STRUCTURES, {
       filter: s =>
         (s.structureType === STRUCTURE_STORAGE && s.my) ||

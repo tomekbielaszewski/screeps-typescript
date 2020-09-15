@@ -24,7 +24,7 @@ export function BuilderJob(creep: Creep): void {
       initialize(creep, {getNextState: buildingOrRepairing(creep), replay: BuilderJob});
       break;
     case RefillingState:
-      refillCreep(creep, {getNextState: buildingOrRepairing(creep), replay: BuilderJob});
+      refillCreep(creep, true, {getNextState: buildingOrRepairing(creep), replay: BuilderJob});
       break;
     case MovingState:
       move(creep, {replay: BuilderJob});
