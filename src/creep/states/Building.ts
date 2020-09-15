@@ -29,6 +29,8 @@ export function building(creep: Creep, state: StateResolver): void {
     case ERR_NOT_IN_RANGE:
       goToConstruction(creep, construction, state.replay);
       break;
+    default:
+      console.log(`Building: build result ${buildResult}`);
   }
 }
 

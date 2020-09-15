@@ -19,18 +19,19 @@ export function storeEnergy(creep: Creep, state: StateResolver): void {
   }
 
   const transferResult = creep.transfer(assignedStorage, RESOURCE_ENERGY);
-  if (transferResult === OK) {
-    delete creep.memory.storage;
-    creep.memory.state = resolve(state);
-    return;
-  }
-  if (transferResult === ERR_NOT_IN_RANGE) {
-    goToStorage(creep, assignedStorage, state?.replay);
-    return;
-  }
-  if (transferResult === ERR_FULL) {
-    assignStorage(creep, state?.replay);
-    return;
+  switch (transferResult) {
+    case OK:
+      delete creep.memory.storage;
+      creep.memory.state = resolve(state);
+      break;
+    case ERR_NOT_IN_RANGE:
+      goToStorage(creep, assignedStorage, state?.replay);
+      break;
+    case ERR_FULL:
+      assignStorage(creep, state?.replay);
+      break;
+    default:
+      console.log(`StoringEnergy: transfer result ${transferResult}`);
   }
 }
 

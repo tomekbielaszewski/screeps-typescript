@@ -3,7 +3,7 @@ import {CreepManager} from "creep/CreepManager";
 import {CreepWorker} from "creep/Worker";
 import {StatPublisher} from "utils/StatPublisher";
 import {PixelGenerator} from "utils/PixelGenerator";
-import {CleanMemory} from "./utils/MemoryCleaner";
+import {CleanMemory} from "utils/MemoryCleaner";
 
 global.legacy = false;
 

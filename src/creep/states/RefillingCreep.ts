@@ -1,6 +1,6 @@
 import {MovingState, ReplayFunction, resolve, resolveAndReplay, StateResolver} from "./CreepState";
 
-export function refill(creep: Creep, state: StateResolver): void {
+export function refillCreep(creep: Creep, state: StateResolver): void {
   if (creep.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
     resolveAndReplay(creep, state);
     return;
@@ -32,6 +32,8 @@ export function refill(creep: Creep, state: StateResolver): void {
       default:
         console.log(`Refilling: withdraw result ${result}`);
     }
+  } else {
+    resolveAndReplay(creep, state);
   }
 }
 

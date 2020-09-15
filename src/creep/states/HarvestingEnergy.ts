@@ -18,10 +18,14 @@ export function harvest(creep: Creep, checkCapacity: boolean, state: StateResolv
   }
 
   const harvestResult = creep.harvest(source);
-  if (harvestResult === OK) return;
-  if (harvestResult === ERR_NOT_IN_RANGE) {
-    goToSource(creep, source, state?.replay)
-    return;
+  switch (harvestResult) {
+    case OK:
+      return;
+    case ERR_NOT_IN_RANGE:
+      goToSource(creep, source, state?.replay)
+      return;
+    default:
+      console.log(`HarvestingEnergy: harvest result ${harvestResult}`);
   }
 }
 

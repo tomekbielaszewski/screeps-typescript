@@ -11,7 +11,13 @@ export function move(creep: Creep, state: StateResolver) {
   const range = creep.memory.param?.range as number || 1;
 
   if (creep.pos.getRangeTo(target) > range) {
-    creep.moveTo(target, {visualizePathStyle: {stroke: '#ffaa00'}});
+    const moveToResult = creep.moveTo(target, {visualizePathStyle: {stroke: '#ffaa00'}});
+    switch (moveToResult) {
+      case OK:
+        break;
+      default:
+        console.log(`Moving: moveTo result ${moveToResult}`);
+    }
     return;
   }
 

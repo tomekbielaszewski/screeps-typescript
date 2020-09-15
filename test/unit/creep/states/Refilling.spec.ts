@@ -1,5 +1,5 @@
 import {mockGlobal, mockInstanceOf} from "screeps-jest/src/mocking";
-import {refill} from "../../../../src/creep/states/Refilling";
+import {refillCreep} from "../../../../src/creep/states/RefillingCreep";
 import {IdleState, MovingState} from "../../../../src/creep/states/CreepState";
 import {CreepRole} from "../../../../src/creep/CreepManager";
 
@@ -23,7 +23,7 @@ describe('Refilling state', () => {
       }
     });
 
-    refill(creep, {nextState: IdleState});
+    refillCreep(creep, {nextState: IdleState});
 
     expect(creep.memory.state).toEqual(IdleState)
   });
@@ -42,7 +42,7 @@ describe('Refilling state', () => {
       withdraw: () => OK
     });
 
-    refill(creep, {nextState: IdleState});
+    refillCreep(creep, {nextState: IdleState});
 
     expect(creep.withdraw).toBeCalledWith(storage, RESOURCE_ENERGY);
     expect(creep.memory.targetPos).toBeUndefined();
@@ -71,7 +71,7 @@ describe('Refilling state', () => {
       getObjectById: () => containerMock
     });
 
-    refill(creep, {nextState: IdleState});
+    refillCreep(creep, {nextState: IdleState});
 
     expect(creep.withdraw).toBeCalledWith(storage, RESOURCE_ENERGY);
     expect(creep.memory.targetPos).toBeUndefined();
@@ -96,7 +96,7 @@ describe('Refilling state', () => {
       getObjectById: () => containerMock
     });
 
-    refill(creep, {nextState: IdleState});
+    refillCreep(creep, {nextState: IdleState});
 
     expect(creep.withdraw).toBeCalledWith(containerMock, RESOURCE_ENERGY);
     expect(creep.memory.targetPos).toBeUndefined();
@@ -123,7 +123,7 @@ describe('Refilling state', () => {
       getObjectById: () => containerMock
     });
 
-    refill(creep, {nextState: IdleState});
+    refillCreep(creep, {nextState: IdleState});
 
     expect(creep.withdraw).toBeCalledWith(containerMock, RESOURCE_ENERGY);
     expect(creep.memory.targetPos).toEqual({x: 1, y: 1, room: 'room'});
@@ -155,7 +155,7 @@ describe('Refilling state', () => {
       getObjectById: () => containerMock
     });
 
-    refill(creep, {nextState: IdleState});
+    refillCreep(creep, {nextState: IdleState});
 
     expect(creep.withdraw).toBeCalledWith(storage, RESOURCE_ENERGY);
     expect(creep.memory.targetPos).toEqual({x: 1, y: 1, room: 'room'});

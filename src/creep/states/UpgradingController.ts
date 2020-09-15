@@ -14,9 +14,14 @@ export function upgradeController(creep: Creep, state: StateResolver): void {
   }
 
   const upgradeResult = creep.upgradeController(controller);
-  if (upgradeResult === OK) return;
-  if (upgradeResult === ERR_NOT_IN_RANGE) {
-    goToController(creep, controller, state?.replay);
+  switch (upgradeResult) {
+    case OK:
+      break;
+    case ERR_NOT_IN_RANGE:
+      goToController(creep, controller, state?.replay);
+      break;
+    default:
+      console.log(`UpgradingController: upgradeController result ${upgradeResult}`);
   }
 }
 

@@ -7,7 +7,7 @@ import {
   StateResolver
 } from "../states/CreepState";
 import {move} from "../states/Moving";
-import {refill} from "../states/Refilling";
+import {refillCreep} from "../states/RefillingCreep";
 import {building} from "../states/Building";
 
 export function BuilderJob(creep: Creep): void {
@@ -20,7 +20,7 @@ export function BuilderJob(creep: Creep): void {
       initialize(creep, {nextState: RefillingState});
       break;
     case RefillingState:
-      refill(creep, {nextState: BuildingState});
+      refillCreep(creep, {nextState: BuildingState});
       break;
     case MovingState:
       move(creep, {getNextState: stateAfterMoving(creep)});

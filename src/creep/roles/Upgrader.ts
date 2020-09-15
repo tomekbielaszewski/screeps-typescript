@@ -3,6 +3,7 @@ import {
   HarvestingState,
   IdleState,
   MovingState,
+  RefillingState,
   resolve,
   SpawningState,
   StateResolver,
@@ -11,6 +12,7 @@ import {
 import {harvest} from "../states/HarvestingEnergy";
 import {move} from "../states/Moving";
 import {upgradeController} from "../states/UpgradingController";
+import {refillCreep} from "../states/RefillingCreep";
 
 export enum UpgraderState {
   UPGRADING = '⚡',
@@ -41,7 +43,10 @@ export function UpgraderJob(creep: Creep): void {
 
     switch (creep.memory.state) {
       case SpawningState:
-        initialize(creep, {nextState: HarvestingState});
+        initialize(creep, {nextState: RefillingState});
+        break;
+      case RefillingState:
+        refillCreep(creep, {getNextState: stateAfterRefill(creep)});
         break;
       case HarvestingState:
         harvest(creep, true, {nextState: UpgradingState});
@@ -50,12 +55,18 @@ export function UpgraderJob(creep: Creep): void {
         move(creep, {getNextState: stateAfterMoving(creep)});
         break;
       case UpgradingState:
-        upgradeController(creep, {nextState: HarvestingState})
+        upgradeController(creep, {nextState: RefillingState})
         break;
       case IdleState:
         break;
     }
   }
+}
+
+function stateAfterRefill(creep: Creep) {
+  return function (): CreepState {
+    return creep.store.getFreeCapacity(RESOURCE_ENERGY) === 0 ? UpgradingState : HarvestingState;
+  };
 }
 
 function stateAfterMoving(creep: Creep) {
@@ -75,7 +86,7 @@ function runLegacy(creep: Creep) {
       _upgradeController(creep);
       break;
     case UpgraderState.REFILLING:
-      refillCreep(creep);
+      _refillCreep(creep);
       break;
   }
 }
@@ -110,7 +121,7 @@ function _upgradeController(creep: Creep): void {
   }
 }
 
-function refillCreep(creep: Creep): void {
+function _refillCreep(creep: Creep): void {
   let foundEnergyStorage = {} as EnergySource | undefined;//creep.memory.param[VISITED_ENERGY_STORAGE] as EnergySource | undefined;
   if (!foundEnergyStorage || !Game.getObjectById(foundEnergyStorage.id) || isEmpty(foundEnergyStorage)) {
     if (!creep.memory.param) return;//compilation fix
