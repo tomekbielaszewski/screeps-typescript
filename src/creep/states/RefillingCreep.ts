@@ -1,4 +1,4 @@
-import {MovingState, ReplayFunction, resolve, resolveAndReplay, StateResolver} from "./CreepState";
+import {IdleState, MovingState, ReplayFunction, resolve, resolveAndReplay, StateResolver} from "./CreepState";
 
 export function refillCreep(creep: Creep, state: StateResolver): void {
   if (creep.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
@@ -33,7 +33,7 @@ export function refillCreep(creep: Creep, state: StateResolver): void {
         console.log(`Refilling: withdraw result ${result}`);
     }
   } else {
-    resolveAndReplay(creep, state);
+    resolveAndReplay(creep, {nextState: IdleState, replay: state.replay});
   }
 }
 

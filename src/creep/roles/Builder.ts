@@ -5,6 +5,7 @@ import {
   MovingState,
   RefillingState,
   RepairingState,
+  resolve,
   resolveAndReplay,
   SpawningState,
   StateResolver
@@ -34,7 +35,7 @@ export function BuilderJob(creep: Creep): void {
     case RepairingState:
     case IdleState:
       if (creep.room.find(FIND_MY_CONSTRUCTION_SITES)) {
-        resolveAndReplay(creep, {nextState: BuildingState, replay: BuilderJob});
+        resolve(creep, {nextState: BuildingState, replay: BuilderJob});
       }
       break;
   }
