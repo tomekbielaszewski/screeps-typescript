@@ -17,16 +17,16 @@ export function BuilderJob(creep: Creep): void {
 
   switch (creep.memory.state) {
     case SpawningState:
-      initialize(creep, {nextState: RefillingState});
+      initialize(creep, {nextState: RefillingState, replay: BuilderJob});
       break;
     case RefillingState:
-      refillCreep(creep, {nextState: BuildingState});
+      refillCreep(creep, {nextState: BuildingState, replay: BuilderJob});
       break;
     case MovingState:
-      move(creep, {getNextState: stateAfterMoving(creep)});
+      move(creep, {replay: BuilderJob});
       break;
     case BuildingState:
-      building(creep, {getNextState: stateAfterBuilding(creep)});
+      building(creep, {getNextState: stateAfterBuilding(creep), replay: BuilderJob});
       break;
     case IdleState:
       break;
@@ -36,12 +36,6 @@ export function BuilderJob(creep: Creep): void {
 function stateAfterBuilding(creep: Creep) {
   return function () {
     return creep.store.getUsedCapacity(RESOURCE_ENERGY) > 0 ? BuildingState : RefillingState;
-  };
-}
-
-function stateAfterMoving(creep: Creep) {
-  return function () {
-    return creep.store.getFreeCapacity(RESOURCE_ENERGY) === 0 ? BuildingState : RefillingState;
   };
 }
 

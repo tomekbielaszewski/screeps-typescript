@@ -1,10 +1,10 @@
-import {resolveAndReplay, StateResolver} from "./CreepState";
+import {resolveLastStateAndReplay, StateResolver} from "./CreepState";
 
 export function move(creep: Creep, state: StateResolver) {
   const targetPos = creep.memory.targetPos;
   if (!targetPos) {
     console.error(`Moving state executed without setting target position! ${creep.name}`);
-    resolveAndReplay(creep, state);
+    resolveLastStateAndReplay(creep, state);
     return;
   }
   const target = new RoomPosition(targetPos.x, targetPos.y, targetPos.room);
@@ -25,5 +25,5 @@ export function move(creep: Creep, state: StateResolver) {
 
   delete creep.memory.param?.range
   delete creep.memory.targetPos;
-  resolveAndReplay(creep, state);
+  resolveLastStateAndReplay(creep, state);
 }

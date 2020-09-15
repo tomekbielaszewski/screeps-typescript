@@ -4,7 +4,7 @@ import {
   IdleState,
   MovingState,
   RefillingState,
-  resolve,
+  resolveAndReplay,
   SpawningState,
   StateResolver,
   UpgradingState
@@ -43,19 +43,19 @@ export function UpgraderJob(creep: Creep): void {
 
     switch (creep.memory.state) {
       case SpawningState:
-        initialize(creep, {nextState: RefillingState});
+        initialize(creep, {nextState: RefillingState, replay: UpgraderJob});
         break;
       case RefillingState:
-        refillCreep(creep, {getNextState: stateAfterRefill(creep)});
+        refillCreep(creep, {getNextState: stateAfterRefill(creep), replay: UpgraderJob});
         break;
       case HarvestingState:
-        harvest(creep, true, {nextState: UpgradingState});
+        harvest(creep, true, {nextState: UpgradingState, replay: UpgraderJob});
         break;
       case MovingState:
-        move(creep, {getNextState: stateAfterMoving(creep)});
+        move(creep, {replay: UpgraderJob});
         break;
       case UpgradingState:
-        upgradeController(creep, {nextState: RefillingState})
+        upgradeController(creep, {nextState: RefillingState, replay: UpgraderJob})
         break;
       case IdleState:
         break;
@@ -69,15 +69,9 @@ function stateAfterRefill(creep: Creep) {
   };
 }
 
-function stateAfterMoving(creep: Creep) {
-  return function (): CreepState {
-    return creep.store.getFreeCapacity(RESOURCE_ENERGY) === 0 ? UpgradingState : HarvestingState;
-  };
-}
-
 function initialize(creep: Creep, state: StateResolver) {
   if (creep.spawning) return;
-  resolve(creep, state);
+  resolveAndReplay(creep, state);
 }
 
 function runLegacy(creep: Creep) {

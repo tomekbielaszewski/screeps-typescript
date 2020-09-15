@@ -26,9 +26,11 @@ const HALF_STORE = {
 describe('Harvester role', () => {
   it('should do nothing when spawning', () => {
     const creepMemory = {
-      state: undefined
+      state: undefined,
+      lastState: undefined,
     } as CreepMemory;
     const creep = mockInstanceOf<Creep>({
+      name: 'myCreep',
       memory: creepMemory,
       spawning: true,
       harvest: () => OK,
@@ -46,9 +48,11 @@ describe('Harvester role', () => {
   it('should attempt to harvest found source when not spawning anymore', () => {
     const creepMemory = {
       state: undefined,
+      lastState: undefined,
       source: "sourceId",
     } as CreepMemory;
     const creep = mockInstanceOf<Creep>({
+      name: 'myCreep',
       memory: creepMemory,
       spawning: false,
       store: EMPTY_STORE,
@@ -58,6 +62,7 @@ describe('Harvester role', () => {
     });
     const source = mockInstanceOf<Source>();
     mockGlobal<Game>('Game', {
+      time: 1,
       creeps: {myHero: creep},
       getObjectById: () => source,
     });
@@ -72,11 +77,13 @@ describe('Harvester role', () => {
   it('should go to source when out of reach', () => {
     const creepMemory = {
       state: undefined,
+      lastState: undefined,
       targetPos: undefined,
       source: "sourceId",
       param: {},
     } as CreepMemory;
     const creep = mockInstanceOf<Creep>({
+      name: 'myCreep',
       memory: creepMemory,
       spawning: false,
       store: EMPTY_STORE,
@@ -91,6 +98,7 @@ describe('Harvester role', () => {
       pos: sourcePos
     });
     mockGlobal<Game>('Game', {
+      time: 1,
       creeps: {myHero: creep},
       getObjectById: () => source,
     });
@@ -108,6 +116,7 @@ describe('Harvester role', () => {
   it('should transfer energy to storage when creep full', () => {
     const creepMemory = {
       state: undefined,
+      lastState: undefined,
       storage: undefined,
     } as CreepMemory;
     const spawnPos = new RoomPosition(10, 0, 'room');
@@ -119,6 +128,7 @@ describe('Harvester role', () => {
       find: () => [spawn]
     })
     const creep = mockInstanceOf<Creep>({
+      name: 'myCreep',
       memory: creepMemory,
       room,
       spawning: false,
@@ -127,6 +137,7 @@ describe('Harvester role', () => {
       transfer: () => OK,
     });
     mockGlobal<Game>('Game', {
+      time: 1,
       creeps: {myHero: creep},
       getObjectById: () => spawn,
     });
@@ -140,6 +151,7 @@ describe('Harvester role', () => {
   it('should move to storage when creep full and storage out of reach', () => {
     const creepMemory = {
       state: undefined,
+      lastState: undefined,
       storage: undefined,
     } as CreepMemory;
     const spawnPos = new RoomPosition(10, 0, 'room');
@@ -151,6 +163,7 @@ describe('Harvester role', () => {
       find: () => [spawn]
     })
     const creep = mockInstanceOf<Creep>({
+      name: 'myCreep',
       memory: creepMemory,
       room,
       spawning: false,
@@ -161,6 +174,7 @@ describe('Harvester role', () => {
       pos: {x: 0, y: 0, roomName: 'room', getRangeTo: () => 10},
     });
     mockGlobal<Game>('Game', {
+      time: 1,
       creeps: {myHero: creep},
       getObjectById: () => spawn,
     });

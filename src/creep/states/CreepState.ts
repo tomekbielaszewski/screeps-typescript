@@ -51,8 +51,11 @@ export function resolve(creep: Creep, stateResolver: StateResolver): CreepState 
   if (!nextState) {
     throw new Error('Unresolvable state');
   }
+
   creep.memory.lastState = creep.memory.state;
   creep.memory.state = nextState;
+
+  console.log(`[${Game.time}] creep[${creep.name}]: ${creep.memory.lastState} ==> ${creep.memory.state}`);
   return nextState as CreepState;
 }
 
@@ -63,5 +66,15 @@ export function replay(creep: Creep, stateResolver: StateResolver): void {
 export function resolveAndReplay(creep: Creep, stateResolver: StateResolver): void {
   resolve(creep, stateResolver);
   creep.memory.param = stateResolver?.params;
+  replay(creep, stateResolver);
+}
+
+export function resolveLastState(creep: Creep, stateResolver: StateResolver): void {
+  console.log(`[${Game.time}] creep[${creep.name}]: ${creep.memory.lastState} <== ${creep.memory.state}`);
+  creep.memory.state = creep.memory.lastState;
+}
+
+export function resolveLastStateAndReplay(creep: Creep, stateResolver: StateResolver): void {
+  resolveLastState(creep, stateResolver);
   replay(creep, stateResolver);
 }

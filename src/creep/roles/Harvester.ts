@@ -1,5 +1,4 @@
 import {
-  CreepState,
   HarvestingState,
   IdleState,
   MovingState,
@@ -23,7 +22,7 @@ export function HarvesterJob(creep: Creep): void {
       initialize(creep, {nextState: HarvestingState, replay: HarvesterJob});
       break;
     case MovingState:
-      move(creep, {getNextState: stateAfterMoving(creep), replay: HarvesterJob});
+      move(creep, {replay: HarvesterJob});
       break;
     case HarvestingState:
       harvest(creep, true, {nextState: StoringState, replay: HarvesterJob});
@@ -35,12 +34,6 @@ export function HarvesterJob(creep: Creep): void {
       upgradeController(creep, {nextState: HarvestingState, replay: HarvesterJob});
       break;
   }
-}
-
-function stateAfterMoving(creep: Creep) {
-  return function (): CreepState {
-    return creep.store.getFreeCapacity(RESOURCE_ENERGY) === 0 ? StoringState : HarvestingState;
-  };
 }
 
 function initialize(creep: Creep, state: StateResolver) {

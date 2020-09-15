@@ -1,4 +1,4 @@
-import {HarvestingState, MovingState, resolve, SpawningState, StateResolver} from "../states/CreepState";
+import {HarvestingState, MovingState, resolveAndReplay, SpawningState, StateResolver} from "../states/CreepState";
 import {harvest} from "../states/HarvestingEnergy";
 import {move} from "../states/Moving";
 
@@ -9,18 +9,18 @@ export function MinerJob(creep: Creep): void {
 
   switch (creep.memory.state) {
     case SpawningState:
-      initialize(creep, {nextState: HarvestingState});
+      initialize(creep, {nextState: HarvestingState, replay: MinerJob});
       break;
     case HarvestingState:
-      harvest(creep, false, {nextState: HarvestingState});
+      harvest(creep, false, {nextState: HarvestingState, replay: MinerJob});
       break;
     case MovingState:
-      move(creep, {nextState: HarvestingState});
+      move(creep, {nextState: HarvestingState, replay: MinerJob});
       break;
   }
 }
 
 function initialize(creep: Creep, state: StateResolver) {
   if (creep.spawning) return;
-  resolve(creep, state);
+  resolveAndReplay(creep, state);
 }
