@@ -1,4 +1,5 @@
 interface CreepMemory {
+  repair?: any;
   construction?: any;
   container?: string;
   storage?: string;
@@ -25,6 +26,11 @@ interface ContainerMemory {
 }
 
 interface Memory {
+  repair: {
+    hysteresis: number;
+    lowHP: number;
+    fortifications: boolean;
+  }
   creeps: { [name: string]: CreepMemory };
   powerCreeps: { [name: string]: PowerCreepMemory };
   flags: { [name: string]: FlagMemory };

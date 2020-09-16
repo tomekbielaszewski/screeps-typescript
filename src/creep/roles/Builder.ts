@@ -5,7 +5,6 @@ import {
   MovingState,
   RefillingState,
   RepairingState,
-  resolve,
   resolveAndReplay,
   SpawningState,
   StateResolver
@@ -13,6 +12,8 @@ import {
 import {move} from "../states/Moving";
 import {refillCreep} from "../states/RefillingCreep";
 import {building} from "../states/Building";
+import {repairing} from "../states/Repairing";
+import {upgradeController} from "../states/UpgradingController";
 
 export function BuilderJob(creep: Creep): void {
   if (!creep.memory.state) {
@@ -33,10 +34,10 @@ export function BuilderJob(creep: Creep): void {
       building(creep, {nextState: RefillingState, replay: BuilderJob});
       break;
     case RepairingState:
+      repairing(creep, Memory.repair.fortifications, {nextState: RefillingState, replay: BuilderJob});
+      break;
     case IdleState:
-      if (creep.room.find(FIND_MY_CONSTRUCTION_SITES)) {
-        resolve(creep, {nextState: BuildingState, replay: BuilderJob});
-      }
+      upgradeController(creep, {nextState: RefillingState});
       break;
   }
 }
@@ -44,7 +45,7 @@ export function BuilderJob(creep: Creep): void {
 function buildingOrRepairing(creep: Creep) {
   return function (): CreepState {
     const constructionSite = creep.room.find(FIND_MY_CONSTRUCTION_SITES);
-    if (constructionSite) return BuildingState;
+    if (constructionSite.length) return BuildingState;
     return RepairingState;
   };
 }
