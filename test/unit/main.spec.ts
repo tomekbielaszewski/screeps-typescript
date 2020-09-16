@@ -9,7 +9,6 @@ jest.mock("utils/StatPublisher");
 jest.mock("utils/PixelGenerator");
 jest.mock("utils/MemoryCleaner");
 jest.mock("utils/CLI");
-jest.mock("utils/Profiler");
 
 describe("main", () => {
 
@@ -30,7 +29,7 @@ describe("main", () => {
     mockGlobal<Memory>('Memory', {
       creeps: {},
       mainComponentsTime: {}
-    });
+    }, true);
     unwrappedLoop();
     expect(CreepManager).toBeCalled();
     expect(CreepWorker).toBeCalled();
