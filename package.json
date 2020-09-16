@@ -7,7 +7,8 @@
   "scripts": {
     "lint": "eslint \"src/**/*.ts\"",
     "build": "rollup -c",
-    "push-main": "jest && rollup -c --environment DEST:main",
+    "push-main": "jest && rollup -c --environment DEST:main && rollup -c --environment DEST:sim",
+    "push-only-main": "jest && rollup -c --environment DEST:main",
     "push-pserver": "jest && rollup -c --environment DEST:pserver",
     "push-local": "jest && rollup -c --environment DEST:local",
     "push-sim": "rollup -c --environment DEST:sim",
