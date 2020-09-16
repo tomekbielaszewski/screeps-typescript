@@ -36,7 +36,7 @@ export function BuilderJob(creep: Creep): void {
       repairing(creep, Memory.repair.fortifications, {nextState: RefillingState, replay: BuilderJob});
       break;
     case IdleState:
-      repairing(creep, true, {nextState: RefillingState, replay: BuilderJob});
+      repairing(creep, true, {nextState: RefillingState});
       break;
   }
 }
