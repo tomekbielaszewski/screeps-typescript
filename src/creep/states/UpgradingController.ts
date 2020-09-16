@@ -31,8 +31,6 @@ function goToController(creep: Creep, controller: StructureController, replay: R
     y: controller.pos.y,
     room: controller.pos.roomName,
   };
-  creep.memory.param = creep.memory.param || {};
-  creep.memory.param.range = 3;
   creep.say("🥾");
   resolveAndReplay(creep, {nextState: MovingState, params: {range: 3}, replay});
 }
