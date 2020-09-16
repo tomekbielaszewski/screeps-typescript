@@ -48,6 +48,7 @@ module.exports = {
     "@typescript-eslint/no-unnecessary-type-assertion": "off",
     "@typescript-eslint/ban-ts-comment": "off",
     "@typescript-eslint/no-empty-functions": "off",
+    "@typescript-eslint/restrict-template-expressions": "off",
     "arrow-parens": ["off", "as-needed"],
     camelcase: "error",
     complexity: "off",
