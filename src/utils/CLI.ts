@@ -9,8 +9,8 @@ export function cli() {
 
   return {
     creeps: {
-      bodies: getBodyCompositions(),
-      life: getTicksToLive()
+      bodies: getBodyCompositions,
+      life: getTicksToLive
     }
   }
 }
