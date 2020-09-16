@@ -37,11 +37,11 @@ class CreepDefinition {
  */
 
 export enum CreepRole {
-  HARVESTER = "1",
-  UPGRADER = "2",
-  BUILDER = "3",
-  MINER = "4",
-  CARRIER = "5"
+  HARVESTER = "Harvester",
+  UPGRADER = "Upgrader",
+  BUILDER = "Builder",
+  MINER = "Miner",
+  CARRIER = "Carrier",
 }
 
 const creepRoleOrder = [
