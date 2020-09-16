@@ -13,7 +13,6 @@ import {move} from "../states/Moving";
 import {refillCreep} from "../states/RefillingCreep";
 import {building} from "../states/Building";
 import {repairing} from "../states/Repairing";
-import {upgradeController} from "../states/UpgradingController";
 
 export function BuilderJob(creep: Creep): void {
   if (!creep.memory.state) {
@@ -37,7 +36,7 @@ export function BuilderJob(creep: Creep): void {
       repairing(creep, Memory.repair.fortifications, {nextState: RefillingState, replay: BuilderJob});
       break;
     case IdleState:
-      upgradeController(creep, {nextState: RefillingState});
+      repairing(creep, true, {nextState: RefillingState, replay: BuilderJob});
       break;
   }
 }
