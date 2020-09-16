@@ -126,15 +126,24 @@ describe('Harvester role', () => {
     })
     const room = mockInstanceOf<RoomPosition>({
       find: () => [spawn]
-    })
+    });
+    const store = {
+      energy: 50,
+      getFreeCapacity: () => store.getCapacity() - store.energy,
+      getCapacity: () => 50,
+      getUsedCapacity: () => store.energy
+    } as StoreDefinition;
     const creep = mockInstanceOf<Creep>({
       name: 'myCreep',
       memory: creepMemory,
       room,
       spawning: false,
-      store: FULL_STORE,
+      store,
       say: () => OK,
-      transfer: () => OK,
+      transfer: () => {
+        store.energy = 0
+        return OK;
+      },
     });
     mockGlobal<Game>('Game', {
       time: 1,

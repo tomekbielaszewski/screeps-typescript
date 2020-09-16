@@ -21,8 +21,10 @@ export function storeEnergy(creep: Creep, state: StateResolver): void {
   const transferResult = creep.transfer(assignedStorage, RESOURCE_ENERGY);
   switch (transferResult) {
     case OK:
-      delete creep.memory.storage;
-      resolve(creep, state);
+      if (creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0) {
+        delete creep.memory.storage;
+        resolve(creep, state);
+      }
       break;
     case ERR_NOT_IN_RANGE:
       goToStorage(creep, assignedStorage, state?.replay);
@@ -36,9 +38,9 @@ export function storeEnergy(creep: Creep, state: StateResolver): void {
 }
 
 function assignStorage(creep: Creep, replay: ReplayFunction | undefined): boolean {
-  const spawn = findSpawn(creep);
-  if (spawn) {
-    setTargetStorage(creep, spawn);
+  const spawnOrExtension = findSpawn(creep) || findExtension(creep);
+  if (spawnOrExtension) {
+    setTargetStorage(creep, spawnOrExtension);
   } else {
     const storage = findClosestStorage(creep);
     if (storage) {
@@ -59,10 +61,17 @@ function findSpawn(creep: Creep): Structure | undefined {
   return undefined;
 }
 
+function findExtension(creep: Creep): Structure | undefined {
+  const extensions = creep.room.find(FIND_MY_STRUCTURES, {
+    filter: s => s.structureType === STRUCTURE_EXTENSION && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+  });
+  if (extensions && extensions.length) return extensions[0];
+  return undefined;
+}
+
 function findClosestStorage(creep: Creep): Structure | undefined {
   const storage = creep.pos.findClosestByPath(FIND_STRUCTURES, {
     filter: s => (
-      (s.structureType === STRUCTURE_EXTENSION && s.my && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0) ||
       (s.structureType === STRUCTURE_LINK) && s.my && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0) ||
       (s.structureType === STRUCTURE_STORAGE && s.my && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0) ||
       (s.structureType === STRUCTURE_CONTAINER && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0) //&& Memory.containers[s.id]?.type === ContainerType.STORAGE)
