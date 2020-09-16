@@ -51,12 +51,19 @@ describe("Creep manager", () => {
       memory: harvesterMemory,
       say: () => OK
     });
+    const creep4 = mockInstanceOf<Creep>({
+      name: 'fourth',
+      memory: harvesterMemory,
+      say: () => OK
+    });
     Game.creeps[creep1.name] = creep1;
     Memory.creeps[creep1.name] = harvesterMemory;
     Game.creeps[creep2.name] = creep2;
     Memory.creeps[creep2.name] = harvesterMemory;
     Game.creeps[creep3.name] = creep3;
     Memory.creeps[creep3.name] = harvesterMemory;
+    Game.creeps[creep4.name] = creep4;
+    Memory.creeps[creep4.name] = harvesterMemory;
 
     CreepManager();
 
