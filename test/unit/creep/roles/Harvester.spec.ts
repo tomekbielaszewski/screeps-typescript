@@ -60,7 +60,10 @@ describe('Harvester role', () => {
       moveTo: () => OK,
       transfer: () => OK,
     });
-    const source = mockInstanceOf<Source>();
+    const source = mockInstanceOf<Source>({
+      id: "sourceId" as Id<Source>,
+      energy: 10,
+    });
     mockGlobal<Game>('Game', {
       time: 1,
       creeps: {myHero: creep},
@@ -95,6 +98,8 @@ describe('Harvester role', () => {
     });
     const sourcePos = new RoomPosition(10, 0, 'room');
     const source = mockInstanceOf<Source>({
+      id: "sourceId" as Id<Source>,
+      energy: 10,
       pos: sourcePos
     });
     mockGlobal<Game>('Game', {

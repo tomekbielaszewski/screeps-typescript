@@ -1,4 +1,4 @@
-import {MovingState, ReplayFunction, resolveAndReplay, StateResolver} from "./CreepState";
+import {IdleState, MovingState, ReplayFunction, resolve, resolveAndReplay, StateResolver} from "./CreepState";
 import {assignToSource} from "../management/SourceAssigner";
 
 export function harvest(creep: Creep, checkCapacity: boolean, state: StateResolver): void {
@@ -11,9 +11,16 @@ export function harvest(creep: Creep, checkCapacity: boolean, state: StateResolv
     findSource(creep);
   }
 
-  const source = Game.getObjectById(creep.memory.source as Id<Source>);
+  let source = Game.getObjectById(creep.memory.source as Id<Source>);
   if (!source) {
     findSource(creep);
+    return;
+  } else if (source.energy === 0) {
+    source = findAlternativeSource(creep);
+  }
+
+  if (!source) {
+    resolve(creep, {nextState: IdleState});
     return;
   }
 
@@ -43,4 +50,11 @@ function findSource(creep: Creep) {
   creep.room.find(FIND_SOURCES)
     .sort((s1, s2) => creep.pos.getRangeTo(s1.pos) - creep.pos.getRangeTo(s2.pos))
     .find(source => assignToSource(creep, source));
+}
+
+function findAlternativeSource(creep: Creep): Source | null {
+  const find = creep.room.find(FIND_SOURCES)
+    .filter(s => s.id !== creep.memory.source)
+    .find(s => s.energy > 0);
+  return find === undefined ? null : find;
 }
