@@ -8,6 +8,7 @@ jest.mock("creep/Worker");
 jest.mock("utils/StatPublisher");
 jest.mock("utils/PixelGenerator");
 jest.mock("utils/MemoryCleaner");
+jest.mock("utils/CLI");
 
 describe("main", () => {
 

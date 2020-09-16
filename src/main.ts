@@ -4,8 +4,10 @@ import {CreepWorker} from "creep/Worker";
 import {StatPublisher} from "utils/StatPublisher";
 import {PixelGenerator} from "utils/PixelGenerator";
 import {CleanMemory} from "utils/MemoryCleaner";
+import {cli} from "utils/CLI";
 
 global.legacy = false;
+global.cli = cli();
 
 function unwrappedLoop(): void {
   measure(CreepManager, "CreepManager");
