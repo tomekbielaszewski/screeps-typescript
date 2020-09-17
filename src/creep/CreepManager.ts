@@ -81,7 +81,7 @@ const creepDefinitions: Record<CreepRole, CreepDefinition[]> = {
 
 const creepAmounts: Record<CreepRole, number> = {
   [CreepRole.HARVESTER]: 4,
-  [CreepRole.UPGRADER]: 1,
+  [CreepRole.UPGRADER]: 2,
   [CreepRole.BUILDER]: 2,
   [CreepRole.MINER]: 2,
   [CreepRole.CARRIER]: 2,
