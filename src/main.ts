@@ -8,7 +8,10 @@ import {cli} from "utils/CLI";
 import {measure} from "utils/Profiler";
 
 global.legacy = false;
-global.cli = cli();
+global.cli = cli;
+
+Memory.repair = Memory.repair || {}
+Memory.containers = Memory.containers || {}
 
 function unwrappedLoop(): void {
   measure(CreepManager, "CreepManager");
