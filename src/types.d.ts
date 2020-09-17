@@ -42,6 +42,9 @@ interface Memory {
   containers: { [id: string]: ContainerMemory };
   stats: Record<string, any>;
   mainComponentsTime: Record<string, any>;
+  log: {
+    state: boolean
+  }
 }
 
 // `global` extension samples

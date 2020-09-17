@@ -13,6 +13,9 @@ export const cli = {
       lowhp,
       hysteresis
     }
+  },
+  log: {
+    state
   }
 }
 
@@ -59,5 +62,11 @@ function lowhp(setting?: number): string {
 function hysteresis(setting?: number): string {
   if (setting === undefined) return `Sets HP repair hysteresis. Current setting: ${Memory.repair.hysteresis}`
   Memory.repair.hysteresis = setting
+  return setting as unknown as string
+}
+
+function state(setting?: boolean): string {
+  if (setting === undefined) return `Sets whether to log creep state changes. Current setting: ${Memory.log.state}`
+  Memory.log.state = setting
   return setting as unknown as string
 }
