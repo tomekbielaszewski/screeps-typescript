@@ -1,7 +1,7 @@
 import {IdleState, MovingState, ReplayFunction, resolve, resolveAndReplay, StateResolver} from "./CreepState";
 import {assignToSource} from "../management/SourceAssigner";
 
-export function harvest(creep: Creep, checkCapacity: boolean, state: StateResolver): void {
+export function harvest(creep: Creep, checkCapacity: boolean, changeSourceWhenEmpty: boolean, state: StateResolver): void {
   if (checkCapacity && creep.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
     resolveAndReplay(creep, state);
     return;
@@ -15,7 +15,7 @@ export function harvest(creep: Creep, checkCapacity: boolean, state: StateResolv
   if (!source) {
     findSource(creep);
     return;
-  } else if (source.energy === 0) {
+  } else if (changeSourceWhenEmpty && source.energy === 0) {
     source = findAlternativeSource(creep);
   }
 

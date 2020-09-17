@@ -25,7 +25,7 @@ export function HarvesterJob(creep: Creep): void {
       move(creep, {replay: HarvesterJob});
       break;
     case HarvestingState:
-      harvest(creep, true, {nextState: StoringState, replay: HarvesterJob});
+      harvest(creep, true, true, {nextState: StoringState, replay: HarvesterJob});
       break;
     case StoringState:
       storeEnergy(creep, {nextState: HarvestingState, replay: HarvesterJob});

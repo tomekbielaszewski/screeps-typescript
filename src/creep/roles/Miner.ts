@@ -12,7 +12,7 @@ export function MinerJob(creep: Creep): void {
       initialize(creep, {nextState: HarvestingState, replay: MinerJob});
       break;
     case HarvestingState:
-      harvest(creep, false, {nextState: HarvestingState, replay: MinerJob});
+      harvest(creep, false, false, {nextState: HarvestingState, replay: MinerJob});
       break;
     case MovingState:
       move(creep, {nextState: HarvestingState, replay: MinerJob});

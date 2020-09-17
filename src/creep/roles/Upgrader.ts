@@ -49,7 +49,7 @@ export function UpgraderJob(creep: Creep): void {
         refillCreep(creep, false, {getNextState: stateAfterRefill(creep), replay: UpgraderJob});
         break;
       case HarvestingState:
-        harvest(creep, true, {nextState: UpgradingState, replay: UpgraderJob});
+        harvest(creep, true, true, {nextState: UpgradingState, replay: UpgraderJob});
         break;
       case MovingState:
         move(creep, {replay: UpgraderJob});
