@@ -3,7 +3,7 @@ import {resolveLastStateAndReplay, StateResolver} from "./CreepState";
 export function move(creep: Creep, state: StateResolver) {
   const targetPos = creep.memory.targetPos;
   if (!targetPos) {
-    console.error(`Moving state executed without setting target position! ${creep.name}`);
+    console.log(`Moving state executed without setting target position! ${creep.name}`);
     resolveLastStateAndReplay(creep, state);
     return;
   }

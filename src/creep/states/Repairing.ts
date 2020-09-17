@@ -16,6 +16,7 @@ export function repairing(creep: Creep, repairFortifications: boolean, state: St
 
   if (!creep.memory.repair) {
     resolveAndReplay(creep, {nextState: IdleState, replay: state.replay});
+    return;
   }
 
   const repairedStructure = Game.getObjectById<OwnedStructure>(creep.memory.repair);
