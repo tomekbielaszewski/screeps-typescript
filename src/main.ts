@@ -12,6 +12,7 @@ global.cli = cli;
 
 Memory.repair = Memory.repair || {}
 Memory.containers = Memory.containers || {}
+Memory.log = Memory.log || {}
 
 function unwrappedLoop(): void {
   measure(CreepManager, "CreepManager");

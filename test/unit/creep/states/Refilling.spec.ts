@@ -14,6 +14,8 @@ const FULL_STORE = mockInstanceOf<StoreDefinition>({
   getCapacity: () => 50
 })
 
+mockGlobal<Memory>('Memory', {log: {state: undefined}}, true);
+
 describe('Refilling state', () => {
   it('resolves state when creep is full', () => {
     const creep = mockInstanceOf<Creep>({

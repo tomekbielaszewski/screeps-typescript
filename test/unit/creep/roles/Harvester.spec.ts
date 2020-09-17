@@ -23,6 +23,8 @@ const HALF_STORE = {
   getUsedCapacity: () => 25
 } as StoreDefinition;
 
+mockGlobal<Memory>('Memory', {log: {state: undefined}}, true);
+
 describe('Harvester role', () => {
   it('should do nothing when spawning', () => {
     const creepMemory = {
