@@ -24,15 +24,23 @@ function help(): string {
 }
 
 function body(): string {
-  return Object.values(Game.creeps).map(c => `${c.name}: ${c.body.map(b => b.type)}`).reduce((a, b) => a + "\n" + b);
+  return Object.values(Game.creeps)
+    .map(c => `${c.name}: ${c.body.map(b => b.type)}`)
+    .reduce((a, b) => a + "\n" + b);
 }
 
 function life(): string {
-  return Object.values(Game.creeps).map(c => `${c.name}: ${c.ticksToLive}`).reduce((a, b) => a + "\n" + b);
+  return Object.values(Game.creeps)
+    .map(c => `${c.name}: ${c.ticksToLive}`)
+    .reduce((a, b) => a + "\n" + b);
 }
 
 function hits(): string {
-  return Object.values(Game.structures).map(c => `${c.structureType}: ${c.hits}/${c.hitsMax} [${c.hits / c.hitsMax}]`).reduce((a, b) => a + "\n" + b);
+  return Object.values(Game.rooms)
+    .map(room => room.find(FIND_STRUCTURES))
+    .reduce((a, b) => a.concat(b), [])
+    .map(c => `[${c.room.name}] ${c.structureType}: ${c.hits}/${c.hitsMax} [${(c.hits / c.hitsMax).toFixed(2)}]`)
+    .reduce((a, b) => a + "\n" + b);
 }
 
 function fortifications(setting?: boolean): string {
