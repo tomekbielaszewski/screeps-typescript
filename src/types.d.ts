@@ -30,6 +30,8 @@ interface Memory {
     hysteresis: number;
     lowHP: number;
     fortifications: boolean;
+    wall: number;
+    rampart: number;
   }
   creeps: { [name: string]: CreepMemory };
   powerCreeps: { [name: string]: PowerCreepMemory };

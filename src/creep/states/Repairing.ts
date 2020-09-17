@@ -26,7 +26,7 @@ export function repairing(creep: Creep, repairFortifications: boolean, state: St
     return;
   }
 
-  if (hpPercent(repairedStructure) > Memory.repair.lowHP + Memory.repair.hysteresis) {
+  if (isRepaired(repairedStructure)) {
     delete creep.memory.repair;
     resolveAndReplay(creep, state);
     return;
@@ -63,6 +63,17 @@ function findLowHpStructure(creep: Creep, repairFortifications: boolean) {
   if (lowestHpStructures.length) {
     const lowestHpStructure = lowestHpStructures.reduce((s1, s2) => (hpPercent(s1) < hpPercent(s2) ? s1 : s2));
     creep.memory.repair = lowestHpStructure.id;
+  }
+}
+
+function isRepaired(repairedStructure: Structure): boolean {
+  switch (repairedStructure.structureType) {
+    case STRUCTURE_WALL:
+      return repairedStructure.hits > (Memory.repair.wall || 500000)
+    case STRUCTURE_RAMPART:
+      return repairedStructure.hits > (Memory.repair.rampart || 500000)
+    default:
+      return hpPercent(repairedStructure) > Memory.repair.lowHP + Memory.repair.hysteresis;
   }
 }
 
