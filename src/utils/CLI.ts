@@ -39,6 +39,7 @@ function hits(): string {
   return Object.values(Game.rooms)
     .map(room => room.find(FIND_STRUCTURES))
     .reduce((a, b) => a.concat(b), [])
+    .sort((s1, s2) => (s1.hits / s1.hitsMax) - (s2.hits / s2.hitsMax))
     .map(c => `[${c.room.name}] ${c.structureType}: ${c.hits}/${c.hitsMax} [${(c.hits / c.hitsMax).toFixed(2)}]`)
     .reduce((a, b) => a + "\n" + b);
 }
