@@ -11,8 +11,9 @@ jest.mock("utils/StatPublisher");
 jest.mock("utils/PixelGenerator");
 jest.mock("utils/MemoryCleaner");
 jest.mock("utils/GlobalsInitialization");
+jest.mock("utils/RoomDefense");
 
-xdescribe("main", () => {
+describe("main", () => {
 
   it("should export a loop function", () => {
     expect(loop).toBeDefined();
