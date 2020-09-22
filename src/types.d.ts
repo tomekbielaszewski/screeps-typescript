@@ -4,6 +4,7 @@ interface CreepMemory {
   container?: string;
   storage?: string;
   source?: string;
+  alternativeSource?: string;
   role: string;
   room: string;
   state?: string;
@@ -32,7 +33,8 @@ interface Memory {
     fortifications: boolean;
     wall: number;
     rampart: number;
-  }
+  };
+  features: { [name: string]: boolean };
   creeps: { [name: string]: CreepMemory };
   powerCreeps: { [name: string]: PowerCreepMemory };
   flags: { [name: string]: FlagMemory };

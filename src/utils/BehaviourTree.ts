@@ -5,14 +5,16 @@ export enum BTNodeResult {
   ERRORED
 }
 
+type Behaviour<T> = (context: T) => BTNodeResult
+
 export interface BTNode<T> {
-  process: (context: T) => BTNodeResult
+  process: Behaviour<T>
 }
 
 export class LeafNode<T> implements BTNode<T> {
-  private readonly runner: (context: T) => BTNodeResult;
+  private readonly runner: Behaviour<T>;
 
-  public constructor(runner: (context: T) => BTNodeResult) {
+  public constructor(runner: Behaviour<T>) {
     this.runner = runner;
   }
 
@@ -21,7 +23,7 @@ export class LeafNode<T> implements BTNode<T> {
   }
 }
 
-export abstract class NonLeafNode<T> implements BTNode<T> {
+abstract class NonLeafNode<T> implements BTNode<T> {
   protected readonly children: BTNode<T>[];
   protected runningChildIndex: number | null;
 
@@ -88,3 +90,42 @@ export class SelectorNode<T> extends NonLeafNode<T> {
     return {result: BTNodeResult.FAILURE, childIndex: 0};
   }
 }
+
+abstract class DecoratorNode<T> implements BTNode<T> {
+  protected readonly child: BTNode<T>
+
+  protected constructor(child: BTNode<T>) {
+    this.child = child
+  }
+
+  public abstract process(context: T): BTNodeResult
+}
+
+export class RepeatUntilFailed<T> extends DecoratorNode<T> {
+  public process(context: T): BTNodeResult {
+    const result = this.child.process(context)
+    if (result === BTNodeResult.FAILURE) {
+      return BTNodeResult.SUCCESS
+    }
+    if (result === BTNodeResult.SUCCESS) {
+      return BTNodeResult.RUNNING
+    }
+    return result
+  }
+}
+
+export class Inverter<T> extends DecoratorNode<T> {
+  public process(context: T): BTNodeResult {
+    const result = this.child.process(context)
+    if (result === BTNodeResult.FAILURE) {
+      return BTNodeResult.SUCCESS
+    } else if (result === BTNodeResult.SUCCESS) {
+      return BTNodeResult.FAILURE
+    }
+    return BTNodeResult.RUNNING
+  }
+
+}
+
+//Repeater
+//Inverter
