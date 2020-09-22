@@ -33,6 +33,7 @@ interface Memory {
     wall: number;
     rampart: number;
   }
+  features: { [name: string]: boolean };
   creeps: { [name: string]: CreepMemory };
   powerCreeps: { [name: string]: PowerCreepMemory };
   flags: { [name: string]: FlagMemory };
