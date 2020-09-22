@@ -5,17 +5,14 @@ import {CreepWorker} from "../../src/creep/Worker";
 
 mockGlobal<Memory>('Memory', {}, true);
 
-mockGlobal<Memory>('Memory', {log: {state: undefined}}, true);
-
-
 jest.mock("creep/CreepManager");
 jest.mock("creep/Worker");
 jest.mock("utils/StatPublisher");
 jest.mock("utils/PixelGenerator");
 jest.mock("utils/MemoryCleaner");
-jest.mock("utils/CLI");
+jest.mock("utils/GlobalsInitialization");
 
-describe("main", () => {
+xdescribe("main", () => {
 
   it("should export a loop function", () => {
     expect(loop).toBeDefined();

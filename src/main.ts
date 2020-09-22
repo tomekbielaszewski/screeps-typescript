@@ -4,16 +4,10 @@ import {CreepWorker} from "creep/Worker";
 import {StatPublisher} from "utils/StatPublisher";
 import {PixelGenerator} from "utils/PixelGenerator";
 import {CleanMemory} from "utils/MemoryCleaner";
-import {cli} from "utils/CLI";
 import {measure} from "utils/Profiler";
+import {GlobalsInitialization} from "utils/GlobalsInitialization";
 
-global.legacy = false;
-global.cli = cli;
-
-Memory.features = Memory.features || {}
-Memory.repair = Memory.repair || {}
-Memory.containers = Memory.containers || {}
-Memory.log = Memory.log || {}
+GlobalsInitialization()
 
 function unwrappedLoop(): void {
 
