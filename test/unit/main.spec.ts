@@ -5,6 +5,7 @@ import {CreepWorker} from "../../src/creep/Worker";
 
 mockGlobal<Memory>('Memory', {log: {state: undefined}}, true);
 
+
 jest.mock("creep/CreepManager");
 jest.mock("creep/Worker");
 jest.mock("utils/StatPublisher");

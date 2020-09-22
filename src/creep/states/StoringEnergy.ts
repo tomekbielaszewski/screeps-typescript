@@ -38,19 +38,14 @@ export function storeEnergy(creep: Creep, state: StateResolver): void {
 }
 
 function assignStorage(creep: Creep, replay: ReplayFunction | undefined): boolean {
-  const spawnOrExtension = findSpawn(creep) || findExtension(creep);
-  if (spawnOrExtension) {
-    setTargetStorage(creep, spawnOrExtension);
+  const storage = findSpawn(creep) || findExtension(creep) || findClosestContainer(creep) || findClosestStorage(creep);
+  if (storage) {
+    setTargetStorage(creep, storage);
+    return true;
   } else {
-    const storage = findClosestStorage(creep);
-    if (storage) {
-      setTargetStorage(creep, storage);
-    } else {
-      resolveAndReplay(creep, {nextState: IdleState, replay});
-      return false;
-    }
+    resolveAndReplay(creep, {nextState: IdleState, replay});
+    return false;
   }
-  return true;
 }
 
 function findSpawn(creep: Creep): Structure | undefined {
@@ -69,12 +64,21 @@ function findExtension(creep: Creep): Structure | undefined {
   return undefined;
 }
 
+function findClosestContainer(creep: Creep): Structure | undefined {
+  const container = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+    filter: s => (
+      s.structureType === STRUCTURE_CONTAINER && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0 //&& Memory.containers[s.id]?.type === ContainerType.STORAGE)
+    )
+  });
+  if (container) return container;
+  return undefined;
+}
+
 function findClosestStorage(creep: Creep): Structure | undefined {
   const storage = creep.pos.findClosestByPath(FIND_STRUCTURES, {
     filter: s => (
-      (s.structureType === STRUCTURE_LINK) && s.my && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0) ||
-      (s.structureType === STRUCTURE_STORAGE && s.my && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0) ||
-      (s.structureType === STRUCTURE_CONTAINER && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0) //&& Memory.containers[s.id]?.type === ContainerType.STORAGE)
+      s.structureType === STRUCTURE_STORAGE && s.my && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+    )
   });
   if (storage) return storage;
   return undefined;
