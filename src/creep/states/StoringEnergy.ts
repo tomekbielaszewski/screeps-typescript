@@ -38,7 +38,11 @@ export function storeEnergy(creep: Creep, state: StateResolver): void {
 }
 
 function assignStorage(creep: Creep, replay: ReplayFunction | undefined): boolean {
-  const storage = findSpawn(creep) || findExtension(creep) || findClosestContainer(creep) || findClosestStorage(creep);
+  const storage = findSpawn(creep) ||
+    findTower(creep) ||
+    findExtension(creep) ||
+    findClosestContainer(creep) ||
+    findClosestStorage(creep);
   if (storage) {
     setTargetStorage(creep, storage);
     return true;
@@ -53,6 +57,14 @@ function findSpawn(creep: Creep): Structure | undefined {
     filter: s => s.structureType === STRUCTURE_SPAWN && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
   });
   if (spawns && spawns.length) return spawns[0];
+  return undefined;
+}
+
+function findTower(creep: Creep): Structure | undefined {
+  const towers = creep.room.find(FIND_MY_STRUCTURES, {
+    filter: s => s.structureType === STRUCTURE_TOWER && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+  });
+  if (towers && towers.length) return towers[0];
   return undefined;
 }
 

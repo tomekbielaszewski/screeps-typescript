@@ -3,6 +3,8 @@ import {loop, unwrappedLoop} from "../../src/main";
 import {CreepManager} from "../../src/creep/CreepManager";
 import {CreepWorker} from "../../src/creep/Worker";
 
+mockGlobal<Memory>('Memory', {}, true);
+
 mockGlobal<Memory>('Memory', {log: {state: undefined}}, true);
 
 
