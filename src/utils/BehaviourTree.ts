@@ -94,7 +94,7 @@ export class SelectorNode<T> extends NonLeafNode<T> {
 abstract class DecoratorNode<T> implements BTNode<T> {
   protected readonly child: BTNode<T>
 
-  protected constructor(child: BTNode<T>) {
+  public constructor(child: BTNode<T>) {
     this.child = child
   }
 

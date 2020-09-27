@@ -11,7 +11,7 @@ import {harvest} from "../states/HarvestingEnergy";
 import {move} from "../states/Moving";
 import {storeEnergy} from "../states/StoringEnergy";
 import {upgradeController} from "../states/UpgradingController";
-import {SelectorNode, SequenceNode} from "../../utils/BehaviourTree";
+import {RepeatUntilFailed, SelectorNode, SequenceNode} from "../../utils/BehaviourTree";
 import {CreepHasEmptyEnergyStore} from "./behaviours/creep/storage";
 import {
   AssignAlternativeSource,
@@ -19,15 +19,6 @@ import {
   AssignSource,
   CreepHasSourceAssigned
 } from "./behaviours/creep/assignment";
-
-/*
-export class Name extends LeafNode<Creep> {
-  public constructor() {
-    super((creep: Creep) => {
-    });
-  }
-}
-*/
 
 const HarvesterBehaviour = new SelectorNode([
   new SequenceNode([ //harvest
@@ -40,7 +31,7 @@ const HarvesterBehaviour = new SelectorNode([
       new AssignedSourceHasEnergy(),
       new AssignAlternativeSource(),
     ]),
-    new RepeatUntilFailed([])
+    new RepeatUntilFailed()
   ])
 ])
 
