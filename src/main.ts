@@ -4,27 +4,13 @@ import {CreepWorker} from "creep/Worker";
 import {StatPublisher} from "utils/StatPublisher";
 import {PixelGenerator} from "utils/PixelGenerator";
 import {CleanMemory} from "utils/MemoryCleaner";
-import {cli} from "utils/CLI";
 import {measure} from "utils/Profiler";
+import {GlobalsInitialization} from "utils/GlobalsInitialization";
+import {defendRoom} from "utils/RoomDefense";
 
-global.legacy = false;
-global.cli = cli;
-
-Memory.features = Memory.features || {}
-Memory.repair = Memory.repair || {}
-Memory.containers = Memory.containers || {}
-Memory.log = Memory.log || {}
+GlobalsInitialization()
 
 function unwrappedLoop(): void {
-
-  function defendRoom(roomName: string) {
-    const hostiles = Game.rooms[roomName].find(FIND_HOSTILE_CREEPS);
-    if (hostiles.length > 0) {
-      const towers = Game.rooms[roomName].find<StructureTower>(FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_TOWER}});
-      towers.forEach(tower => tower.attack(hostiles[0]));
-    }
-  }
-
   defendRoom('W24N13');
 
   measure(CreepManager, "CreepManager");
