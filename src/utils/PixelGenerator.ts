@@ -1,5 +1,6 @@
 export function PixelGenerator() {
-  if(Game.cpu.bucket >= 9999) {
-    Game.cpu.generatePixel();
+  if (Game.cpu.bucket >= 9999) {
+    if (Game.cpu.generatePixel)
+      Game.cpu.generatePixel();
   }
 }
