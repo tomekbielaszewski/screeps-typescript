@@ -9,7 +9,7 @@
     "build": "rollup -c",
     "push-main": "jest && rollup -c --environment DEST:main && rollup -c --environment DEST:sim",
     "push-only-main": "jest && rollup -c --environment DEST:main",
-    "push-pserver": "jest && rollup -c --environment DEST:pserver",
+    "push-splus": "jest && rollup -c --environment DEST:splus",
     "push-local": "jest && rollup -c --environment DEST:local",
     "push-sim": "rollup -c --environment DEST:sim",
     "test": "jest",
