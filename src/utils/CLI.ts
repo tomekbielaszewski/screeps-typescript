@@ -2,7 +2,8 @@ export const cli = {
   help,
   creeps: {
     body,
-    life
+    life,
+    spawn,
   },
   buildings: {
     hits,
@@ -11,11 +12,11 @@ export const cli = {
       wall,
       rampart,
       lowhp,
-      hysteresis
+      hysteresis,
     }
   },
   log: {
-    state
+    state,
   }
 }
 
@@ -33,6 +34,22 @@ function life(): string {
   return Object.values(Game.creeps)
     .map(c => `${c.name}: ${c.ticksToLive}`)
     .reduce((a, b) => a + "\n" + b);
+}
+
+function spawn(spawnName: string, bodyParts: string[], role: string): string {
+  if (!bodyParts || bodyParts.length === 0 || !role) return `Spawns creep. Usage: spawn('Spawn1', ['move'], 'scout')`
+  const structureSpawn = Game.spawns[spawnName]
+  const result = structureSpawn.spawnCreep(bodyParts as BodyPartConstant[], `${Game.time}:${role}`, {
+    memory: {
+      role,
+      room: structureSpawn.room.name
+    }
+  })
+  switch (result) {
+    case OK:
+      return "ok"
+  }
+  return `something went wrong: ${result}`
 }
 
 function hits(): string {
