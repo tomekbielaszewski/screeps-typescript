@@ -11,7 +11,7 @@ import {defendRoom} from "utils/RoomDefense";
 GlobalsInitialization()
 
 function unwrappedLoop(): void {
-  defendRoom('W24N13');
+  Object.keys(Game.rooms).forEach(room => defendRoom(room));
 
   measure(CreepManager, "CreepManager");
   measure(CreepWorker, "CreepWorker");
