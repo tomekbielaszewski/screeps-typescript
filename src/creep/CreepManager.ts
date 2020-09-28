@@ -42,6 +42,7 @@ export enum CreepRole {
   BUILDER = "Builder",
   MINER = "Miner",
   CARRIER = "Carrier",
+  CLEANER = "Cleaner",
 }
 
 const creepRoleOrder = [
@@ -50,6 +51,7 @@ const creepRoleOrder = [
   CreepRole.BUILDER,
   CreepRole.MINER,
   CreepRole.CARRIER,
+  CreepRole.CLEANER,
 ];
 
 const creepDefinitions: Record<CreepRole, CreepDefinition[]> = {
@@ -77,6 +79,9 @@ const creepDefinitions: Record<CreepRole, CreepDefinition[]> = {
   [CreepRole.CARRIER]: [
     //new CreepDefinition(CreepRole.CARRIER, [MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY], 550),
   ],
+  [CreepRole.CLEANER]: [
+    //new CreepDefinition(CreepRole.CARRIER, [MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY], 550),
+  ],
 };
 
 const creepAmounts: Record<CreepRole, number> = {
@@ -85,6 +90,7 @@ const creepAmounts: Record<CreepRole, number> = {
   [CreepRole.BUILDER]: 2,
   [CreepRole.MINER]: 2,
   [CreepRole.CARRIER]: 2,
+  [CreepRole.CLEANER]: 0,
 }
 
 const creepSymbols: Record<CreepRole, string> = {
@@ -93,6 +99,7 @@ const creepSymbols: Record<CreepRole, string> = {
   [CreepRole.BUILDER]: "🔨",
   [CreepRole.MINER]: "⛏️",
   [CreepRole.CARRIER]: "📦",
+  [CreepRole.CLEANER]: "📦",
 }
 
 export function CreepManager(): void {

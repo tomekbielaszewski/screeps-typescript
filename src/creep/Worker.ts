@@ -5,6 +5,7 @@ import {HarvesterJob} from "./roles/Harvester";
 import {MinerJob} from "./roles/Miner";
 import {UpgraderJob} from "./roles/Upgrader";
 import {measure} from "../utils/Profiler";
+import {CleanerJob} from "./roles/Cleaner";
 
 const workers: Record<CreepRole, (creep: Creep) => void> = {
   [CreepRole.HARVESTER]: HarvesterJob,
@@ -12,6 +13,7 @@ const workers: Record<CreepRole, (creep: Creep) => void> = {
   [CreepRole.BUILDER]: BuilderJob,
   [CreepRole.MINER]: MinerJob,
   [CreepRole.CARRIER]: CarrierJob,
+  [CreepRole.CLEANER]: CleanerJob,
 }
 
 export function CreepWorker(): void {
