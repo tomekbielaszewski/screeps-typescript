@@ -8,11 +8,11 @@ import {
   resolveAndReplay,
   SpawningState,
   StateResolver
-} from "../states/CreepState";
-import {move} from "../states/Moving";
-import {refillCreep} from "../states/RefillingCreep";
-import {building, BuildingSubState} from "../states/Building";
-import {repairing} from "../states/Repairing";
+} from "../states/CreepState"
+import {move} from "../states/Moving"
+import {refillCreep} from "../states/RefillingCreep"
+import {building, BuildingSubState} from "../states/Building"
+import {repairing} from "../states/Repairing"
 
 export function BuilderJob(creep: Creep): void {
   if (!creep.memory.state) {
@@ -21,31 +21,31 @@ export function BuilderJob(creep: Creep): void {
 
   switch (creep.memory.state) {
     case SpawningState:
-      initialize(creep, {getNextState: buildingOrRepairing(creep), replay: BuilderJob});
-      break;
+      initialize(creep, {getNextState: buildingOrRepairing(creep), replay: BuilderJob})
+      break
     case RefillingState:
-      refillCreep(creep, true, {getNextState: buildingOrRepairing(creep), replay: BuilderJob});
-      break;
+      refillCreep(creep, true, {getNextState: buildingOrRepairing(creep), replay: BuilderJob})
+      break
     case MovingState:
-      move(creep, {replay: BuilderJob});
-      break;
+      move(creep, {replay: BuilderJob})
+      break
     case BuildingState:
       runBuildingState(creep)
-      break;
+      break
     case RepairingState:
-      repairing(creep, Memory.repair.fortifications, {nextState: RefillingState, replay: BuilderJob});
-      break;
+      repairing(creep, Memory.repair.fortifications, {nextState: RefillingState, replay: BuilderJob})
+      break
     case IdleState:
-      repairing(creep, true, {nextState: RefillingState});
-      break;
+      repairing(creep, true, {nextState: RefillingState})
+      break
   }
 }
 
 function runBuildingState(creep: Creep) {
-  const buildingSubState = building(creep)//, {nextState: RefillingState, replay: BuilderJob})
+  const buildingSubState = building(creep)
   switch (buildingSubState) {
     case BuildingSubState.Working:
-      break;
+      break
     case BuildingSubState.OutOfRange:
       resolveAndReplay(creep, {
         nextState: MovingState, params: {
@@ -53,21 +53,21 @@ function runBuildingState(creep: Creep) {
           target: getTarget(Game.getObjectById<ConstructionSite>(creep.memory.construction))
         },
         replay: BuilderJob
-      });
-      break;
+      })
+      break
     case BuildingSubState.ConstructionSiteDoesNotExist: //has CS been completed? Lets reply the current state
       resolveAndReplay(creep, {nextState: BuildingState, replay: BuilderJob})
-      break;
+      break
     case BuildingSubState.NoConstructionSite: //nothing to build - try repairing stuff
       resolveAndReplay(creep, {nextState: RepairingState, replay: BuilderJob})
-      break;
+      break
     case BuildingSubState.NoResources:
       resolveAndReplay(creep, {nextState: RefillingState, replay: BuilderJob})
-      break;
+      break
   }
 }
 
-function getTarget(construction: ConstructionSite | null): { x: number; y: number; room: string } {
+function getTarget(construction: ConstructionSite | null): { x: number, y: number, room: string } {
   if (!construction) throw Error('No target set')
   return {
     x: construction.pos.x,
@@ -78,13 +78,13 @@ function getTarget(construction: ConstructionSite | null): { x: number; y: numbe
 
 function buildingOrRepairing(creep: Creep) {
   return function (): CreepState {
-    const constructionSite = creep.room.find(FIND_MY_CONSTRUCTION_SITES);
-    if (constructionSite.length) return BuildingState;
-    return RepairingState;
-  };
+    const constructionSite = creep.room.find(FIND_MY_CONSTRUCTION_SITES)
+    if (constructionSite.length) return BuildingState
+    return RepairingState
+  }
 }
 
 function initialize(creep: Creep, state: StateResolver): void {
-  if (creep.spawning) return;
-  resolveAndReplay(creep, state);
+  if (creep.spawning) return
+  resolveAndReplay(creep, state)
 }
