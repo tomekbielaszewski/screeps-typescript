@@ -5,8 +5,7 @@ SpawningState --> BuildingState : CSites present
 SpawningState --> RepairingState : No CSites
 
 BuildingState --> RefillingState : No resources\non hand
-BuildingState --> IdleState : No CSites
-BuildingState --> RefillingState : Assigned CSite\ndoesn't exist
+BuildingState --> RepairingState : No CSites
 BuildingState --> MovingState : Out of range
 
 RefillingState --> BuildingState : Resources full\nCSites present

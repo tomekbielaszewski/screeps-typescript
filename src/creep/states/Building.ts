@@ -1,50 +1,39 @@
-import {IdleState, MovingState, ReplayFunction, resolveAndReplay, StateResolver} from "./CreepState";
+export enum BuildingSubState {
+  Working,
+  NoResources,
+  NoConstructionSite,
+  ConstructionSiteDoesNotExist,
+  OutOfRange
+}
 
-export function building(creep: Creep, state: StateResolver): void {
+export function building(creep: Creep): BuildingSubState {
   if (creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0) {
-    resolveAndReplay(creep, state);
-    return;
+    return BuildingSubState.NoResources
   }
 
   if (!creep.memory.construction) {
-    creep.memory.construction = creep.pos.findClosestByRange(FIND_MY_CONSTRUCTION_SITES)?.id;
+    creep.memory.construction = creep.pos.findClosestByRange(FIND_MY_CONSTRUCTION_SITES)?.id
   }
 
   if (!creep.memory.construction) {
-    resolveAndReplay(creep, {nextState: IdleState, replay: state.replay});
-    return;
+    return BuildingSubState.NoConstructionSite
   }
 
-  const construction = Game.getObjectById(creep.memory.construction as Id<ConstructionSite>);
+  const construction = Game.getObjectById(creep.memory.construction as Id<ConstructionSite>)
   if (!construction) {
-    delete creep.memory.construction;
-    resolveAndReplay(creep, state);
-    return;
+    delete creep.memory.construction
+    return BuildingSubState.ConstructionSiteDoesNotExist
   }
 
-  const buildResult = creep.build(construction);
+  creep.memory.construction = construction.id
+  const buildResult = creep.build(construction)
   switch (buildResult) {
     case OK:
-      break;
+      return BuildingSubState.Working
     case ERR_NOT_IN_RANGE:
-      goToConstruction(creep, construction, state.replay);
-      break;
+      return BuildingSubState.OutOfRange
     default:
-      console.log(`Building: build result ${buildResult}`);
+      console.log(`Building: build result ${buildResult}`)
+      return BuildingSubState.Working
   }
-}
-
-function goToConstruction(creep: Creep, construction: ConstructionSite, replay: ReplayFunction | undefined) {
-  setTarget(creep, construction);
-  creep.say("🥾");
-  resolveAndReplay(creep, {nextState: MovingState, params: {range: 3}, replay});
-}
-
-function setTarget(creep: Creep, construction: ConstructionSite): void {
-  creep.memory.construction = construction.id;
-  creep.memory.targetPos = {
-    x: construction.pos.x,
-    y: construction.pos.y,
-    room: construction.pos.roomName,
-  };
 }

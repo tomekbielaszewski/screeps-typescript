@@ -11,7 +11,7 @@ import {
 } from "../states/CreepState";
 import {move} from "../states/Moving";
 import {refillCreep} from "../states/RefillingCreep";
-import {building} from "../states/Building";
+import {building, BuildingSubState} from "../states/Building";
 import {repairing} from "../states/Repairing";
 
 export function BuilderJob(creep: Creep): void {
@@ -30,7 +30,7 @@ export function BuilderJob(creep: Creep): void {
       move(creep, {replay: BuilderJob});
       break;
     case BuildingState:
-      building(creep, {nextState: RefillingState, replay: BuilderJob});
+      runBuildingState(creep)
       break;
     case RepairingState:
       repairing(creep, Memory.repair.fortifications, {nextState: RefillingState, replay: BuilderJob});
@@ -38,6 +38,41 @@ export function BuilderJob(creep: Creep): void {
     case IdleState:
       repairing(creep, true, {nextState: RefillingState});
       break;
+  }
+}
+
+function runBuildingState(creep: Creep) {
+  const buildingSubState = building(creep)//, {nextState: RefillingState, replay: BuilderJob})
+  switch (buildingSubState) {
+    case BuildingSubState.Working:
+      break;
+    case BuildingSubState.OutOfRange:
+      resolveAndReplay(creep, {
+        nextState: MovingState, params: {
+          range: 3,
+          target: getTarget(Game.getObjectById<ConstructionSite>(creep.memory.construction))
+        },
+        replay: BuilderJob
+      });
+      break;
+    case BuildingSubState.ConstructionSiteDoesNotExist: //has CS been completed? Lets reply the current state
+      resolveAndReplay(creep, {nextState: BuildingState, replay: BuilderJob})
+      break;
+    case BuildingSubState.NoConstructionSite: //nothing to build - try repairing stuff
+      resolveAndReplay(creep, {nextState: RepairingState, replay: BuilderJob})
+      break;
+    case BuildingSubState.NoResources:
+      resolveAndReplay(creep, {nextState: RefillingState, replay: BuilderJob})
+      break;
+  }
+}
+
+function getTarget(construction: ConstructionSite | null): { x: number; y: number; room: string } {
+  if (!construction) throw Error('No target set')
+  return {
+    x: construction.pos.x,
+    y: construction.pos.y,
+    room: construction.pos.roomName,
   }
 }
 
