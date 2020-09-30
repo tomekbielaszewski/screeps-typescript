@@ -54,7 +54,7 @@ export function refillCreep(creep: Creep, takeFromSpawn: boolean, state: StateRe
 function goToStorage(creep: Creep, assignedStorage: Structure, replay: ReplayFunction | undefined) {
   setTargetStorage(creep, assignedStorage);
   creep.say("🥾");
-  resolveAndReplay(creep, {nextState: MovingState, replay});
+  resolveAndReplay(creep, {nextState: MovingState, params: {target: creep.memory.targetPos}, replay});
 }
 
 function setTargetStorage(creep: Creep, storage: Structure): void {

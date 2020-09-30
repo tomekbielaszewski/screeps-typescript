@@ -82,10 +82,10 @@ function isRepaired(repairedStructure: Structure): boolean {
   }
 }
 
-function goToStructure(creep: Creep, structure: Structure, replayFn: ReplayFunction | undefined) {
+function goToStructure(creep: Creep, structure: Structure, replay: ReplayFunction | undefined) {
   setTarget(creep, structure);
   creep.say("🥾");
-  resolveAndReplay(creep, {nextState: MovingState, params: {range: 3}, replay: replayFn});
+  resolveAndReplay(creep, {nextState: MovingState, params: {range: 3, target: creep.memory.targetPos}, replay});
 }
 
 function setTarget(creep: Creep, structure: Structure): void {

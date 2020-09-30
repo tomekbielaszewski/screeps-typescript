@@ -43,7 +43,7 @@ function goToSource(creep: Creep, source: Source, replay: ReplayFunction | undef
     room: source.pos.roomName,
   };
   creep.say("🥾");
-  resolveAndReplay(creep, {nextState: MovingState, replay});
+  resolveAndReplay(creep, {nextState: MovingState, params: {target: creep.memory.targetPos}, replay});
 }
 
 function findSource(creep: Creep) {
