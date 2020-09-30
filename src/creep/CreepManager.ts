@@ -93,7 +93,7 @@ const creepAmounts: Record<CreepRole, number> = {
   [CreepRole.CLEANER]: 0,
 }
 
-const creepSymbols: Record<CreepRole, string> = {
+export const creepSymbols: Record<CreepRole, string> = {
   [CreepRole.HARVESTER]: "🌾",
   [CreepRole.UPGRADER]: "⚡",
   [CreepRole.BUILDER]: "🔨",

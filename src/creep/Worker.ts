@@ -1,6 +1,6 @@
 import {BuilderJob} from "./roles/Builder";
 import {CarrierJob} from "./roles/Carrier";
-import {CreepRole} from "./CreepManager";
+import {CreepRole, creepSymbols} from "./CreepManager";
 import {HarvesterJob} from "./roles/Harvester";
 import {MinerJob} from "./roles/Miner";
 import {UpgraderJob} from "./roles/Upgrader";
@@ -27,5 +27,6 @@ export function CreepWorker(): void {
 function executeRole(role: CreepRole, creep: Creep) {
   return function (): void {
     workers[role](creep);
+    creep.room.visual.text(creepSymbols[role], creep.pos, {align: "center"})
   };
 }
