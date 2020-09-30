@@ -6,6 +6,11 @@ export function repairing(creep: Creep, repairFortifications: boolean, state: St
     return;
   }
 
+  if (!Memory.repair.lowHP || !Memory.repair.hysteresis) {
+    Memory.repair.lowHP = 0.8
+    Memory.repair.hysteresis = 0.19
+  }
+
   if (Memory.repair.lowHP + Memory.repair.hysteresis > 1) {
     throw new Error("Wrong repairing settings! Low HP + Hysteresis must be lower or equal to 1!");
   }
