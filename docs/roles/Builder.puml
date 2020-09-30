@@ -1,0 +1,33 @@
+@startuml
+hide empty description
+[*] --> SpawningState
+SpawningState --> BuildingState : CSites present
+SpawningState --> RepairingState : No CSites
+
+BuildingState --> RefillingState : No resources\non hand
+BuildingState --> IdleState : No CSites
+BuildingState --> RefillingState : Assigned CSite\ndoesn't exist
+BuildingState --> MovingState : Out of range
+
+RefillingState --> BuildingState : Resources full\nCSites present
+RefillingState --> RepairingState : No CSites
+RefillingState --> IdleState : No Storage
+RefillingState --> MovingState : Out of range
+
+RepairingState --> RefillingState : No resources\non hand
+RepairingState --> IdleState : Nothing\nto repair
+RepairingState --> RefillingState : Structure to repair\ndoesn't exist
+RepairingState --> RefillingState : Structure repaired
+RepairingState --> MovingState : Out of range
+
+IdleState --> RefillingState : No resources\non hand
+IdleState --> IdleState : Nothing\nto repair
+IdleState --> RefillingState : Structure to repair\ndoesn't exist
+IdleState --> RefillingState : Structure repaired
+IdleState --> MovingState : Out of range
+
+MovingState --> BuildingState : In range
+MovingState --> RefillingState : In range
+MovingState --> RepairingState : In range
+MovingState --> IdleState : In range
+@enduml
