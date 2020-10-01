@@ -13,7 +13,7 @@ import {
 import {move} from "../states/Moving"
 import {refillCreep, RefillingResult} from "../states/RefillingCreep"
 import {building, BuildingResult} from "../states/Building"
-import {repairing} from "../states/Repairing"
+import {repairing, RepairingResult} from "../states/Repairing"
 
 export function BuilderJob(creep: Creep): void {
   if (!creep.memory.state) {
@@ -34,17 +34,46 @@ export function BuilderJob(creep: Creep): void {
       runBuildingState(creep)
       break
     case RepairingState:
-      repairing(creep, Memory.repair.fortifications, {nextState: RefillingState, replay: BuilderJob})
+      runRepairingState(creep)
       break
     case IdleState:
-      repairing(creep, true, {nextState: RefillingState})
+      creep.say('🚬')
+      break
+  }
+}
+
+function runRepairingState(creep: Creep) {
+  const repairingResult = repairing(creep, Memory.repair.fortifications === true)
+  switch (repairingResult) {
+    case RepairingResult.Working: //then keep working
+      break
+    case RepairingResult.CouldNotRepair: //do not advance to another state and see what happens
+      break
+    case RepairingResult.CreepStoreEmpty:
+      resolveAndReplay(creep, {nextState: RefillingState, replay: BuilderJob})
+      break
+    case RepairingResult.NothingToRepair:
+      resolve(creep, {nextState: IdleState})
+      break
+    case RepairingResult.OutOfRange:
+      resolveAndReplay(creep, {
+        nextState: MovingState, params: {
+          range: 3,
+          target: getTarget(Game.getObjectById<RoomObject>(creep.memory.repair))
+        },
+        replay: BuilderJob
+      })
+      break
+    case RepairingResult.StructureNoLongerExists:
+    case RepairingResult.StructureRepaired:
+      resolveAndReplay(creep, {nextState: RepairingState})
       break
   }
 }
 
 function runRefillingState(creep: Creep) {
-  const refillingSubState = refillCreep(creep, true)
-  switch (refillingSubState) {
+  const refillingResult = refillCreep(creep, true)
+  switch (refillingResult) {
     case RefillingResult.CreepRefilled:
       resolve(creep, {getNextState: buildingOrRepairing(creep), replay: BuilderJob})
       break
@@ -57,7 +86,6 @@ function runRefillingState(creep: Creep) {
     case RefillingResult.OutOfRange:
       resolveAndReplay(creep, {
         nextState: MovingState, params: {
-          range: 3,
           target: getTarget(Game.getObjectById<RoomObject>(creep.memory.storage))
         },
         replay: BuilderJob
@@ -69,7 +97,7 @@ function runRefillingState(creep: Creep) {
 function runBuildingState(creep: Creep) {
   const buildingSubState = building(creep)
   switch (buildingSubState) {
-    case BuildingResult.Working:
+    case BuildingResult.Working: //then keep working
       break
     case BuildingResult.OutOfRange:
       resolveAndReplay(creep, {

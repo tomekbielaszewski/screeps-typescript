@@ -4,14 +4,17 @@ hide empty description
 SpawningState --> BuildingState : CSites present
 SpawningState --> RepairingState : No CSites
 
+BuildingState --> BuildingState : Working
+BuildingState --> BuildingState : CSite no longer exist
 BuildingState --> RefillingState : No resources\non hand
 BuildingState --> RepairingState : No CSites
 BuildingState --> MovingState : Out of range
 
 RefillingState --> BuildingState : Resources full\nCSites present
 RefillingState --> RepairingState : No CSites
-RefillingState --> IdleState : No Storage
 RefillingState --> MovingState : Out of range
+RefillingState --> RefillingState : No resources in storage
+RefillingState --> RefillingState : Could not withdraw
 
 RepairingState --> RefillingState : No resources\non hand
 RepairingState --> IdleState : Nothing\nto repair

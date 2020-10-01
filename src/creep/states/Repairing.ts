@@ -1,9 +1,16 @@
-import {IdleState, MovingState, ReplayFunction, resolveAndReplay, StateResolver} from "./CreepState";
+export enum RepairingResult {
+  CreepStoreEmpty,
+  NothingToRepair,
+  StructureNoLongerExists,
+  StructureRepaired,
+  Working,
+  OutOfRange,
+  CouldNotRepair
+}
 
-export function repairing(creep: Creep, repairFortifications: boolean, state: StateResolver): void {
+export function repairing(creep: Creep, repairFortifications: boolean): RepairingResult {
   if (creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0) {
-    resolveAndReplay(creep, state);
-    return;
+    return RepairingResult.CreepStoreEmpty
   }
 
   if (!Memory.repair.lowHP || !Memory.repair.hysteresis) {
@@ -12,40 +19,37 @@ export function repairing(creep: Creep, repairFortifications: boolean, state: St
   }
 
   if (Memory.repair.lowHP + Memory.repair.hysteresis > 1) {
-    throw new Error("Wrong repairing settings! Low HP + Hysteresis must be lower or equal to 1!");
+    throw new Error("Wrong repairing settings! Low HP + Hysteresis must be lower or equal to 1!")
   }
 
   if (!creep.memory.repair) {
-    findLowHpStructure(creep, repairFortifications);
+    findLowHpStructure(creep, repairFortifications)
   }
 
   if (!creep.memory.repair) {
-    resolveAndReplay(creep, {nextState: IdleState, replay: state.replay});
-    return;
+    return RepairingResult.NothingToRepair
   }
 
-  const repairedStructure = Game.getObjectById<OwnedStructure>(creep.memory.repair);
+  const repairedStructure = Game.getObjectById<OwnedStructure>(creep.memory.repair)
   if (!repairedStructure) {
-    delete creep.memory.repair;
-    resolveAndReplay(creep, state);
-    return;
+    delete creep.memory.repair
+    return RepairingResult.StructureNoLongerExists
   }
 
   if (isRepaired(repairedStructure)) {
-    delete creep.memory.repair;
-    resolveAndReplay(creep, state);
-    return;
+    delete creep.memory.repair
+    return RepairingResult.StructureRepaired
   }
 
-  const repairResult = creep.repair(repairedStructure);
+  const repairResult = creep.repair(repairedStructure)
   switch (repairResult) {
     case OK:
-      break;
+      return RepairingResult.Working
     case ERR_NOT_IN_RANGE:
-      goToStructure(creep, repairedStructure, state?.replay);
-      break;
+      return RepairingResult.OutOfRange
     default:
-      console.log(`Repairing: repair result ${repairResult}`);
+      console.log(`Repairing: repair result ${repairResult}`)
+      return RepairingResult.CouldNotRepair
   }
 }
 
@@ -58,7 +62,7 @@ function findLowHpStructure(creep: Creep, repairFortifications: boolean) {
   let lowestHpStructures = creep.room.find(FIND_STRUCTURES)
     .filter(s => s.structureType !== STRUCTURE_CONTROLLER)
     .filter(s => hpPercent(s) < Memory.repair.lowHP);
-  if (repairFortifications === false) {
+  if (repairFortifications) {
     lowestHpStructures = lowestHpStructures
       .filter(s =>
         s.structureType !== STRUCTURE_WALL &&
@@ -80,20 +84,6 @@ function isRepaired(repairedStructure: Structure): boolean {
     default:
       return hpPercent(repairedStructure) > Memory.repair.lowHP + Memory.repair.hysteresis;
   }
-}
-
-function goToStructure(creep: Creep, structure: Structure, replay: ReplayFunction | undefined) {
-  setTarget(creep, structure);
-  creep.say("🥾");
-  resolveAndReplay(creep, {nextState: MovingState, params: {range: 3, target: creep.memory.targetPos}, replay});
-}
-
-function setTarget(creep: Creep, structure: Structure): void {
-  creep.memory.targetPos = {
-    x: structure.pos.x,
-    y: structure.pos.y,
-    room: structure.pos.roomName,
-  };
 }
 
 function hpPercent(s: Structure): number {
