@@ -1,14 +1,14 @@
-export enum BuildingSubState {
+export enum BuildingResult {
   Working,
-  NoResources,
+  CreepStoreEmpty,
   NoConstructionSite,
-  ConstructionSiteDoesNotExist,
+  ConstructionSiteNoLongerExist,
   OutOfRange
 }
 
-export function building(creep: Creep): BuildingSubState {
+export function building(creep: Creep): BuildingResult {
   if (creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0) {
-    return BuildingSubState.NoResources
+    return BuildingResult.CreepStoreEmpty
   }
 
   if (!creep.memory.construction) {
@@ -16,24 +16,24 @@ export function building(creep: Creep): BuildingSubState {
   }
 
   if (!creep.memory.construction) {
-    return BuildingSubState.NoConstructionSite
+    return BuildingResult.NoConstructionSite
   }
 
   const construction = Game.getObjectById(creep.memory.construction as Id<ConstructionSite>)
   if (!construction) {
     delete creep.memory.construction
-    return BuildingSubState.ConstructionSiteDoesNotExist
+    return BuildingResult.ConstructionSiteNoLongerExist
   }
 
   creep.memory.construction = construction.id
   const buildResult = creep.build(construction)
   switch (buildResult) {
     case OK:
-      return BuildingSubState.Working
+      return BuildingResult.Working
     case ERR_NOT_IN_RANGE:
-      return BuildingSubState.OutOfRange
+      return BuildingResult.OutOfRange
     default:
       console.log(`Building: build result ${buildResult}`)
-      return BuildingSubState.Working
+      return BuildingResult.Working
   }
 }

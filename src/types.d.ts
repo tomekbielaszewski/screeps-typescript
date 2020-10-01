@@ -2,7 +2,7 @@ interface CreepMemory {
   repair?: any;
   construction?: any;
   container?: string;
-  storage?: string;
+  storage?: any;
   source?: string;
   role: string;
   room: string;

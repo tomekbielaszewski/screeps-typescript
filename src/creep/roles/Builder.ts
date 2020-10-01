@@ -5,13 +5,14 @@ import {
   MovingState,
   RefillingState,
   RepairingState,
+  resolve,
   resolveAndReplay,
   SpawningState,
   StateResolver
 } from "../states/CreepState"
 import {move} from "../states/Moving"
-import {refillCreep} from "../states/RefillingCreep"
-import {building, BuildingSubState} from "../states/Building"
+import {refillCreep, RefillingResult} from "../states/RefillingCreep"
+import {building, BuildingResult} from "../states/Building"
 import {repairing} from "../states/Repairing"
 
 export function BuilderJob(creep: Creep): void {
@@ -24,7 +25,7 @@ export function BuilderJob(creep: Creep): void {
       initialize(creep, {getNextState: buildingOrRepairing(creep), replay: BuilderJob})
       break
     case RefillingState:
-      refillCreep(creep, true, {getNextState: buildingOrRepairing(creep), replay: BuilderJob})
+      runRefillingState(creep)
       break
     case MovingState:
       move(creep, {replay: BuilderJob})
@@ -41,38 +42,62 @@ export function BuilderJob(creep: Creep): void {
   }
 }
 
-function runBuildingState(creep: Creep) {
-  const buildingSubState = building(creep)
-  switch (buildingSubState) {
-    case BuildingSubState.Working:
+function runRefillingState(creep: Creep) {
+  const refillingSubState = refillCreep(creep, true)
+  switch (refillingSubState) {
+    case RefillingResult.CreepRefilled:
+      resolve(creep, {getNextState: buildingOrRepairing(creep), replay: BuilderJob})
       break
-    case BuildingSubState.OutOfRange:
+    case RefillingResult.CreepStoreFull:
+      resolveAndReplay(creep, {getNextState: buildingOrRepairing(creep), replay: BuilderJob})
+      break
+    case RefillingResult.NoResourcesInStorage: //do not advance to another state
+    case RefillingResult.CouldNotWithdraw: //do not advance to another state
+      break
+    case RefillingResult.OutOfRange:
       resolveAndReplay(creep, {
         nextState: MovingState, params: {
           range: 3,
-          target: getTarget(Game.getObjectById<ConstructionSite>(creep.memory.construction))
+          target: getTarget(Game.getObjectById<RoomObject>(creep.memory.storage))
         },
         replay: BuilderJob
       })
       break
-    case BuildingSubState.ConstructionSiteDoesNotExist: //has CS been completed? Lets reply the current state
+  }
+}
+
+function runBuildingState(creep: Creep) {
+  const buildingSubState = building(creep)
+  switch (buildingSubState) {
+    case BuildingResult.Working:
+      break
+    case BuildingResult.OutOfRange:
+      resolveAndReplay(creep, {
+        nextState: MovingState, params: {
+          range: 3,
+          target: getTarget(Game.getObjectById<RoomObject>(creep.memory.construction))
+        },
+        replay: BuilderJob
+      })
+      break
+    case BuildingResult.ConstructionSiteNoLongerExist: //has CS been completed? Lets reply the current state
       resolveAndReplay(creep, {nextState: BuildingState, replay: BuilderJob})
       break
-    case BuildingSubState.NoConstructionSite: //nothing to build - try repairing stuff
+    case BuildingResult.NoConstructionSite: //nothing to build - try repairing stuff
       resolveAndReplay(creep, {nextState: RepairingState, replay: BuilderJob})
       break
-    case BuildingSubState.NoResources:
+    case BuildingResult.CreepStoreEmpty:
       resolveAndReplay(creep, {nextState: RefillingState, replay: BuilderJob})
       break
   }
 }
 
-function getTarget(construction: ConstructionSite | null): { x: number, y: number, room: string } {
-  if (!construction) throw Error('No target set')
+function getTarget(roomObject: RoomObject | null): { x: number, y: number, room: string } {
+  if (!roomObject) throw Error('No target set')
   return {
-    x: construction.pos.x,
-    y: construction.pos.y,
-    room: construction.pos.roomName,
+    x: roomObject.pos.x,
+    y: roomObject.pos.y,
+    room: roomObject.pos.roomName,
   }
 }
 

@@ -1,9 +1,14 @@
-import {IdleState, MovingState, ReplayFunction, resolve, resolveAndReplay, StateResolver} from "./CreepState";
+export enum RefillingResult {
+  CreepStoreFull,
+  CreepRefilled,
+  OutOfRange,
+  NoResourcesInStorage,
+  CouldNotWithdraw
+}
 
-export function refillCreep(creep: Creep, takeFromSpawn: boolean, state: StateResolver): void {
+export function refillCreep(creep: Creep, takeFromSpawn: boolean): RefillingResult {
   if (creep.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
-    resolveAndReplay(creep, state);
-    return;
+    return RefillingResult.CreepStoreFull
   }
 
   let storage;
@@ -35,32 +40,18 @@ export function refillCreep(creep: Creep, takeFromSpawn: boolean, state: StateRe
   }
 
   if (storage) {
+    creep.memory.storage = storage.id
     const result = creep.withdraw(storage, RESOURCE_ENERGY)
     switch (result) {
       case OK:
-        resolve(creep, state);
-        break;
+        return RefillingResult.CreepRefilled
       case ERR_NOT_IN_RANGE:
-        goToStorage(creep, storage, state.replay);
-        break;
+        return RefillingResult.OutOfRange
       default:
-        console.log(`Refilling: withdraw result ${result}`);
+        console.log(`Refilling: withdraw result ${result}`)
+        return RefillingResult.CouldNotWithdraw
     }
-  } else {
-    resolveAndReplay(creep, {nextState: IdleState, replay: state.replay});
   }
-}
-
-function goToStorage(creep: Creep, assignedStorage: Structure, replay: ReplayFunction | undefined) {
-  setTargetStorage(creep, assignedStorage);
-  creep.say("🥾");
-  resolveAndReplay(creep, {nextState: MovingState, params: {target: creep.memory.targetPos}, replay});
-}
-
-function setTargetStorage(creep: Creep, storage: Structure): void {
-  creep.memory.targetPos = {
-    x: storage.pos.x,
-    y: storage.pos.y,
-    room: storage.pos.roomName,
-  };
+  delete creep.memory.storage
+  return RefillingResult.NoResourcesInStorage
 }
