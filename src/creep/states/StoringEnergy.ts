@@ -1,55 +1,57 @@
-import {IdleState, MovingState, ReplayFunction, resolve, resolveAndReplay, StateResolver} from "./CreepState";
+export enum StoringResult {
+  CreepStoreEmpty,
+  NoStorageSpaceAvailableInRoom,
+  Storing,
+  StoringFinished,
+  OutOfRange,
+  AssignedStorageFull,
+  CouldNotTransfer
+}
 
-export function storeEnergy(creep: Creep, state: StateResolver): void {
+export function storeEnergy(creep: Creep): StoringResult {
   if (creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0) {
-    delete creep.memory.storage;
-    resolveAndReplay(creep, state);
-    return;
+    delete creep.memory.storage
+    return StoringResult.CreepStoreEmpty
   }
 
-  if (!creep.memory.storage) {
-    const assigned = assignStorage(creep, state?.replay);
-    if (!assigned) return;
+  if (!creep.memory.storage || Game.getObjectById(creep.memory.storage) === null) {
+    creep.memory.storage = findStorage(creep)?.id
+    if (!creep.memory.storage) {
+      return StoringResult.NoStorageSpaceAvailableInRoom
+    }
   }
 
-  const assignedStorage = Game.getObjectById(creep.memory.storage as Id<StructureSpawn | StructureExtension | StructureLink | StructureStorage | StructureContainer>);
+  const assignedStorage = Game.getObjectById(creep.memory.storage as Id<StructureSpawn | StructureExtension | StructureStorage | StructureContainer>)
   if (!assignedStorage) {
-    assignStorage(creep, state?.replay);
-    return;
+    delete creep.memory.storage
+    return StoringResult.NoStorageSpaceAvailableInRoom
   }
 
-  const transferResult = creep.transfer(assignedStorage, RESOURCE_ENERGY);
+  const transferResult = creep.transfer(assignedStorage, RESOURCE_ENERGY)
   switch (transferResult) {
     case OK:
       if (creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0) {
-        delete creep.memory.storage;
-        resolve(creep, state);
+        delete creep.memory.storage
+        return StoringResult.StoringFinished
       }
-      break;
+      return StoringResult.Storing
     case ERR_NOT_IN_RANGE:
-      goToStorage(creep, assignedStorage, state?.replay);
-      break;
+      return StoringResult.OutOfRange
     case ERR_FULL:
-      assignStorage(creep, state?.replay);
-      break;
+      delete creep.memory.storage
+      return StoringResult.AssignedStorageFull
     default:
-      console.log(`StoringEnergy: transfer result ${transferResult}`);
+      console.log(`StoringEnergy: transfer result ${transferResult}`)
+      return StoringResult.CouldNotTransfer
   }
 }
 
-function assignStorage(creep: Creep, replay: ReplayFunction | undefined): boolean {
-  const storage = findSpawn(creep) ||
+function findStorage(creep: Creep): Structure | undefined {
+  return findSpawn(creep) ||
     findTower(creep) ||
     findExtension(creep) ||
     findClosestContainer(creep) ||
     findClosestStorage(creep);
-  if (storage) {
-    setTargetStorage(creep, storage);
-    return true;
-  } else {
-    resolveAndReplay(creep, {nextState: IdleState, replay});
-    return false;
-  }
 }
 
 function findSpawn(creep: Creep): Structure | undefined {
@@ -94,19 +96,4 @@ function findClosestStorage(creep: Creep): Structure | undefined {
   });
   if (storage) return storage;
   return undefined;
-}
-
-function goToStorage(creep: Creep, assignedStorage: Structure, replay: ReplayFunction | undefined) {
-  setTargetStorage(creep, assignedStorage);
-  creep.say("🥾");
-  resolveAndReplay(creep, {nextState: MovingState, params: {target: creep.memory.targetPos}, replay});
-}
-
-function setTargetStorage(creep: Creep, storage: Structure): void {
-  creep.memory.storage = storage.id;
-  creep.memory.targetPos = {
-    x: storage.pos.x,
-    y: storage.pos.y,
-    room: storage.pos.roomName,
-  };
 }
