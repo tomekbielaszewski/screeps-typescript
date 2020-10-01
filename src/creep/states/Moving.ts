@@ -35,3 +35,12 @@ export function move(creep: Creep): MovingResult {
     return MovingResult.ReachedDestination
   }
 }
+
+export function toTarget(roomObject: RoomObject | null): { x: number, y: number, room: string } {
+  if (!roomObject) throw Error('No target set')
+  return {
+    x: roomObject.pos.x,
+    y: roomObject.pos.y,
+    room: roomObject.pos.roomName,
+  }
+}

@@ -11,7 +11,7 @@ import {
   SpawningState,
   StateResolver
 } from "../states/CreepState"
-import {move, MovingResult} from "../states/Moving"
+import {move, MovingResult, toTarget} from "../states/Moving"
 import {refillCreep, RefillingResult} from "../states/RefillingCreep"
 import {building, BuildingResult} from "../states/Building"
 import {findLowHpStructures, repairing, RepairingResult} from "../states/Repairing"
@@ -87,7 +87,7 @@ function runRepairingState(creep: Creep) {
       resolveAndReplay(creep, {
         nextState: MovingState, params: {
           range: 3,
-          target: getTarget(Game.getObjectById<RoomObject>(creep.memory.repair))
+          target: toTarget(Game.getObjectById<RoomObject>(creep.memory.repair))
         },
         replay: BuilderJob
       })
@@ -110,7 +110,7 @@ function runRefillingState(creep: Creep) {
     case RefillingResult.OutOfRange:
       resolveAndReplay(creep, {
         nextState: MovingState, params: {
-          target: getTarget(Game.getObjectById<RoomObject>(creep.memory.storage))
+          target: toTarget(Game.getObjectById<RoomObject>(creep.memory.storage))
         },
         replay: BuilderJob
       })
@@ -127,7 +127,7 @@ function runBuildingState(creep: Creep) {
       resolveAndReplay(creep, {
         nextState: MovingState, params: {
           range: 3,
-          target: getTarget(Game.getObjectById<RoomObject>(creep.memory.construction))
+          target: toTarget(Game.getObjectById<RoomObject>(creep.memory.construction))
         },
         replay: BuilderJob
       })
@@ -141,15 +141,6 @@ function runBuildingState(creep: Creep) {
     case BuildingResult.CreepStoreEmpty:
       resolveAndReplay(creep, {nextState: RefillingState, replay: BuilderJob})
       break
-  }
-}
-
-function getTarget(roomObject: RoomObject | null): { x: number, y: number, room: string } {
-  if (!roomObject) throw Error('No target set')
-  return {
-    x: roomObject.pos.x,
-    y: roomObject.pos.y,
-    room: roomObject.pos.roomName,
   }
 }
 
