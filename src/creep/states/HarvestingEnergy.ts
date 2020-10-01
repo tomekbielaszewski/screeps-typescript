@@ -1,52 +1,49 @@
-import {IdleState, MovingState, ReplayFunction, resolve, resolveAndReplay, StateResolver} from "./CreepState";
 import {assignToSource} from "../management/SourceAssigner";
 
-export function harvest(creep: Creep, checkCapacity: boolean, changeSourceWhenEmpty: boolean, state: StateResolver): void {
+export enum HarvestingResult {
+  CreepStoreFull,
+  CouldNotFindSource,
+  Harvesting,
+  OutOfRange,
+  CouldNotHarvest,
+}
+
+export function harvest(creep: Creep, checkCapacity: boolean, changeSourceWhenEmpty: boolean): HarvestingResult {
   if (checkCapacity && creep.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
-    resolveAndReplay(creep, state);
-    return;
+    return HarvestingResult.CreepStoreFull
   }
 
   if (!creep.memory.source) {
-    findSource(creep);
+    assignSource(creep)
   }
 
-  let source = Game.getObjectById(creep.memory.source as Id<Source>);
+  let source = Game.getObjectById(creep.memory.source as Id<Source>)
   if (!source) {
-    findSource(creep);
-    return;
-  } else if (changeSourceWhenEmpty && source.energy === 0) {
-    source = findAlternativeSource(creep);
+    assignSource(creep);
+    return HarvestingResult.CouldNotFindSource
+  }
+
+  if (changeSourceWhenEmpty && source.energy === 0) {
+    source = findAlternativeSource(creep)
   }
 
   if (!source) {
-    resolve(creep, {nextState: IdleState});
-    return;
+    return HarvestingResult.CouldNotFindSource
   }
 
   const harvestResult = creep.harvest(source);
   switch (harvestResult) {
     case OK:
-      return;
+      return HarvestingResult.Harvesting
     case ERR_NOT_IN_RANGE:
-      goToSource(creep, source, state?.replay)
-      return;
+      return HarvestingResult.OutOfRange
     default:
       console.log(`HarvestingEnergy: harvest result ${harvestResult}`);
+      return HarvestingResult.CouldNotHarvest
   }
 }
 
-function goToSource(creep: Creep, source: Source, replay: ReplayFunction | undefined) {
-  creep.memory.targetPos = {
-    x: source.pos.x,
-    y: source.pos.y,
-    room: source.pos.roomName,
-  };
-  creep.say("🥾");
-  resolveAndReplay(creep, {nextState: MovingState, params: {target: creep.memory.targetPos}, replay});
-}
-
-function findSource(creep: Creep) {
+function assignSource(creep: Creep) {
   creep.room.find(FIND_SOURCES)
     .sort((s1, s2) => creep.pos.getRangeTo(s1.pos) - creep.pos.getRangeTo(s2.pos))
     .find(source => assignToSource(creep, source));
