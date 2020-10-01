@@ -7,18 +7,20 @@ import {
   RepairingState,
   resolve,
   resolveAndReplay,
+  resolveLastStateAndReplay,
   SpawningState,
   StateResolver
 } from "../states/CreepState"
-import {move} from "../states/Moving"
+import {move, MovingResult} from "../states/Moving"
 import {refillCreep, RefillingResult} from "../states/RefillingCreep"
 import {building, BuildingResult} from "../states/Building"
-import {repairing, RepairingResult} from "../states/Repairing"
+import {findLowHpStructures, repairing, RepairingResult} from "../states/Repairing"
 
 export function BuilderJob(creep: Creep): void {
   if (!creep.memory.state) {
     creep.memory.state = SpawningState
   }
+  Memory.repair.fortifications = Memory.repair.fortifications === true
 
   switch (creep.memory.state) {
     case SpawningState:
@@ -28,7 +30,7 @@ export function BuilderJob(creep: Creep): void {
       runRefillingState(creep)
       break
     case MovingState:
-      move(creep, {replay: BuilderJob})
+      runMovingState(creep)
       break
     case BuildingState:
       runBuildingState(creep)
@@ -38,22 +40,48 @@ export function BuilderJob(creep: Creep): void {
       break
     case IdleState:
       creep.say('🚬')
+      resolve(creep, {getNextState: buildingOrRepairing(creep), replay: BuilderJob})
+      break
+  }
+}
+
+function runMovingState(creep: Creep) {
+  const movingResult = move(creep)
+  switch (movingResult) {
+    case MovingResult.CouldNotMove: //do not advance to another state and see what happens
+      break
+    case MovingResult.Moving: //so keep moving
+      break
+    case MovingResult.NoPath: //something blocking the path? wait to next tick and run again. In future good to have some traffic control here
+      creep.say('🗺️🤔')
+      break
+    case MovingResult.NoTargetPositionSet:
+      resolveLastStateAndReplay(creep, {replay: BuilderJob})
+      break
+    case MovingResult.ReachedDestination:
+      resolveLastStateAndReplay(creep, {replay: BuilderJob})
+      break
+    case MovingResult.Tired:
+      creep.say('😩')
       break
   }
 }
 
 function runRepairingState(creep: Creep) {
-  const repairingResult = repairing(creep, Memory.repair.fortifications === true)
+  const repairingResult = repairing(creep, Memory.repair.fortifications)
   switch (repairingResult) {
     case RepairingResult.Working: //then keep working
-      break
     case RepairingResult.CouldNotRepair: //do not advance to another state and see what happens
+      break
+    case RepairingResult.NothingToRepair:
+    case RepairingResult.StructureNoLongerExists:
+      resolveAndReplay(creep, {nextState: IdleState})
+      break
+    case RepairingResult.StructureRepaired:
+      resolve(creep, {nextState: IdleState})
       break
     case RepairingResult.CreepStoreEmpty:
       resolveAndReplay(creep, {nextState: RefillingState, replay: BuilderJob})
-      break
-    case RepairingResult.NothingToRepair:
-      resolve(creep, {nextState: IdleState})
       break
     case RepairingResult.OutOfRange:
       resolveAndReplay(creep, {
@@ -63,10 +91,6 @@ function runRepairingState(creep: Creep) {
         },
         replay: BuilderJob
       })
-      break
-    case RepairingResult.StructureNoLongerExists:
-    case RepairingResult.StructureRepaired:
-      resolveAndReplay(creep, {nextState: RepairingState})
       break
   }
 }
@@ -131,9 +155,11 @@ function getTarget(roomObject: RoomObject | null): { x: number, y: number, room:
 
 function buildingOrRepairing(creep: Creep) {
   return function (): CreepState {
-    const constructionSite = creep.room.find(FIND_MY_CONSTRUCTION_SITES)
-    if (constructionSite.length) return BuildingState
-    return RepairingState
+    const lowHpStructures = findLowHpStructures(creep, Memory.repair.fortifications)
+    if (lowHpStructures.length) return RepairingState
+    const constructionSites = creep.room.find(FIND_MY_CONSTRUCTION_SITES)
+    if (constructionSites.length) return BuildingState
+    return IdleState
   }
 }
 

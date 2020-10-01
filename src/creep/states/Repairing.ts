@@ -23,7 +23,11 @@ export function repairing(creep: Creep, repairFortifications: boolean): Repairin
   }
 
   if (!creep.memory.repair) {
-    findLowHpStructure(creep, repairFortifications)
+    const lowHpStructures = findLowHpStructures(creep, repairFortifications)
+    if (lowHpStructures.length) {
+      const lowestHpStructure = lowHpStructures.reduce((s1, s2) => (hpPercent(s1) < hpPercent(s2) ? s1 : s2))
+      creep.memory.repair = lowestHpStructure.id
+    }
   }
 
   if (!creep.memory.repair) {
@@ -58,21 +62,19 @@ export function repairing(creep: Creep, repairFortifications: boolean): Repairin
 // .reduce((s1, s2) => (s1.hits / s1.hitsMax < s2.hits / s2.hitsMax ? s1 : s2))
 // .map(s => s.structureType)
 
-function findLowHpStructure(creep: Creep, repairFortifications: boolean) {
+export function findLowHpStructures(creep: Creep, repairFortifications: boolean): Structure[] {
   let lowestHpStructures = creep.room.find(FIND_STRUCTURES)
     .filter(s => s.structureType !== STRUCTURE_CONTROLLER)
-    .filter(s => hpPercent(s) < Memory.repair.lowHP);
-  if (repairFortifications) {
+    .filter(s => hpPercent(s) < Memory.repair.lowHP)
+  if (!repairFortifications) {
     lowestHpStructures = lowestHpStructures
       .filter(s =>
         s.structureType !== STRUCTURE_WALL &&
         s.structureType !== STRUCTURE_RAMPART
       )
   }
-  if (lowestHpStructures.length) {
-    const lowestHpStructure = lowestHpStructures.reduce((s1, s2) => (hpPercent(s1) < hpPercent(s2) ? s1 : s2));
-    creep.memory.repair = lowestHpStructure.id;
-  }
+
+  return lowestHpStructures
 }
 
 function isRepaired(repairedStructure: Structure): boolean {
@@ -82,10 +84,10 @@ function isRepaired(repairedStructure: Structure): boolean {
     case STRUCTURE_RAMPART:
       return repairedStructure.hits > (Memory.repair.rampart || 500000)
     default:
-      return hpPercent(repairedStructure) > Memory.repair.lowHP + Memory.repair.hysteresis;
+      return hpPercent(repairedStructure) > Memory.repair.lowHP + Memory.repair.hysteresis
   }
 }
 
 function hpPercent(s: Structure): number {
-  return s.hits / s.hitsMax;
+  return s.hits / s.hitsMax
 }

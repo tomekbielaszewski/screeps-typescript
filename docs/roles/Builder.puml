@@ -1,35 +1,36 @@
 @startuml
 hide empty description
 [*] --> SpawningState
+SpawningState --> RepairingState : Low HP\nstructures present
 SpawningState --> BuildingState : CSites present
-SpawningState --> RepairingState : No CSites
+SpawningState --> IdleState : Nothing to do
 
 BuildingState --> BuildingState : Working
-BuildingState --> BuildingState : CSite no longer exist
 BuildingState --> RefillingState : No resources\non hand
-BuildingState --> RepairingState : No CSites
 BuildingState --> MovingState : Out of range
+BuildingState --> IdleState : CSite no longer exist
+BuildingState --> IdleState : No CSites
 
+RefillingState --> RepairingState : Resources full\nLow HP\nstructures present
 RefillingState --> BuildingState : Resources full\nCSites present
-RefillingState --> RepairingState : No CSites
+RefillingState --> IdleState : Resources full\nNothing to do
 RefillingState --> MovingState : Out of range
-RefillingState --> RefillingState : No resources in storage
-RefillingState --> RefillingState : Could not withdraw
+RefillingState --> RefillingState : No resources in storage\nwait for resources
+RefillingState --> RefillingState : Could not withdraw\ntry again
 
+RepairingState --> RepairingState : Working
+RepairingState --> RepairingState : Could not repair\ntry again
 RepairingState --> RefillingState : No resources\non hand
 RepairingState --> IdleState : Nothing\nto repair
-RepairingState --> RefillingState : Structure to repair\ndoesn't exist
-RepairingState --> RefillingState : Structure repaired
+RepairingState --> IdleState : Structure to repair\ndoesn't exist
+RepairingState --> IdleState : Structure repaired
 RepairingState --> MovingState : Out of range
 
-IdleState --> RefillingState : No resources\non hand
-IdleState --> IdleState : Nothing\nto repair
-IdleState --> RefillingState : Structure to repair\ndoesn't exist
-IdleState --> RefillingState : Structure repaired
-IdleState --> MovingState : Out of range
+MovingState --> BuildingState : In range\nor no target set
+MovingState --> RefillingState : In range\nor no target set
+MovingState --> RepairingState : In range\nor no target set
+MovingState --> MovingState : Tired or moving\n or no path or could not move
 
-MovingState --> BuildingState : In range
-MovingState --> RefillingState : In range
-MovingState --> RepairingState : In range
-MovingState --> IdleState : In range
+IdleState --> RepairingState : Low HP\nstructures present
+IdleState --> BuildingState : CSites present
 @enduml

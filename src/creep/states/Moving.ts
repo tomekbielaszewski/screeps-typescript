@@ -1,11 +1,17 @@
-import {resolveLastStateAndReplay, StateResolver} from "./CreepState";
+export enum MovingResult {
+  NoTargetPositionSet,
+  Moving,
+  Tired,
+  NoPath,
+  CouldNotMove,
+  ReachedDestination
+}
 
-export function move(creep: Creep, state: StateResolver) {
+export function move(creep: Creep): MovingResult {
   const targetPos = creep.memory.param?.target as { x: number; y: number; room: string };
   if (!targetPos) {
     console.log(`Moving state executed without setting target position! ${creep.name}`);
-    resolveLastStateAndReplay(creep, state);
-    return;
+    return MovingResult.NoTargetPositionSet;
   }
   const target = new RoomPosition(targetPos.x, targetPos.y, targetPos.room);
   const range = creep.memory.param?.range as number || 1;
@@ -14,16 +20,18 @@ export function move(creep: Creep, state: StateResolver) {
     const moveToResult = creep.moveTo(target, {visualizePathStyle: {stroke: '#ffaa00'}});
     switch (moveToResult) {
       case OK:
-        break;
+        return MovingResult.Moving
       case ERR_TIRED:
-        break;
+        return MovingResult.Tired
+      case ERR_NO_PATH:
+        return MovingResult.NoPath
       default:
         console.log(`Moving: moveTo result ${moveToResult}`);
+        return MovingResult.CouldNotMove
     }
-    return;
+  } else {
+    delete creep.memory.param?.range
+    delete creep.memory.param?.target;
+    return MovingResult.ReachedDestination
   }
-
-  delete creep.memory.param?.range
-  delete creep.memory.targetPos;
-  resolveLastStateAndReplay(creep, state);
 }

@@ -69,12 +69,12 @@ export function resolveAndReplay(creep: Creep, stateResolver: StateResolver): vo
   replay(creep, stateResolver);
 }
 
-export function resolveLastState(creep: Creep, stateResolver: StateResolver): void {
+export function resolveLastState(creep: Creep): void {
   if (Memory.log.state === true) console.log(`[${Game.time}] creep[${creep.name}]: ${creep.memory.lastState} <== ${creep.memory.state}`);
   creep.memory.state = creep.memory.lastState;
 }
 
 export function resolveLastStateAndReplay(creep: Creep, stateResolver: StateResolver): void {
-  resolveLastState(creep, stateResolver);
+  resolveLastState(creep);
   replay(creep, stateResolver);
 }
