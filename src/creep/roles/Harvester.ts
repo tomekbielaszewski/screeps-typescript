@@ -11,7 +11,7 @@ import {
 import {harvest, HarvestingResult} from "../states/HarvestingEnergy"
 import {move, MovingResult, toTarget} from "../states/Moving"
 import {storeEnergy, StoringResult} from "../states/StoringEnergy"
-import {upgradeController} from "../states/UpgradingController"
+import {upgradeController, UpgradeResult} from "../states/UpgradingController"
 
 export function HarvesterJob(creep: Creep): void {
   if (!creep.memory.state) {
@@ -32,7 +32,33 @@ export function HarvesterJob(creep: Creep): void {
       runStoringState(creep)
       break
     case IdleState:
-      upgradeController(creep, {nextState: HarvestingState, replay: HarvesterJob})
+      runUpgraderState(creep)
+      break
+  }
+}
+
+function runUpgraderState(creep: Creep) {
+  const upgradeResult = upgradeController(creep)
+  switch (upgradeResult) {
+    case UpgradeResult.CreepStoreEmpty:
+      resolveAndReplay(creep, {nextState: HarvestingState, replay: HarvesterJob})
+      break
+    case UpgradeResult.NoControllerInRoom:
+      creep.say('💤')
+      break
+    case UpgradeResult.Upgrading:
+      break
+    case UpgradeResult.OutOfRange:
+      if (creep.room.controller)
+        resolveAndReplay(creep, {
+          nextState: MovingState, params: {
+            range: 3,
+            target: toTarget(creep.room.controller)
+          },
+          replay: HarvesterJob
+        })
+      break
+    case UpgradeResult.CouldNotUpgrade:
       break
   }
 }
