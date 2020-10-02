@@ -31,7 +31,7 @@ export function move(creep: Creep): MovingResult {
     }
   } else {
     delete creep.memory.param?.range
-    delete creep.memory.param?.target;
+    delete creep.memory.param?.target
     return MovingResult.ReachedDestination
   }
 }

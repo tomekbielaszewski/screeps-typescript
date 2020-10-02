@@ -39,9 +39,16 @@ export function BuilderJob(creep: Creep): void {
       runRepairingState(creep)
       break
     case IdleState:
-      creep.say('🚬')
-      resolve(creep, {getNextState: buildingOrRepairing(creep), replay: BuilderJob})
+      runIdleState(creep)
       break
+  }
+}
+
+function runIdleState(creep: Creep) {
+  creep.say('🚬')
+  const nextState = buildingOrRepairing(creep)();
+  if (nextState !== IdleState) {
+    resolve(creep, {nextState, replay: BuilderJob})
   }
 }
 
