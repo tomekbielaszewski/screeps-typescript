@@ -31,7 +31,8 @@ export function harvest(creep: Creep, checkCapacity: boolean, changeSourceWhenEm
     return HarvestingResult.CouldNotFindSource
   }
 
-  const harvestResult = creep.harvest(source);
+  creep.memory.sourceTargeted = source.id
+  const harvestResult = creep.harvest(source)
   switch (harvestResult) {
     case OK:
       return HarvestingResult.Harvesting

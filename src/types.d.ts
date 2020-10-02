@@ -4,6 +4,7 @@ interface CreepMemory {
   container?: string;
   storage?: any;
   source?: any;
+  sourceTargeted?: any;
   role: string;
   room: string;
   state?: string;
