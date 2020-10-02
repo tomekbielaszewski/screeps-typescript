@@ -49,7 +49,7 @@ export function storeEnergy(creep: Creep): StoringResult {
 function findStorage(creep: Creep): Structure | undefined {
   return findSpawn(creep) ||
     findTower(creep) ||
-    findExtension(creep) ||
+    findClosestExtension(creep) ||
     findClosestContainer(creep) ||
     findClosestStorage(creep);
 }
@@ -70,11 +70,11 @@ function findTower(creep: Creep): Structure | undefined {
   return undefined;
 }
 
-function findExtension(creep: Creep): Structure | undefined {
-  const extensions = creep.room.find(FIND_MY_STRUCTURES, {
+function findClosestExtension(creep: Creep): Structure | undefined {
+  const extension = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
     filter: s => s.structureType === STRUCTURE_EXTENSION && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
   });
-  if (extensions && extensions.length) return extensions[0];
+  if (extension) return extension;
   return undefined;
 }
 
@@ -89,11 +89,11 @@ function findClosestContainer(creep: Creep): Structure | undefined {
 }
 
 function findClosestStorage(creep: Creep): Structure | undefined {
-  const storage = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+  const storages = creep.room.find(FIND_STRUCTURES, {
     filter: s => (
       s.structureType === STRUCTURE_STORAGE && s.my && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
     )
   });
-  if (storage) return storage;
+  if (storages && storages.length) return storages[0];
   return undefined;
 }
