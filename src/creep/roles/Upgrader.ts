@@ -3,6 +3,7 @@ import {
   IdleState,
   MovingState,
   RefillingState,
+  resolve,
   resolveAndReplay,
   resolveLastStateAndReplay,
   SpawningState,
@@ -34,33 +35,29 @@ interface EnergySource {
 }
 
 export function UpgraderJob(creep: Creep): void {
-  if (global.legacy) {
-    runLegacy(creep);
-  } else {
-    if (!creep.memory.state) {
-      creep.memory.state = SpawningState
-    }
+  if (!creep.memory.state) {
+    creep.memory.state = SpawningState
+  }
 
-    switch (creep.memory.state) {
-      case SpawningState:
-        initialize(creep, {nextState: RefillingState, replay: UpgraderJob});
-        break;
-      case RefillingState:
-        runRefillingState(creep)
-        break;
-      case HarvestingState:
-        runHarvestingState(creep)
-        break;
-      case MovingState:
-        runMovingState(creep)
-        break;
-      case UpgradingState:
-        runUpgradingState(creep)
-        break;
-      case IdleState:
-        resolveAndReplay(creep, {nextState: HarvestingState, replay: UpgraderJob})
-        break;
-    }
+  switch (creep.memory.state) {
+    case SpawningState:
+      initialize(creep, {nextState: RefillingState, replay: UpgraderJob});
+      break;
+    case RefillingState:
+      runRefillingState(creep)
+      break;
+    case HarvestingState:
+      runHarvestingState(creep)
+      break;
+    case MovingState:
+      runMovingState(creep)
+      break;
+    case UpgradingState:
+      runUpgradingState(creep)
+      break;
+    case IdleState:
+      resolveAndReplay(creep, {nextState: HarvestingState, replay: UpgraderJob})
+      break;
   }
 }
 
@@ -95,7 +92,6 @@ function runMovingState(creep: Creep) {
   const movingResult = move(creep)
   switch (movingResult) {
     case MovingResult.CouldNotMove: //do not advance to another state and see what happens
-      break
     case MovingResult.Moving: //so keep moving
       break
     case MovingResult.NoPath: //something blocking the path? wait to next tick and run again. In future good to have some traffic control here
@@ -141,8 +137,10 @@ function runRefillingState(creep: Creep) {
   const refillingResult = refillCreep(creep, false)
   switch (refillingResult) {
     case RefillingResult.CreepStoreFull:
-    case RefillingResult.CreepRefilled:
       resolveAndReplay(creep, {nextState: UpgradingState, replay: UpgraderJob})
+      break
+    case RefillingResult.CreepRefilled:
+      resolve(creep, {nextState: UpgradingState})
       break
     case RefillingResult.OutOfRange:
       resolveAndReplay(creep, {

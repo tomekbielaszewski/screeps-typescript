@@ -49,8 +49,7 @@ function runMovingState(creep: Creep) {
   const movingResult = move(creep)
   switch (movingResult) {
     case MovingResult.CouldNotMove: //do not advance to another state and see what happens
-      break
-    case MovingResult.Moving: //so keep moving
+    case MovingResult.Moving: //do not advance to another state and keep moving
       break
     case MovingResult.NoPath: //something blocking the path? wait to next tick and run again. In future good to have some traffic control here
       creep.say('🗺️🤔')
@@ -75,7 +74,7 @@ function runRepairingState(creep: Creep) {
       break
     case RepairingResult.NothingToRepair:
     case RepairingResult.StructureNoLongerExists:
-      resolveAndReplay(creep, {nextState: IdleState})
+      resolveAndReplay(creep, {nextState: IdleState, replay: BuilderJob})
       break
     case RepairingResult.StructureRepaired:
       resolve(creep, {nextState: IdleState})
@@ -100,7 +99,7 @@ function runRefillingState(creep: Creep) {
   const refillingResult = refillCreep(creep, true)
   switch (refillingResult) {
     case RefillingResult.CreepRefilled:
-      resolve(creep, {getNextState: buildingOrRepairing(creep), replay: BuilderJob})
+      resolve(creep, {getNextState: buildingOrRepairing(creep)})
       break
     case RefillingResult.CreepStoreFull:
       resolveAndReplay(creep, {getNextState: buildingOrRepairing(creep), replay: BuilderJob})

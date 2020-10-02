@@ -2,6 +2,7 @@ import {
   HarvestingState,
   IdleState,
   MovingState,
+  resolve,
   resolveAndReplay,
   resolveLastStateAndReplay,
   SpawningState,
@@ -76,7 +77,7 @@ function runStoringState(creep: Creep) {
     case StoringResult.Storing: //keep it up
       break
     case StoringResult.StoringFinished:
-      resolveAndReplay(creep, {nextState: HarvestingState, replay: HarvesterJob})
+      resolve(creep, {nextState: HarvestingState})
       break
     case StoringResult.OutOfRange:
       resolveAndReplay(creep, {
@@ -123,7 +124,6 @@ function runMovingState(creep: Creep) {
   const movingResult = move(creep)
   switch (movingResult) {
     case MovingResult.CouldNotMove: //do not advance to another state and see what happens
-      break
     case MovingResult.Moving: //so keep moving
       break
     case MovingResult.NoPath: //something blocking the path? wait to next tick and run again. In future good to have some traffic control here
