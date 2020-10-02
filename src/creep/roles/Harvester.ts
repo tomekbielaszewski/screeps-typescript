@@ -32,12 +32,12 @@ export function HarvesterJob(creep: Creep): void {
       runStoringState(creep)
       break
     case IdleState:
-      runUpgraderState(creep)
+      runIdleState(creep)
       break
   }
 }
 
-function runUpgraderState(creep: Creep) {
+function runIdleState(creep: Creep) {
   const upgradeResult = upgradeController(creep)
   switch (upgradeResult) {
     case UpgradeResult.CreepStoreEmpty:
@@ -51,7 +51,8 @@ function runUpgraderState(creep: Creep) {
     case UpgradeResult.OutOfRange:
       if (creep.room.controller)
         resolveAndReplay(creep, {
-          nextState: MovingState, params: {
+          nextState: MovingState,
+          params: {
             range: 3,
             target: toTarget(creep.room.controller)
           },
@@ -79,7 +80,8 @@ function runStoringState(creep: Creep) {
       break
     case StoringResult.OutOfRange:
       resolveAndReplay(creep, {
-        nextState: MovingState, params: {
+        nextState: MovingState,
+        params: {
           target: toTarget(Game.getObjectById<RoomObject>(creep.memory.storage))
         },
         replay: HarvesterJob
@@ -107,7 +109,8 @@ function runHarvestingState(creep: Creep) {
       break
     case HarvestingResult.OutOfRange:
       resolveAndReplay(creep, {
-        nextState: MovingState, params: {
+        nextState: MovingState,
+        params: {
           target: toTarget(Game.getObjectById<RoomObject>(creep.memory.source))
         },
         replay: HarvesterJob

@@ -85,7 +85,8 @@ function runRepairingState(creep: Creep) {
       break
     case RepairingResult.OutOfRange:
       resolveAndReplay(creep, {
-        nextState: MovingState, params: {
+        nextState: MovingState,
+        params: {
           range: 3,
           target: toTarget(Game.getObjectById<RoomObject>(creep.memory.repair))
         },
@@ -109,7 +110,8 @@ function runRefillingState(creep: Creep) {
       break
     case RefillingResult.OutOfRange:
       resolveAndReplay(creep, {
-        nextState: MovingState, params: {
+        nextState: MovingState,
+        params: {
           target: toTarget(Game.getObjectById<RoomObject>(creep.memory.storage))
         },
         replay: BuilderJob
@@ -125,7 +127,8 @@ function runBuildingState(creep: Creep) {
       break
     case BuildingResult.OutOfRange:
       resolveAndReplay(creep, {
-        nextState: MovingState, params: {
+        nextState: MovingState,
+        params: {
           range: 3,
           target: toTarget(Game.getObjectById<RoomObject>(creep.memory.construction))
         },
