@@ -1,18 +1,18 @@
 import {
-  CreepState,
   HarvestingState,
   IdleState,
   MovingState,
   RefillingState,
   resolveAndReplay,
+  resolveLastStateAndReplay,
   SpawningState,
   StateResolver,
   UpgradingState
 } from "../states/CreepState";
-import {harvest} from "../states/HarvestingEnergy";
-import {move} from "../states/Moving";
-import {upgradeController} from "../states/UpgradingController";
-import {refillCreep} from "../states/RefillingCreep";
+import {harvest, HarvestingResult} from "../states/HarvestingEnergy";
+import {move, MovingResult, toTarget} from "../states/Moving";
+import {upgradeController, UpgradeResult} from "../states/UpgradingController";
+import {refillCreep, RefillingResult} from "../states/RefillingCreep";
 
 export enum UpgraderState {
   UPGRADING = '⚡',
@@ -46,16 +46,16 @@ export function UpgraderJob(creep: Creep): void {
         initialize(creep, {nextState: RefillingState, replay: UpgraderJob});
         break;
       case RefillingState:
-        refillCreep(creep, false, {getNextState: stateAfterRefill(creep), replay: UpgraderJob});
+        runRefillingState(creep)
         break;
       case HarvestingState:
-        harvest(creep, true, true, {nextState: UpgradingState, replay: UpgraderJob});
+        runHarvestingState(creep)
         break;
       case MovingState:
-        move(creep, {replay: UpgraderJob});
+        runMovingState(creep)
         break;
       case UpgradingState:
-        upgradeController(creep, {nextState: RefillingState, replay: UpgraderJob})
+        runUpgradingState(creep)
         break;
       case IdleState:
         resolveAndReplay(creep, {nextState: HarvestingState, replay: UpgraderJob})
@@ -64,10 +64,101 @@ export function UpgraderJob(creep: Creep): void {
   }
 }
 
-function stateAfterRefill(creep: Creep) {
-  return function (): CreepState {
-    return creep.store.getFreeCapacity(RESOURCE_ENERGY) === 0 ? UpgradingState : HarvestingState;
-  };
+function runUpgradingState(creep: Creep) {
+  const upgradeResult = upgradeController(creep)
+  switch (upgradeResult) {
+    case UpgradeResult.CreepStoreEmpty:
+      resolveAndReplay(creep, {nextState: RefillingState, replay: UpgraderJob})
+      break
+    case UpgradeResult.NoControllerInRoom:
+      creep.say('💤')
+      break
+    case UpgradeResult.Upgrading:
+      break
+    case UpgradeResult.OutOfRange:
+      if (creep.room.controller)
+        resolveAndReplay(creep, {
+          nextState: MovingState,
+          params: {
+            range: 3,
+            target: toTarget(creep.room.controller)
+          },
+          replay: UpgraderJob
+        })
+      break
+    case UpgradeResult.CouldNotUpgrade:
+      break
+  }
+}
+
+function runMovingState(creep: Creep) {
+  const movingResult = move(creep)
+  switch (movingResult) {
+    case MovingResult.CouldNotMove: //do not advance to another state and see what happens
+      break
+    case MovingResult.Moving: //so keep moving
+      break
+    case MovingResult.NoPath: //something blocking the path? wait to next tick and run again. In future good to have some traffic control here
+      creep.say('🗺️🤔')
+      break
+    case MovingResult.NoTargetPositionSet:
+      resolveLastStateAndReplay(creep, {replay: UpgraderJob})
+      break
+    case MovingResult.ReachedDestination:
+      resolveLastStateAndReplay(creep, {replay: UpgraderJob})
+      break
+    case MovingResult.Tired:
+      creep.say('😩')
+      break
+  }
+}
+
+function runHarvestingState(creep: Creep) {
+  const harvestingResult = harvest(creep, true, true)
+  switch (harvestingResult) {
+    case HarvestingResult.CouldNotFindSource: //well... lets call it a day
+      resolveAndReplay(creep, {nextState: IdleState, replay: UpgraderJob})
+      break
+    case HarvestingResult.CouldNotHarvest: //try again next tick
+    case HarvestingResult.Harvesting: //then keep it up
+      break
+    case HarvestingResult.CreepStoreFull:
+      resolveAndReplay(creep, {nextState: UpgradingState, replay: UpgraderJob})
+      break
+    case HarvestingResult.OutOfRange:
+      resolveAndReplay(creep, {
+        nextState: MovingState,
+        params: {
+          target: toTarget(Game.getObjectById<RoomObject>(creep.memory.source))
+        },
+        replay: UpgraderJob
+      })
+      break
+  }
+}
+
+function runRefillingState(creep: Creep) {
+  const refillingResult = refillCreep(creep, false)
+  switch (refillingResult) {
+    case RefillingResult.CreepStoreFull:
+    case RefillingResult.CreepRefilled:
+      resolveAndReplay(creep, {nextState: UpgradingState, replay: UpgraderJob})
+      break
+    case RefillingResult.OutOfRange:
+      resolveAndReplay(creep, {
+        nextState: MovingState,
+        params: {
+          target: toTarget(Game.getObjectById<RoomObject>(creep.memory.storage))
+        },
+        replay: UpgraderJob
+      })
+      break
+    case RefillingResult.NoResourcesInStorage:
+      resolveAndReplay(creep, {nextState: HarvestingState, replay: UpgraderJob})
+      break
+    case RefillingResult.CouldNotWithdraw:
+      break
+  }
 }
 
 function initialize(creep: Creep, state: StateResolver) {
