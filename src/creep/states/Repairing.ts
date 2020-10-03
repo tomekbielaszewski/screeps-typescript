@@ -57,24 +57,19 @@ export function repairing(creep: Creep, repairFortifications: boolean): Repairin
   }
 }
 
-//Game.rooms['W24N13'].find(FIND_STRUCTURES).filter(s => s.structureType !== STRUCTURE_CONTROLLER).filter(s => s.hits / s.hitsMax < Memory.repair.lowHP)
-// .filter(s => s.structureType !== STRUCTURE_WALL && s.structureType !== STRUCTURE_RAMPART)
-// .reduce((s1, s2) => (s1.hits / s1.hitsMax < s2.hits / s2.hitsMax ? s1 : s2))
-// .map(s => s.structureType)
-
 export function findLowHpStructures(creep: Creep, repairFortifications: boolean): Structure[] {
-  let lowestHpStructures = creep.room.find(FIND_STRUCTURES)
+  const lowHpStructures = creep.room.find(FIND_STRUCTURES)
     .filter(s => s.structureType !== STRUCTURE_CONTROLLER)
+    .filter(s => s.structureType !== STRUCTURE_WALL)
+    .filter(s => s.structureType !== STRUCTURE_RAMPART)
     .filter(s => hpPercent(s) < Memory.repair.lowHP)
-  if (!repairFortifications) {
-    lowestHpStructures = lowestHpStructures
-      .filter(s =>
-        s.structureType !== STRUCTURE_WALL &&
-        s.structureType !== STRUCTURE_RAMPART
-      )
+  if (repairFortifications) {
+    lowHpStructures.concat(creep.room.find(FIND_STRUCTURES)
+      .filter(s => s.structureType === STRUCTURE_WALL && s.hits > (Memory.repair.wall || 500000))
+      .filter(s => s.structureType === STRUCTURE_RAMPART && s.hits > (Memory.repair.rampart || 500000)))
   }
 
-  return lowestHpStructures
+  return lowHpStructures
 }
 
 function isRepaired(repairedStructure: Structure): boolean {
