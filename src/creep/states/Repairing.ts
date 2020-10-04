@@ -13,10 +13,11 @@ export function repairing(creep: Creep, repairFortifications: boolean): Repairin
     return RepairingResult.CreepStoreEmpty
   }
 
-  if (!Memory.repair.lowHP || !Memory.repair.hysteresis) {
-    Memory.repair.lowHP = 0.8
-    Memory.repair.hysteresis = 0.19
-  }
+  Memory.repair.lowHP = Memory.repair.lowHP || 0.8
+  Memory.repair.hysteresis = Memory.repair.hysteresis || 0.19
+  Memory.repair.wall = Memory.repair.wall || 50000
+  Memory.repair.rampartLow = Memory.repair.rampartLow || 40000
+  Memory.repair.rampart = Memory.repair.rampart || 50000
 
   if (Memory.repair.lowHP + Memory.repair.hysteresis > 1) {
     throw new Error("Wrong repairing settings! Low HP + Hysteresis must be lower or equal to 1!")
@@ -65,8 +66,8 @@ export function findLowHpStructures(room: Room, repairFortifications: boolean): 
     .filter(s => hpPercent(s) < Memory.repair.lowHP)
   if (repairFortifications) {
     lowHpStructures.push(...room.find(FIND_STRUCTURES)
-      .filter(s => s.structureType === STRUCTURE_WALL && s.hits < (Memory.repair.wall || 500000) ||
-        s.structureType === STRUCTURE_RAMPART && s.hits < (Memory.repair.rampart || 500000)))
+      .filter(s => s.structureType === STRUCTURE_WALL && s.hits < Memory.repair.wall ||
+        s.structureType === STRUCTURE_RAMPART && s.hits < Memory.repair.rampartLow))
   }
   return lowHpStructures
 }
@@ -74,9 +75,9 @@ export function findLowHpStructures(room: Room, repairFortifications: boolean): 
 function isRepaired(repairedStructure: Structure): boolean {
   switch (repairedStructure.structureType) {
     case STRUCTURE_WALL:
-      return repairedStructure.hits > (Memory.repair.wall || 500000)
+      return repairedStructure.hits > Memory.repair.wall
     case STRUCTURE_RAMPART:
-      return repairedStructure.hits > (Memory.repair.rampart || 500000)
+      return repairedStructure.hits > Memory.repair.rampart
     default:
       return hpPercent(repairedStructure) > Memory.repair.lowHP + Memory.repair.hysteresis
   }
