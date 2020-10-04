@@ -45,12 +45,12 @@ export function BuilderJob(creep: Creep): void {
 }
 
 function runIdleState(creep: Creep) {
-  creep.say('🚬')
   const nextState = buildingOrRepairing(creep)();
   if (nextState !== IdleState) {
     resolve(creep, {nextState, replay: BuilderJob})
     return
   }
+  creep.say('🚬')
   const idleFlag = Object.values(Game.flags)
     .filter(f => f.pos.roomName === creep.room.name)
     .find(f => f.name.toLowerCase() === 'idle')
@@ -128,6 +128,8 @@ function runRefillingState(creep: Creep) {
       resolveAndReplay(creep, {getNextState: buildingOrRepairing(creep), replay: BuilderJob})
       break
     case RefillingResult.NoResourcesInStorage: //do not advance to another state
+      creep.say('!💸')
+      break
     case RefillingResult.CouldNotWithdraw: //do not advance to another state
       break
     case RefillingResult.OutOfRange:
