@@ -56,7 +56,7 @@ export function UpgraderJob(creep: Creep): void {
       runUpgradingState(creep)
       break;
     case IdleState:
-      resolveAndReplay(creep, {nextState: HarvestingState, replay: UpgraderJob})
+      resolve(creep, {nextState: HarvestingState, replay: UpgraderJob})
       break;
   }
 }
