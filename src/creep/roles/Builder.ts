@@ -49,6 +49,22 @@ function runIdleState(creep: Creep) {
   const nextState = buildingOrRepairing(creep)();
   if (nextState !== IdleState) {
     resolve(creep, {nextState, replay: BuilderJob})
+    return
+  }
+  const idleFlag = Object.values(Game.flags)
+    .filter(f => f.pos.roomName === creep.room.name)
+    .find(f => f.name.toLowerCase() === 'idle')
+  if (idleFlag) {
+    if (creep.pos.getRangeTo(idleFlag.pos) > 3) {
+      resolveAndReplay(creep, {
+        nextState: MovingState,
+        params: {
+          range: 3,
+          target: toTarget(idleFlag)
+        },
+        replay: BuilderJob
+      })
+    }
   }
 }
 
