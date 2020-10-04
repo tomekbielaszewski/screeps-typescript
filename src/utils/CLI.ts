@@ -1,3 +1,5 @@
+import {findLowHpStructures} from "../creep/states/Repairing";
+
 export const cli = {
   help,
   creeps: {
@@ -13,6 +15,7 @@ export const cli = {
       rampart,
       lowhp,
       hysteresis,
+      findLowhp,
     }
   },
   log: {
@@ -83,6 +86,15 @@ function lowhp(setting?: number): string {
   if (setting === undefined) return `Sets HP percentage which is considered low HP and should be repaired. Current setting: ${Memory.repair.lowHP}`
   Memory.repair.lowHP = setting
   return setting as unknown as string
+}
+
+function findLowhp(roomName?: string, repairFortification?: boolean): string {
+  if (roomName === undefined) return `Shows a list of low HP structures in room. Usage findLowhp(roomName:string, repairFortification: boolean)`
+  if (repairFortification === undefined) repairFortification = (Memory.repair.fortifications === true)
+  return findLowHpStructures(Game.rooms[roomName], repairFortification)
+    .sort((s1, s2) => (s1.hits / s1.hitsMax) - (s2.hits / s2.hitsMax))
+    .map(c => `[${c.room.name}] ${c.structureType}: ${c.hits}/${c.hitsMax} [${(c.hits / c.hitsMax).toFixed(2)}]`)
+    .reduce((a, b) => a + "\n" + b);
 }
 
 function hysteresis(setting?: number): string {

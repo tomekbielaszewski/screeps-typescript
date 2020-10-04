@@ -155,7 +155,7 @@ function runBuildingState(creep: Creep) {
 
 function buildingOrRepairing(creep: Creep) {
   return function (): CreepState {
-    const lowHpStructures = findLowHpStructures(creep, Memory.repair.fortifications)
+    const lowHpStructures = findLowHpStructures(creep.room, Memory.repair.fortifications)
     if (lowHpStructures.length) return RepairingState
     const constructionSites = creep.room.find(FIND_MY_CONSTRUCTION_SITES)
     if (constructionSites.length) return BuildingState

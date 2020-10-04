@@ -23,7 +23,7 @@ export function repairing(creep: Creep, repairFortifications: boolean): Repairin
   }
 
   if (!creep.memory.repair) {
-    const lowHpStructures = findLowHpStructures(creep, repairFortifications)
+    const lowHpStructures = findLowHpStructures(creep.room, repairFortifications)
     if (lowHpStructures.length) {
       const lowestHpStructure = lowHpStructures.reduce((s1, s2) => (hpPercent(s1) < hpPercent(s2) ? s1 : s2))
       creep.memory.repair = lowestHpStructure.id
@@ -57,14 +57,14 @@ export function repairing(creep: Creep, repairFortifications: boolean): Repairin
   }
 }
 
-export function findLowHpStructures(creep: Creep, repairFortifications: boolean): Structure[] {
-  const lowHpStructures = creep.room.find(FIND_STRUCTURES)
+export function findLowHpStructures(room: Room, repairFortifications: boolean): Structure[] {
+  const lowHpStructures = room.find(FIND_STRUCTURES)
     .filter(s => s.structureType !== STRUCTURE_CONTROLLER)
     .filter(s => s.structureType !== STRUCTURE_WALL)
     .filter(s => s.structureType !== STRUCTURE_RAMPART)
     .filter(s => hpPercent(s) < Memory.repair.lowHP)
   if (repairFortifications) {
-    lowHpStructures.concat(creep.room.find(FIND_STRUCTURES)
+    lowHpStructures.concat(room.find(FIND_STRUCTURES)
       .filter(s => s.structureType === STRUCTURE_WALL && s.hits > (Memory.repair.wall || 500000))
       .filter(s => s.structureType === STRUCTURE_RAMPART && s.hits > (Memory.repair.rampart || 500000)))
   }
