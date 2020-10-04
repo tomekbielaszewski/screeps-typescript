@@ -61,7 +61,7 @@ function hits(): string {
     .reduce((a, b) => a.concat(b), [])
     .sort((s1, s2) => (s1.hits / s1.hitsMax) - (s2.hits / s2.hitsMax))
     .map(c => `[${c.room.name}] ${c.structureType}: ${c.hits}/${c.hitsMax} [${(c.hits / c.hitsMax).toFixed(2)}]`)
-    .reduce((a, b) => a + "\n" + b);
+    .reduce((a, b) => a + "\n" + b, "Structures:\n");
 }
 
 function fortifications(setting?: boolean): string {
@@ -94,7 +94,7 @@ function findLowhp(roomName?: string, repairFortification?: boolean): string {
   return findLowHpStructures(Game.rooms[roomName], repairFortification)
     .sort((s1, s2) => (s1.hits / s1.hitsMax) - (s2.hits / s2.hitsMax))
     .map(c => `[${c.room.name}] ${c.structureType}: ${c.hits}/${c.hitsMax} [${(c.hits / c.hitsMax).toFixed(2)}]`)
-    .reduce((a, b) => a + "\n" + b);
+    .reduce((a, b) => a + "\n" + b, "Damaged structures:\n");
 }
 
 function hysteresis(setting?: number): string {
