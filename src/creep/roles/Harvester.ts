@@ -100,7 +100,7 @@ function runHarvestingState(creep: Creep) {
   const harvestingResult = harvest(creep, true, true)
   switch (harvestingResult) {
     case HarvestingResult.CouldNotFindSource: //well... lets call it a day
-      resolveAndReplay(creep, {nextState: IdleState, replay: HarvesterJob})
+      // resolveAndReplay(creep, {nextState: IdleState, replay: HarvesterJob}) TODO
       break
     case HarvestingResult.CouldNotHarvest: //try again next tick
     case HarvestingResult.Harvesting: //then keep it up
