@@ -64,11 +64,10 @@ export function findLowHpStructures(room: Room, repairFortifications: boolean): 
     .filter(s => s.structureType !== STRUCTURE_RAMPART)
     .filter(s => hpPercent(s) < Memory.repair.lowHP)
   if (repairFortifications) {
-    lowHpStructures.concat(room.find(FIND_STRUCTURES)
-      .filter(s => s.structureType === STRUCTURE_WALL && s.hits > (Memory.repair.wall || 500000))
-      .filter(s => s.structureType === STRUCTURE_RAMPART && s.hits > (Memory.repair.rampart || 500000)))
+    lowHpStructures.push(...room.find(FIND_STRUCTURES)
+      .filter(s => s.structureType === STRUCTURE_WALL && s.hits < (Memory.repair.wall || 500000) ||
+        s.structureType === STRUCTURE_RAMPART && s.hits < (Memory.repair.rampart || 500000)))
   }
-
   return lowHpStructures
 }
 
