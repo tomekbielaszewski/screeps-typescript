@@ -32,9 +32,9 @@ export function refillCreep(creep: Creep, takeFromSpawn: boolean): RefillingResu
         (s.structureType === STRUCTURE_CONTAINER)
     });
     if (!storageAvailable.length) {
-      const spawns = creep.room.find(FIND_MY_STRUCTURES, {
-        filter: s => s.structureType === STRUCTURE_SPAWN
-      });
+      const spawns = creep.room.find(FIND_MY_STRUCTURES)
+        .filter(s => s.structureType === STRUCTURE_SPAWN &&
+          s.room.energyAvailable > (Memory.minEnergyAvailable || 250))
       storage = spawns.length ? spawns[0] : undefined;
     }
   }
