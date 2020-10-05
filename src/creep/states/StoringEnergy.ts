@@ -50,6 +50,7 @@ function findStorage(creep: Creep): Structure | undefined {
   return findSpawn(creep) ||
     findTower(creep) ||
     findClosestExtension(creep) ||
+    findClosestLink(creep) ||
     findClosestContainer(creep) ||
     findClosestStorage(creep);
 }
@@ -67,6 +68,14 @@ function findTower(creep: Creep): Structure | undefined {
     filter: s => s.structureType === STRUCTURE_TOWER && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
   });
   if (towers && towers.length) return towers[0];
+  return undefined;
+}
+
+function findClosestLink(creep: Creep): Structure | undefined {
+  const link = creep.pos.findInRange(FIND_MY_STRUCTURES, 5, {
+    filter: s => s.structureType === STRUCTURE_LINK && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+  });
+  if (link && link.length) return link[0];
   return undefined;
 }
 
