@@ -5,6 +5,10 @@ enum LinkType {
 }
 
 export function operate(room: Room) {
+  if (!room.controller) return
+  if (room.controller.level < 5) return
+  room.memory.links = room.memory.links || {}
+
   const mine = getLink(LinkType.MINE, room)
   const upgrade = getLink(LinkType.UPGRADE, room)
   const storage = getLink(LinkType.STORAGE, room)
