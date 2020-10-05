@@ -4,7 +4,7 @@ enum LinkType {
   STORAGE = 'storage',
 }
 
-export function operate(room: Room) {
+export function LinkOperator(room: Room) {
   if (!room.controller) return
   if (room.controller.level < 5) return
   room.memory.links = room.memory.links || {}
