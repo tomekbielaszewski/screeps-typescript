@@ -17,6 +17,10 @@ interface CreepMemory {
   param?: Record<string, any>
 }
 
+interface RoomMemory {
+  links: { [type: string]: string }
+}
+
 interface SourceMemory {
   creeps: string[]
   spots: number
@@ -33,6 +37,7 @@ interface Memory {
     fortifications: boolean
     wall: number
     rampart: number
+    rampartLow: number
   }
   minEnergyAvailable: number
   features: { [name: string]: boolean }
