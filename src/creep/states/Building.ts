@@ -1,3 +1,5 @@
+import {SerializableRoomObject} from "../../utils/Serializables";
+
 export enum BuildingResult {
   Working,
   CreepStoreEmpty,

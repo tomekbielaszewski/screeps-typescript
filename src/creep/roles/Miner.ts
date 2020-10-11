@@ -8,6 +8,7 @@ import {
 } from "../states/CreepState";
 import {harvest, HarvestingResult} from "../states/HarvestingEnergy";
 import {move, MovingResult, toTarget} from "../states/Moving";
+import {SerializablePosition, SerializableRoomObject} from "../../utils/Serializables";
 
 export function MinerJob(creep: Creep): void {
   if (!creep.memory.state) {

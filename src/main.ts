@@ -8,7 +8,7 @@ import {measure} from "utils/Profiler";
 import {GlobalsInitialization} from "utils/GlobalsInitialization";
 import {defendRoom} from "utils/RoomDefense";
 import {LinkOperator} from "./creep/management/LinkOperator";
-import MemHack from "./utils/MemHack";
+import MemHack from "utils/MemHack";
 
 GlobalsInitialization()
 

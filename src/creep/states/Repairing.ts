@@ -1,3 +1,5 @@
+import {SerializableRoomObject} from "../../utils/Serializables";
+
 export enum RepairingResult {
   CreepStoreEmpty,
   NothingToRepair,

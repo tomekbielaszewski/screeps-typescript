@@ -1,4 +1,5 @@
 import {assignToSource} from "../management/SourceAssigner";
+import {SerializableRoomObject} from "../../utils/Serializables";
 
 export enum HarvestingResult {
   CreepStoreFull,

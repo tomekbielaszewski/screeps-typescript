@@ -1,3 +1,5 @@
+import {SerializableRoomObject} from "../../utils/Serializables";
+
 export function assignToSource(creep: Creep, source: Source): boolean {
   Memory.sources = Memory.sources || {};
   if (!Memory.sources[source.id]) {
