@@ -83,7 +83,7 @@ function runStoringState(creep: Creep) {
       resolveAndReplay(creep, {
         nextState: MovingState,
         params: {
-          target: toTarget(Game.getObjectById<RoomObject>(creep.memory.storage))
+          target: toTarget(creep.memory.storage?.get())
         },
         replay: HarvesterJob
       })
@@ -112,7 +112,7 @@ function runHarvestingState(creep: Creep) {
       resolveAndReplay(creep, {
         nextState: MovingState,
         params: {
-          target: toTarget(Game.getObjectById<RoomObject>(creep.memory.sourceTargeted))
+          target: toTarget(creep.memory.sourceTargeted?.get())
         },
         replay: HarvesterJob
       })

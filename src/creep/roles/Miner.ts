@@ -4,8 +4,7 @@ import {
   MovingState,
   resolveAndReplay,
   resolveLastStateAndReplay,
-  SpawningState,
-  StateResolver
+  SpawningState
 } from "../states/CreepState";
 import {harvest, HarvestingResult} from "../states/HarvestingEnergy";
 import {move, MovingResult, toTarget} from "../states/Moving";
@@ -16,14 +15,18 @@ export function MinerJob(creep: Creep): void {
   }
 
   //TODO
-  //assign container
-  //idle by repairing container
-  //store into container (only!)
-  //do not move to container - stay in range at all times
+
+  //spawn with source assigned
+  //goto source
+  //search in range 1 around source for container. if not found create csite
+  //goto and stand on source container/csite
+  //harvest energy
+  //if container exist - store in it, if not build it
+  //if source empty - fix container using energy from container
 
   switch (creep.memory.state) {
     case SpawningState:
-      initialize(creep, {nextState: HarvestingState, replay: MinerJob});
+      initialize(creep);
       break;
     case HarvestingState:
       runHarvestingState(creep)
@@ -48,7 +51,7 @@ function runHarvestingState(creep: Creep) {
       resolveAndReplay(creep, {
         nextState: MovingState,
         params: {
-          target: toTarget(Game.getObjectById<RoomObject>(creep.memory.source))
+          target: toTarget(creep.memory.source?.get())
         },
         replay: MinerJob
       })
@@ -77,7 +80,16 @@ function runMovingState(creep: Creep) {
   }
 }
 
-function initialize(creep: Creep, state: StateResolver) {
-  if (creep.spawning) return;
-  resolveAndReplay(creep, state);
+function initialize(creep: Creep) {
+  if (creep.spawning) return
+  if (!creep.memory.source) {
+    creep.memory.source = getAvailableSource(creep)
+    if (!creep.memory.source) throw new Error('No source available for Miner')
+  }
+  creep.memory.targetPos = creep.memory.source.pos
+  resolveAndReplay(creep, {nextState: MovingState, replay: MinerJob});
+}
+
+function getAvailableSource(creep: Creep): SerializableRoomObject<Source> {
+  return new SerializableRoomObject("" as Id<Source>, new SerializablePosition(1, 1, ""))
 }

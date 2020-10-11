@@ -73,7 +73,7 @@ xdescribe('Refilling state', () => {
       memory: {
         role: CreepRole.HARVESTER,
         room: "room",
-        container: "containerId" as Id<StructureContainer>,
+        container: new SerializableRoomObject("containerId" as Id<StructureContainer>, new SerializablePosition(0, 0, "")),
         targetPos: undefined,
         state: RefillingState,
         lastState: UpgradingState
@@ -105,7 +105,7 @@ xdescribe('Refilling state', () => {
       memory: {
         role: CreepRole.HARVESTER,
         room: "room",
-        container: "containerId" as Id<StructureContainer>,
+        container: new SerializableRoomObject("containerId" as Id<StructureContainer>, new SerializablePosition(0, 0, "")),
         targetPos: undefined,
         state: RefillingState,
         lastState: UpgradingState
@@ -135,7 +135,7 @@ xdescribe('Refilling state', () => {
       memory: {
         role: CreepRole.HARVESTER,
         room: "room",
-        container: "containerId" as Id<StructureContainer>,
+        container: new SerializableRoomObject("containerId" as Id<StructureContainer>, new SerializablePosition(0, 0, "")),
         targetPos: undefined,
         state: RefillingState,
         lastState: UpgradingState
@@ -168,7 +168,7 @@ xdescribe('Refilling state', () => {
       memory: {
         role: CreepRole.HARVESTER,
         room: "room",
-        container: "containerId" as Id<StructureContainer>,
+        container: new SerializableRoomObject("containerId" as Id<StructureContainer>, new SerializablePosition(0, 0, "")),
         targetPos: undefined,
         state: RefillingState,
         lastState: UpgradingState

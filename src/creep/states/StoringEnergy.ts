@@ -14,14 +14,13 @@ export function storeEnergy(creep: Creep): StoringResult {
     return StoringResult.CreepStoreEmpty
   }
 
-  if (!creep.memory.storage || Game.getObjectById(creep.memory.storage) === null) {
-    creep.memory.storage = findStorage(creep)?.id
-    if (!creep.memory.storage) {
-      return StoringResult.NoStorageSpaceAvailableInRoom
-    }
+  if (!creep.memory.storage?.get()) {
+    const storage = findStorage(creep);
+    if (!storage) return StoringResult.NoStorageSpaceAvailableInRoom
+    creep.memory.storage = SerializableRoomObject.from(storage)
   }
 
-  const assignedStorage = Game.getObjectById(creep.memory.storage as Id<StructureSpawn | StructureExtension | StructureStorage | StructureContainer>)
+  const assignedStorage = creep.memory.storage?.get() as StructureSpawn | StructureExtension | StructureStorage | StructureContainer
   if (!assignedStorage) {
     delete creep.memory.storage
     return StoringResult.NoStorageSpaceAvailableInRoom

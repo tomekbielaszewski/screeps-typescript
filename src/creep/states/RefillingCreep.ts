@@ -13,9 +13,8 @@ export function refillCreep(creep: Creep, takeFromSpawn: boolean): RefillingResu
 
   let storage;
 
-  if (creep.memory.container &&
-    Game.getObjectById(creep.memory.container as Id<StructureContainer>)?.store.getUsedCapacity(RESOURCE_ENERGY)) {
-    storage = Game.getObjectById(creep.memory.container as Id<Structure>);
+  if (creep.memory.container?.get()) {
+    storage = creep.memory.container.get() as StructureContainer;
   } else {
     storage = creep.pos.findClosestByRange(FIND_STRUCTURES, {
       filter: s =>
@@ -40,7 +39,7 @@ export function refillCreep(creep: Creep, takeFromSpawn: boolean): RefillingResu
   }
 
   if (storage) {
-    creep.memory.storage = storage.id
+    creep.memory.storage = SerializableRoomObject.from(storage)
     const result = creep.withdraw(storage, RESOURCE_ENERGY)
     switch (result) {
       case OK:

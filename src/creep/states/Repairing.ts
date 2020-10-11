@@ -27,7 +27,7 @@ export function repairing(creep: Creep, repairFortifications: boolean): Repairin
     const lowHpStructures = findLowHpStructures(creep.room, repairFortifications)
     if (lowHpStructures.length) {
       const lowestHpStructure = lowHpStructures.reduce((s1, s2) => (hpPercent(s1) < hpPercent(s2) ? s1 : s2))
-      creep.memory.repair = lowestHpStructure.id
+      creep.memory.repair = SerializableRoomObject.from(lowestHpStructure)
     }
   }
 
@@ -35,7 +35,7 @@ export function repairing(creep: Creep, repairFortifications: boolean): Repairin
     return RepairingResult.NothingToRepair
   }
 
-  const repairedStructure = Game.getObjectById<OwnedStructure>(creep.memory.repair)
+  const repairedStructure = creep.memory.repair.get() as Structure
   if (!repairedStructure) {
     delete creep.memory.repair
     return RepairingResult.StructureNoLongerExists

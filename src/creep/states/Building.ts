@@ -12,20 +12,20 @@ export function building(creep: Creep): BuildingResult {
   }
 
   if (!creep.memory.construction) {
-    creep.memory.construction = creep.pos.findClosestByRange(FIND_MY_CONSTRUCTION_SITES)?.id
+    creep.memory.construction = findClosestConstructionSite(creep)
   }
 
   if (!creep.memory.construction) {
     return BuildingResult.NoConstructionSite
   }
 
-  const construction = Game.getObjectById(creep.memory.construction as Id<ConstructionSite>)
+  const construction = creep.memory.construction?.get() as ConstructionSite
   if (!construction) {
     delete creep.memory.construction
     return BuildingResult.ConstructionSiteNoLongerExist
   }
 
-  creep.memory.construction = construction.id
+  creep.memory.construction = SerializableRoomObject.from(construction)
   const buildResult = creep.build(construction)
   switch (buildResult) {
     case OK:
@@ -36,4 +36,10 @@ export function building(creep: Creep): BuildingResult {
       console.log(`Building: build result ${buildResult}`)
       return BuildingResult.Working
   }
+}
+
+function findClosestConstructionSite(creep: Creep): SerializableRoomObject<ConstructionSite> | undefined {
+  const csite = creep.pos.findClosestByRange(FIND_MY_CONSTRUCTION_SITES)
+  if (!csite) return undefined
+  return SerializableRoomObject.from(csite)
 }

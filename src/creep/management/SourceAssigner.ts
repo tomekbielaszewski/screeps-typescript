@@ -9,7 +9,7 @@ export function assignToSource(creep: Creep, source: Source): boolean {
   const sourceMemory = Memory.sources[source.id];
   if (sourceMemory.creeps.length < sourceMemory.spots) {
     sourceMemory.creeps.push(creep.name);
-    creep.memory.source = source.id;
+    creep.memory.source = SerializableRoomObject.from(source);
     return true;
   }
   return false;

@@ -1,19 +1,18 @@
+interface IdentifiableRoomObject extends _HasId, _HasRoomPosition {
+}
+
 interface CreepMemory {
-  repair?: any
-  construction?: any
-  container?: string
-  storage?: any
-  source?: any
-  sourceTargeted?: any
+  repair?: SerializableRoomObject<Structure>
+  construction?: SerializableRoomObject<ConstructionSite>
+  container?: SerializableRoomObject<StructureContainer>
+  storage?: SerializableRoomObject<Structure>
+  source?: SerializableRoomObject<Source>
+  sourceTargeted?: SerializableRoomObject<Source>
   role: string
   room: string
   state?: string
   lastState?: string
-  targetPos?: {
-    x: number
-    y: number
-    room: string
-  }
+  targetPos?: SerializablePosition
   param?: Record<string, any>
 }
 

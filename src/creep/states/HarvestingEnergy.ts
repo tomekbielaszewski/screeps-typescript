@@ -17,7 +17,7 @@ export function harvest(creep: Creep, checkCapacity: boolean, changeSourceWhenEm
     assignSource(creep)
   }
 
-  let source = Game.getObjectById(creep.memory.source as Id<Source>)
+  let source = creep.memory.source?.get() as Source | null
   if (!source) {
     assignSource(creep);
     return HarvestingResult.CouldNotFindSource
@@ -31,7 +31,7 @@ export function harvest(creep: Creep, checkCapacity: boolean, changeSourceWhenEm
     return HarvestingResult.CouldNotFindSource
   }
 
-  creep.memory.sourceTargeted = source.id
+  creep.memory.sourceTargeted = SerializableRoomObject.from(source)
   const harvestResult = creep.harvest(source)
   switch (harvestResult) {
     case OK:
@@ -52,7 +52,7 @@ function assignSource(creep: Creep) {
 
 function findAlternativeSource(creep: Creep): Source | null {
   const find = creep.room.find(FIND_SOURCES)
-    .filter(s => s.id !== creep.memory.source)
+    .filter(s => s.id !== creep.memory.source?.id)
     .find(s => s.energy > 0);
   return find === undefined ? null : find;
 }

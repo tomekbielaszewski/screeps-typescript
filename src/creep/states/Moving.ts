@@ -8,12 +8,12 @@ export enum MovingResult {
 }
 
 export function move(creep: Creep): MovingResult {
-  const targetPos = creep.memory.param?.target as { x: number; y: number; room: string };
+  const targetPos = creep.memory.param?.target as SerializablePosition;
   if (!targetPos) {
     console.log(`Moving state executed without setting target position! ${creep.name}`);
     return MovingResult.NoTargetPositionSet;
   }
-  const target = new RoomPosition(targetPos.x, targetPos.y, targetPos.room);
+  const target = targetPos.toPos();
   const range = creep.memory.param?.range as number || 1;
 
   if (creep.pos.getRangeTo(target) > range) {
@@ -36,11 +36,7 @@ export function move(creep: Creep): MovingResult {
   }
 }
 
-export function toTarget(roomObject: RoomObject | null): { x: number, y: number, room: string } {
+export function toTarget(roomObject: IdentifiableRoomObject | Flag | null | undefined): SerializablePosition {
   if (!roomObject) throw Error('No target set')
-  return {
-    x: roomObject.pos.x,
-    y: roomObject.pos.y,
-    room: roomObject.pos.roomName,
-  }
+  return SerializablePosition.from(roomObject.pos)
 }
