@@ -34,7 +34,7 @@ describe("Creep manager", () => {
       role: CreepRole.HARVESTER,
       room: room.name,
       state: undefined,
-      param: {}
+      move: undefined
     };
     const creep1 = mockInstanceOf<Creep>({
       name: 'first',

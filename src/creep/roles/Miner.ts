@@ -48,13 +48,10 @@ function runHarvestingState(creep: Creep) {
     case HarvestingResult.CreepStoreFull: //do nothing and keep working
       break
     case HarvestingResult.OutOfRange:
-      resolveAndReplay(creep, {
-        nextState: MovingState,
-        params: {
-          target: toTarget(creep.memory.source?.get())
-        },
-        replay: MinerJob
-      })
+      creep.memory.move = {
+        target: toTarget(creep.memory.source?.get())
+      }
+      resolveAndReplay(creep, {nextState: MovingState, replay: MinerJob})
       break
   }
 }
@@ -86,8 +83,17 @@ function initialize(creep: Creep) {
     creep.memory.source = getAvailableSource(creep)
     if (!creep.memory.source) throw new Error('No source available for Miner')
   }
-  creep.memory.targetPos = creep.memory.source.pos
-  resolveAndReplay(creep, {nextState: MovingState, replay: MinerJob});
+
+  if (creep.pos.getRangeTo(creep.memory.source.pos.toPos()) > 1) {
+    creep.memory.move = {
+      range: 1,
+      target: toTarget(creep.memory.source?.get())
+    }
+    resolveAndReplay(creep, {nextState: MovingState, replay: MinerJob})
+    return;
+  }
+
+
 }
 
 function getAvailableSource(creep: Creep): SerializableRoomObject<Source> {

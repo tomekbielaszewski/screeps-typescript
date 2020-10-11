@@ -73,15 +73,13 @@ function runUpgradingState(creep: Creep) {
     case UpgradeResult.Upgrading:
       break
     case UpgradeResult.OutOfRange:
-      if (creep.room.controller)
-        resolveAndReplay(creep, {
-          nextState: MovingState,
-          params: {
-            range: 3,
-            target: toTarget(creep.room.controller)
-          },
-          replay: UpgraderJob
-        })
+      if (creep.room.controller) {
+        creep.memory.move = {
+          range: 3,
+          target: toTarget(creep.room.controller)
+        }
+        resolveAndReplay(creep, {nextState: MovingState, replay: UpgraderJob})
+      }
       break
     case UpgradeResult.CouldNotUpgrade:
       break
@@ -122,13 +120,10 @@ function runHarvestingState(creep: Creep) {
       resolveAndReplay(creep, {nextState: UpgradingState, replay: UpgraderJob})
       break
     case HarvestingResult.OutOfRange:
-      resolveAndReplay(creep, {
-        nextState: MovingState,
-        params: {
-          target: toTarget(creep.memory.source?.get())
-        },
-        replay: UpgraderJob
-      })
+      creep.memory.move = {
+        target: toTarget(creep.memory.source?.get())
+      }
+      resolveAndReplay(creep, {nextState: MovingState, replay: UpgraderJob})
       break
   }
 }
@@ -143,13 +138,10 @@ function runRefillingState(creep: Creep) {
       resolve(creep, {nextState: UpgradingState})
       break
     case RefillingResult.OutOfRange:
-      resolveAndReplay(creep, {
-        nextState: MovingState,
-        params: {
-          target: toTarget(creep.memory.storage?.get())
-        },
-        replay: UpgraderJob
-      })
+      creep.memory.move = {
+        target: toTarget(creep.memory.storage?.get())
+      }
+      resolveAndReplay(creep, {nextState: MovingState, replay: UpgraderJob})
       break
     case RefillingResult.NoResourcesInStorage:
       resolveAndReplay(creep, {nextState: HarvestingState, replay: UpgraderJob})
@@ -208,8 +200,9 @@ function _upgradeController(creep: Creep): void {
 function _refillCreep(creep: Creep): void {
   let foundEnergyStorage = {} as EnergySource | undefined;//creep.memory.param[VISITED_ENERGY_STORAGE] as EnergySource | undefined;
   if (!foundEnergyStorage || !Game.getObjectById(foundEnergyStorage.id) || isEmpty(foundEnergyStorage)) {
-    if (!creep.memory.param) return;//compilation fix
-    creep.memory.param[VISITED_ENERGY_STORAGE] = foundEnergyStorage = findClosestEnergyStorage(creep);
+    if (!creep.memory.move) return;//compilation fix
+    /*creep.memory.param[VISITED_ENERGY_STORAGE] = */
+    foundEnergyStorage = findClosestEnergyStorage(creep);
   }
 
   const object = Game.getObjectById(foundEnergyStorage.id);

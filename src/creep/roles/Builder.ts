@@ -56,14 +56,11 @@ function runIdleState(creep: Creep) {
     .find(f => f.name.toLowerCase() === 'idle')
   if (idleFlag) {
     if (creep.pos.getRangeTo(idleFlag.pos) > 3) {
-      resolveAndReplay(creep, {
-        nextState: MovingState,
-        params: {
-          range: 3,
-          target: toTarget(idleFlag)
-        },
-        replay: BuilderJob
-      })
+      creep.memory.move = {
+        range: 3,
+        target: toTarget(idleFlag)
+      }
+      resolveAndReplay(creep, {nextState: MovingState, replay: BuilderJob})
     }
   }
 }
@@ -106,14 +103,11 @@ function runRepairingState(creep: Creep) {
       resolveAndReplay(creep, {nextState: RefillingState, replay: BuilderJob})
       break
     case RepairingResult.OutOfRange:
-      resolveAndReplay(creep, {
-        nextState: MovingState,
-        params: {
-          range: 3,
-          target: toTarget(creep.memory.repair?.get())
-        },
-        replay: BuilderJob
-      })
+      creep.memory.move = {
+        range: 3,
+        target: toTarget(creep.memory.repair?.get())
+      }
+      resolveAndReplay(creep, {nextState: MovingState, replay: BuilderJob})
       break
   }
 }
@@ -133,13 +127,10 @@ function runRefillingState(creep: Creep) {
     case RefillingResult.CouldNotWithdraw: //do not advance to another state
       break
     case RefillingResult.OutOfRange:
-      resolveAndReplay(creep, {
-        nextState: MovingState,
-        params: {
-          target: toTarget(creep.memory.storage?.get())
-        },
-        replay: BuilderJob
-      })
+      creep.memory.move = {
+        target: toTarget(creep.memory.storage?.get())
+      }
+      resolveAndReplay(creep, {nextState: MovingState, replay: BuilderJob})
       break
   }
 }
@@ -150,14 +141,11 @@ function runBuildingState(creep: Creep) {
     case BuildingResult.Working: //then keep working
       break
     case BuildingResult.OutOfRange:
-      resolveAndReplay(creep, {
-        nextState: MovingState,
-        params: {
-          range: 3,
-          target: toTarget(creep.memory.construction?.get())
-        },
-        replay: BuilderJob
-      })
+      creep.memory.move = {
+        range: 3,
+        target: toTarget(creep.memory.construction?.get())
+      }
+      resolveAndReplay(creep, {nextState: MovingState, replay: BuilderJob})
       break
     case BuildingResult.ConstructionSiteNoLongerExist: //has CS been completed? Lets reply the current state
       resolveAndReplay(creep, {nextState: BuildingState, replay: BuilderJob})

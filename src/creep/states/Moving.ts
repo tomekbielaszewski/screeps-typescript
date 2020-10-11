@@ -8,13 +8,13 @@ export enum MovingResult {
 }
 
 export function move(creep: Creep): MovingResult {
-  const targetPos = creep.memory.param?.target as SerializablePosition;
+  const targetPos = creep.memory.move?.target;
   if (!targetPos) {
     console.log(`Moving state executed without setting target position! ${creep.name}`);
     return MovingResult.NoTargetPositionSet;
   }
   const target = targetPos.toPos();
-  const range = creep.memory.param?.range as number || 1;
+  const range = creep.memory.move?.range || 1;
 
   if (creep.pos.getRangeTo(target) > range) {
     const moveToResult = creep.moveTo(target, {visualizePathStyle: {stroke: '#ffaa00'}});
@@ -30,8 +30,7 @@ export function move(creep: Creep): MovingResult {
         return MovingResult.CouldNotMove
     }
   } else {
-    delete creep.memory.param?.range
-    delete creep.memory.param?.target
+    delete creep.memory.move
     return MovingResult.ReachedDestination
   }
 }

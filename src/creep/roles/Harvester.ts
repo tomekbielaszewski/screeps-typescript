@@ -50,15 +50,13 @@ function runIdleState(creep: Creep) {
     case UpgradeResult.Upgrading:
       break
     case UpgradeResult.OutOfRange:
-      if (creep.room.controller)
-        resolveAndReplay(creep, {
-          nextState: MovingState,
-          params: {
-            range: 3,
-            target: toTarget(creep.room.controller)
-          },
-          replay: HarvesterJob
-        })
+      if (creep.room.controller) {
+        creep.memory.move = {
+          range: 3,
+          target: toTarget(creep.room.controller)
+        }
+        resolveAndReplay(creep, {nextState: MovingState, replay: HarvesterJob})
+      }
       break
     case UpgradeResult.CouldNotUpgrade:
       break
@@ -80,13 +78,10 @@ function runStoringState(creep: Creep) {
       resolve(creep, {nextState: HarvestingState})
       break
     case StoringResult.OutOfRange:
-      resolveAndReplay(creep, {
-        nextState: MovingState,
-        params: {
-          target: toTarget(creep.memory.storage?.get())
-        },
-        replay: HarvesterJob
-      })
+      creep.memory.move = {
+        target: toTarget(creep.memory.storage?.get())
+      }
+      resolveAndReplay(creep, {nextState: MovingState, replay: HarvesterJob})
       break
     case StoringResult.AssignedStorageFull: //try again immediately
       resolveAndReplay(creep, {nextState: StoringState, replay: HarvesterJob})
@@ -109,13 +104,10 @@ function runHarvestingState(creep: Creep) {
       resolveAndReplay(creep, {nextState: StoringState, replay: HarvesterJob})
       break
     case HarvestingResult.OutOfRange:
-      resolveAndReplay(creep, {
-        nextState: MovingState,
-        params: {
-          target: toTarget(creep.memory.sourceTargeted?.get())
-        },
-        replay: HarvesterJob
-      })
+      creep.memory.move = {
+        target: toTarget(creep.memory.sourceTargeted?.get())
+      }
+      resolveAndReplay(creep, {nextState: MovingState, replay: HarvesterJob})
       break
   }
 }

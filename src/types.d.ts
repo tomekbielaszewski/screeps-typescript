@@ -12,8 +12,10 @@ interface CreepMemory {
   room: string
   state?: string
   lastState?: string
-  targetPos?: SerializablePosition
-  param?: Record<string, any>
+  move?: {
+    target: SerializablePosition
+    range?: number
+  }
 }
 
 interface RoomMemory {

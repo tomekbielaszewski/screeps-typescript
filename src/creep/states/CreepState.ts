@@ -40,8 +40,7 @@ export type ReplayFunction = (creep: Creep) => void;
 export interface StateResolver {
   nextState?: CreepState,
   getNextState?: () => CreepState,
-  replay?: ReplayFunction,
-  params?: Record<string, any>
+  replay?: ReplayFunction
 }
 
 export function resolve(creep: Creep, stateResolver: StateResolver): CreepState {
@@ -52,11 +51,10 @@ export function resolve(creep: Creep, stateResolver: StateResolver): CreepState 
     throw new Error('Unresolvable state');
   }
 
-  creep.memory.param = stateResolver?.params;
   creep.memory.lastState = creep.memory.state;
   creep.memory.state = nextState;
 
-  if (Memory.log.state === true) console.log(`[${Game.time}] creep[${creep.name}]: ${creep.memory.lastState} ==> ${creep.memory.state} | param ${JSON.stringify(creep.memory.param)}`);
+  if (Memory.log.state === true) console.log(`[${Game.time}] creep[${creep.name}]: ${creep.memory.lastState} ==> ${creep.memory.state} | param ${JSON.stringify(creep.memory.move)}`);
   return nextState as CreepState;
 }
 
@@ -70,7 +68,7 @@ export function resolveAndReplay(creep: Creep, stateResolver: StateResolver): vo
 }
 
 export function resolveLastState(creep: Creep): void {
-  if (Memory.log.state === true) console.log(`[${Game.time}] creep[${creep.name}]: ${creep.memory.lastState} <== ${creep.memory.state} | param ${JSON.stringify(creep.memory.param)}`);
+  if (Memory.log.state === true) console.log(`[${Game.time}] creep[${creep.name}]: ${creep.memory.lastState} <== ${creep.memory.state} | param ${JSON.stringify(creep.memory.move)}`);
   creep.memory.state = creep.memory.lastState;
 }
 
