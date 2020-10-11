@@ -8,10 +8,13 @@ import {measure} from "utils/Profiler";
 import {GlobalsInitialization} from "utils/GlobalsInitialization";
 import {defendRoom} from "utils/RoomDefense";
 import {LinkOperator} from "./creep/management/LinkOperator";
+import MemHack from "./utils/MemHack";
 
 GlobalsInitialization()
 
 function unwrappedLoop(): void {
+  MemHack.pretick()
+
   Object.values(Game.rooms)
     .forEach(room => {
       measure(() => defendRoom(room), `${room.name}.tower`)
