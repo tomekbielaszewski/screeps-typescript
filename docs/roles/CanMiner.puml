@@ -1,0 +1,25 @@
+@startuml
+hide empty description
+[*] --> SpawningState
+SpawningState --> DockingState
+
+DockingState --> MovingState
+DockingState --> HarvestingState
+DockingState --> BuildingState
+
+MovingState --> DockingState
+
+HarvestingState --> StoringState
+HarvestingState --> DockingState
+HarvestingState --> RepairingState
+
+BuildingState --> HarvestingState
+BuildingState --> DockingState
+
+StoringState --> HarvestingState
+StoringState --> DockingState
+
+RepairingState --> IdleState
+
+IdleState --> HarvestingState
+@enduml
