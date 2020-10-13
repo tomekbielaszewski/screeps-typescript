@@ -7,6 +7,7 @@ export enum HarvestingResult {
   Harvesting,
   OutOfRange,
   CouldNotHarvest,
+  SourceEmpty,
 }
 
 export function harvest(creep: Creep, checkCapacity: boolean, changeSourceWhenEmpty: boolean): HarvestingResult {
@@ -39,6 +40,8 @@ export function harvest(creep: Creep, checkCapacity: boolean, changeSourceWhenEm
       return HarvestingResult.Harvesting
     case ERR_NOT_IN_RANGE:
       return HarvestingResult.OutOfRange
+    case ERR_NOT_ENOUGH_RESOURCES:
+      return HarvestingResult.SourceEmpty
     default:
       console.log(`HarvestingEnergy: harvest result ${harvestResult}`);
       return HarvestingResult.CouldNotHarvest
