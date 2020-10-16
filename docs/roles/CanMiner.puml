@@ -20,6 +20,7 @@ StoringState --> HarvestingState
 StoringState --> DockingState
 
 RepairingState --> IdleState
+RepairingState --> DockingState
 
 IdleState --> HarvestingState
 @enduml
