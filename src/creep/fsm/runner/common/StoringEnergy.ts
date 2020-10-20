@@ -1,4 +1,4 @@
-import {SerializableRoomObject} from "../../utils/Serializables";
+import {SerializableRoomObject} from "../../../../utils/Serializables";
 
 export enum StoringResult {
   CreepStoreEmpty,

@@ -1,4 +1,4 @@
-import {IdentifiableRoomObject, SerializablePosition} from "../../utils/Serializables";
+import {IdentifiableRoomObject, SerializablePosition} from "../../../../utils/Serializables";
 
 export enum MovingResult {
   NoTargetPositionSet,

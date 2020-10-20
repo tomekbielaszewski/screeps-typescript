@@ -1,4 +1,4 @@
-import {findLowHpStructures} from "../creep/states/Repairing";
+import {findLowHpStructures} from "../creep/fsm/runner/common/Repairing";
 
 export const cli = {
   help,

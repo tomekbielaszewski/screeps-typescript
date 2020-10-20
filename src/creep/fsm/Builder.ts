@@ -10,11 +10,11 @@ import {
   resolveLastStateAndReplay,
   SpawningState,
   StateResolver
-} from "../states/CreepState"
-import {move, MovingResult, toTarget} from "../states/Moving"
-import {refillCreep, RefillingResult} from "../states/RefillingCreep"
-import {building, BuildingResult} from "../states/Building"
-import {findLowHpStructures, repairing, RepairingResult} from "../states/Repairing"
+} from "./runner/common/CreepState"
+import {move, MovingResult, toTarget} from "./runner/common/Moving"
+import {refillCreep, RefillingResult} from "./runner/common/RefillingCreep"
+import {building, BuildingResult} from "./runner/common/Building"
+import {findLowHpStructures, repairing, RepairingResult} from "./runner/common/Repairing"
 
 export function BuilderJob(creep: Creep): void {
   if (!creep.memory.state) {

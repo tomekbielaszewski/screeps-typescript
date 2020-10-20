@@ -8,11 +8,11 @@ import {
   SpawningState,
   StateResolver,
   StoringState
-} from "../states/CreepState"
-import {harvest, HarvestingResult} from "../states/HarvestingEnergy"
-import {move, MovingResult, toTarget} from "../states/Moving"
-import {storeEnergy, StoringResult} from "../states/StoringEnergy"
-import {upgradeController, UpgradeResult} from "../states/UpgradingController"
+} from "./runner/common/CreepState"
+import {harvest, HarvestingResult} from "./runner/common/HarvestingEnergy"
+import {move, MovingResult, toTarget} from "./runner/common/Moving"
+import {storeEnergy, StoringResult} from "./runner/common/StoringEnergy"
+import {upgradeController, UpgradeResult} from "./runner/common/UpgradingController"
 
 export function HarvesterJob(creep: Creep): void {
   if (!creep.memory.state) {

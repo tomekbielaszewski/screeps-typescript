@@ -9,13 +9,13 @@ import {
   resolveLastStateAndReplay,
   SpawningState,
   StoringState
-} from "../states/CreepState"
-import {harvest, HarvestingResult} from "../states/HarvestingEnergy"
-import {move, MovingResult, toTarget} from "../states/Moving"
+} from "./runner/common/CreepState"
+import {harvest, HarvestingResult} from "./runner/common/HarvestingEnergy"
+import {move, MovingResult, toTarget} from "./runner/common/Moving"
 import {SerializablePosition, SerializableRoomObject} from "../../utils/Serializables"
-import {building, BuildingResult} from "../states/Building"
-import {storeEnergy, StoringResult} from "../states/StoringEnergy"
-import {repairing, RepairingResult} from "../states/Repairing"
+import {building, BuildingResult} from "./runner/common/Building"
+import {storeEnergy, StoringResult} from "./runner/common/StoringEnergy"
+import {repairing, RepairingResult} from "./runner/common/Repairing"
 
 export function MinerJob(creep: Creep): void {
   if (!creep.memory.state) {

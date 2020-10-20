@@ -9,11 +9,11 @@ import {
   SpawningState,
   StateResolver,
   UpgradingState
-} from "../states/CreepState";
-import {harvest, HarvestingResult} from "../states/HarvestingEnergy";
-import {move, MovingResult, toTarget} from "../states/Moving";
-import {upgradeController, UpgradeResult} from "../states/UpgradingController";
-import {refillCreep, RefillingResult} from "../states/RefillingCreep";
+} from "./runner/common/CreepState";
+import {harvest, HarvestingResult} from "./runner/common/HarvestingEnergy";
+import {move, MovingResult, toTarget} from "./runner/common/Moving";
+import {upgradeController, UpgradeResult} from "./runner/common/UpgradingController";
+import {refillCreep, RefillingResult} from "./runner/common/RefillingCreep";
 
 export enum UpgraderState {
   UPGRADING = '⚡',
