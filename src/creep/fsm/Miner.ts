@@ -16,6 +16,7 @@ import {SerializablePosition, SerializableRoomObject} from "../../utils/Serializ
 import {building, BuildingResult} from "./runner/common/Building"
 import {storeEnergy, StoringResult} from "./runner/common/StoringEnergy"
 import {repairing, RepairingResult} from "./runner/common/Repairing"
+import {docking, DockingResult} from "./runner/miner/Docking"
 
 export function MinerJob(creep: Creep): void {
   if (!creep.memory.state) {
@@ -164,69 +165,40 @@ function runMovingState(creep: Creep) {
 }
 
 function runDockingState(creep: Creep) {
-  if (!creep.memory.source) throw new Error('No source available for Miner')
-  if (!creep.memory.source.isVisible() || //in case of source being in another room - lets walk to that room first
-    creep.pos.getRangeTo(creep.memory.source.pos.toPos()) > 1) {
-    creep.memory.move = {
-      target: toTarget(creep.memory.source.get())
-    }
-    resolveAndReplay(creep, {nextState: MovingState, replay: MinerJob})
-    return
-  }
-
-  const source = creep.memory.source.get()
-  if (!source) throw new Error('No source available for Miner')
-
-  // when there is container already
-  const containers = source.pos.findInRange(FIND_STRUCTURES, 1)
-    .filter(s => s.structureType === STRUCTURE_CONTAINER)
-  if (containers && containers.length) {
-    const container = containers[0]
-
-    if (container.pos === creep.pos) {
-      creep.memory.container = SerializableRoomObject.from(container as StructureContainer)
+  const dockingResult = docking(creep)
+  switch (dockingResult) {
+    case DockingResult.NO_SOURCE:
+      throw new Error('Miner has no source set!')
+    case DockingResult.SOURCE_OUT_OF_RANGE:
+      creep.memory.move = {
+        target: toTarget(creep.memory.source?.get())
+      }
+      resolveAndReplay(creep, {nextState: MovingState, replay: MinerJob})
+      break
+    case DockingResult.DOCKED:
       resolveAndReplay(creep, {nextState: HarvestingState, replay: MinerJob})
-      return
-    } else {
+      break
+    case DockingResult.CONTAINER_OUT_OF_RANGE:
       creep.memory.move = {
-        range: 0,
-        target: toTarget(container)
+        target: toTarget(creep.memory.container?.get())
       }
       resolveAndReplay(creep, {nextState: MovingState, replay: MinerJob})
-      return
-    }
-  }
-
-  // when there is no container but there is a CSite
-  const containerCSites = source.pos.findInRange(FIND_CONSTRUCTION_SITES, 1)
-    .filter(cs => cs.structureType === STRUCTURE_CONTAINER)
-  if (containerCSites && containerCSites.length) {
-    const containerCSite = containerCSites[0]
-
-    if (containerCSite.pos === creep.pos) {
-      creep.memory.construction = SerializableRoomObject.from(containerCSite as ConstructionSite)
+      break
+    case DockingResult.READY_TO_BUILD_CONTAINER:
       resolveAndReplay(creep, {nextState: BuildingState, replay: MinerJob})
-      return
-    } else {
+      break
+    case DockingResult.CONTAINER_CSITE_OUT_OF_RANGE:
       creep.memory.move = {
-        range: 0,
-        target: toTarget(containerCSite)
+        target: toTarget(creep.memory.construction?.get())
       }
       resolveAndReplay(creep, {nextState: MovingState, replay: MinerJob})
-      return
-    }
-  }
-
-  // when the source has no CSite nor container
-  if (creep.pos.getRangeTo(source.pos) <= 1) {
-    creep.pos.createConstructionSite(STRUCTURE_CONTAINER)
-    return
-  } else {
-    creep.memory.move = {
-      target: toTarget(source)
-    }
-    resolveAndReplay(creep, {nextState: MovingState, replay: MinerJob})
-    return
+      break
+    case DockingResult.CONTAINER_CSITE_CREATED:
+      creep.memory.move = {
+        target: toTarget(creep.memory.construction?.get())
+      }
+      resolveAndReplay(creep, {nextState: MovingState, replay: MinerJob})
+      break
   }
 }
 
