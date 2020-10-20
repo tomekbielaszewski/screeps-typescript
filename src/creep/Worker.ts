@@ -1,11 +1,11 @@
-import {BuilderJob} from "./roles/Builder";
-import {CarrierJob} from "./roles/Carrier";
+import {BuilderJob} from "./fsm/Builder";
+import {CarrierJob} from "./fsm/Carrier";
 import {CreepRole, creepSymbols} from "./CreepManager";
-import {HarvesterJob} from "./roles/Harvester";
-import {MinerJob} from "./roles/Miner";
-import {UpgraderJob} from "./roles/Upgrader";
+import {HarvesterJob} from "./fsm/Harvester";
+import {MinerJob} from "./fsm/Miner";
+import {UpgraderJob} from "./fsm/Upgrader";
 import {measure} from "../utils/Profiler";
-import {CleanerJob} from "./roles/Cleaner";
+import {CleanerJob} from "./fsm/Cleaner";
 
 const workers: Record<CreepRole, (creep: Creep) => void> = {
   [CreepRole.HARVESTER]: HarvesterJob,
