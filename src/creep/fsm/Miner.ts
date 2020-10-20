@@ -193,11 +193,7 @@ function runDockingState(creep: Creep) {
       }
       resolveAndReplay(creep, {nextState: MovingState, replay: MinerJob})
       break
-    case DockingResult.CONTAINER_CSITE_CREATED:
-      creep.memory.move = {
-        target: toTarget(creep.memory.construction?.get())
-      }
-      resolveAndReplay(creep, {nextState: MovingState, replay: MinerJob})
+    case DockingResult.CONTAINER_CSITE_CREATED: //csite will be available next tik - replay this state
       break
   }
 }
