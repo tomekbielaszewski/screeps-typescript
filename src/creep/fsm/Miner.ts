@@ -17,6 +17,7 @@ import {building, BuildingResult} from "./runner/common/Building"
 import {storeEnergy, StoringResult} from "./runner/common/StoringEnergy"
 import {repairing, RepairingResult} from "./runner/common/Repairing"
 import {docking, DockingResult} from "./runner/miner/Docking"
+import {log} from "../../utils/Logger";
 
 export function MinerJob(creep: Creep): void {
   if (!creep.memory.state) {
@@ -66,6 +67,8 @@ function runIdleState(creep: Creep) {
 function runRepairingState(creep: Creep) {
   creep.memory.repair = creep.memory.container
   const repairingResult = repairing(creep, false)
+  log(creep.name)(`repairingResult: ${repairingResult}`)
+
   switch (repairingResult) {
     case RepairingResult.CreepStoreEmpty: //dont harvest since source should be empty now
     case RepairingResult.NothingToRepair:
@@ -85,6 +88,8 @@ function runRepairingState(creep: Creep) {
 function runStoringState(creep: Creep) {
   creep.memory.storage = creep.memory.container
   const storingStateResult = storeEnergy(creep)
+  log(creep.name)(`storingStateResult: ${storingStateResult}`)
+
   switch (storingStateResult) {
     case StoringResult.CreepStoreEmpty:
     case StoringResult.StoringFinished: //back to work
@@ -105,6 +110,8 @@ function runStoringState(creep: Creep) {
 
 function runBuildingState(creep: Creep) {
   const buildingResult = building(creep)
+  log(creep.name)(`buildingResult: ${buildingResult}`)
+
   switch (buildingResult) {
     case BuildingResult.Working: //chop chop
       break
@@ -121,6 +128,8 @@ function runBuildingState(creep: Creep) {
 
 function runHarvestingState(creep: Creep) {
   const harvestingResult = harvest(creep, false, false)
+  log(creep.name)(`harvestingResult: ${harvestingResult}`)
+
   switch (harvestingResult) {
     case HarvestingResult.CouldNotFindSource:
       throw new Error('No source available for Miner')
@@ -145,6 +154,8 @@ function runHarvestingState(creep: Creep) {
 
 function runMovingState(creep: Creep) {
   const movingResult = move(creep)
+  log(creep.name)(`movingResult: ${movingResult}`)
+
   switch (movingResult) {
     case MovingResult.CouldNotMove: //do not advance to another state and see what happens
     case MovingResult.Moving: //so keep moving
@@ -166,6 +177,8 @@ function runMovingState(creep: Creep) {
 
 function runDockingState(creep: Creep) {
   const dockingResult = docking(creep)
+  log(creep.name)(`dockingResult: ${dockingResult}`)
+
   switch (dockingResult) {
     case DockingResult.NO_SOURCE:
       throw new Error('Miner has no source set!')

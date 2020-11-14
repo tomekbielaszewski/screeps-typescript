@@ -15,6 +15,7 @@ import {move, MovingResult, toTarget} from "./runner/common/Moving"
 import {refillCreep, RefillingResult} from "./runner/common/RefillingCreep"
 import {building, BuildingResult} from "./runner/common/Building"
 import {findLowHpStructures, repairing, RepairingResult} from "./runner/common/Repairing"
+import {log} from "../../utils/Logger";
 
 export function BuilderJob(creep: Creep): void {
   if (!creep.memory.state) {
@@ -45,7 +46,7 @@ export function BuilderJob(creep: Creep): void {
 }
 
 function runIdleState(creep: Creep) {
-  const nextState = buildingOrRepairing(creep)();
+  const nextState = buildingOrRepairing(creep)()
   if (nextState !== IdleState) {
     resolve(creep, {nextState, replay: BuilderJob})
     return
@@ -67,6 +68,8 @@ function runIdleState(creep: Creep) {
 
 function runMovingState(creep: Creep) {
   const movingResult = move(creep)
+  log(creep.name)(`movingResult: ${movingResult}`)
+
   switch (movingResult) {
     case MovingResult.CouldNotMove: //do not advance to another state and see what happens
     case MovingResult.Moving: //do not advance to another state and keep moving
@@ -88,6 +91,8 @@ function runMovingState(creep: Creep) {
 
 function runRepairingState(creep: Creep) {
   const repairingResult = repairing(creep, Memory.repair.fortifications)
+  log(creep.name)(`repairingResult: ${repairingResult}`)
+
   switch (repairingResult) {
     case RepairingResult.Working: //then keep working
     case RepairingResult.CouldNotRepair: //do not advance to another state and see what happens
@@ -114,6 +119,8 @@ function runRepairingState(creep: Creep) {
 
 function runRefillingState(creep: Creep) {
   const refillingResult = refillCreep(creep, true)
+  log(creep.name)(`refillingResult: ${refillingResult}`)
+
   switch (refillingResult) {
     case RefillingResult.CreepRefilled:
       resolve(creep, {getNextState: buildingOrRepairing(creep)})
@@ -136,8 +143,10 @@ function runRefillingState(creep: Creep) {
 }
 
 function runBuildingState(creep: Creep) {
-  const buildingSubState = building(creep)
-  switch (buildingSubState) {
+  const buildingResult = building(creep)
+  log(creep.name)(`buildingResult: ${buildingResult}`)
+
+  switch (buildingResult) {
     case BuildingResult.Working: //then keep working
       break
     case BuildingResult.OutOfRange:
