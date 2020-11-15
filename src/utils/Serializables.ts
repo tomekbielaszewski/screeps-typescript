@@ -19,6 +19,10 @@ export class SerializablePosition {
   public static from(pos: RoomPosition): SerializablePosition {
     return new SerializablePosition(pos.x, pos.y, pos.roomName)
   }
+
+  public static clone(pos: SerializablePosition): SerializablePosition {
+    return new SerializablePosition(pos.x, pos.y, pos.room)
+  }
 }
 
 export class SerializableRoomObject<T extends IdentifiableRoomObject> {
@@ -40,6 +44,15 @@ export class SerializableRoomObject<T extends IdentifiableRoomObject> {
 
   public static from<T extends IdentifiableRoomObject>(obj: T): SerializableRoomObject<T> {
     return new SerializableRoomObject(obj.id, SerializablePosition.from(obj.pos))
+  }
+
+  public static clone<T extends IdentifiableRoomObject>(obj: SerializableRoomObject<T>): SerializableRoomObject<T> {
+    return new SerializableRoomObject(obj.id, SerializablePosition.clone(obj.pos))
+  }
+
+  public static cloneNullable<T extends IdentifiableRoomObject>(obj: SerializableRoomObject<T> | null | undefined): SerializableRoomObject<T> | null | undefined {
+    if (!obj) return obj
+    return this.clone(obj)
   }
 }
 
@@ -94,8 +107,6 @@ declare global {
     containers: { [id: string]: ContainerMemory }
     stats: Record<string, any>
     mainComponentsTime: Record<string, any>
-    log: {
-      state: boolean
-    }
+    log: { [name: string]: boolean }
   }
 }

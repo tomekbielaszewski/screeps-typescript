@@ -16,6 +16,7 @@ import {refillCreep, RefillingResult} from "./runner/common/RefillingCreep"
 import {building, BuildingResult} from "./runner/common/Building"
 import {findLowHpStructures, repairing, RepairingResult} from "./runner/common/Repairing"
 import {getLogger} from "../../utils/Logger";
+import {SerializableRoomObject} from "../../utils/Serializables";
 
 const JOB_NAME = 'BuilderJob'
 
@@ -112,7 +113,7 @@ function runRepairingState(creep: Creep) {
     case RepairingResult.OutOfRange:
       creep.memory.move = {
         range: 3,
-        target: toTarget(creep.memory.repair?.get())
+        target: toTarget(SerializableRoomObject.cloneNullable(creep.memory.repair)?.get())
       }
       resolveAndReplay(creep, {nextState: MovingState, replay: BuilderJob})
       break
@@ -137,7 +138,7 @@ function runRefillingState(creep: Creep) {
       break
     case RefillingResult.OutOfRange:
       creep.memory.move = {
-        target: toTarget(creep.memory.storage?.get())
+        target: toTarget(SerializableRoomObject.cloneNullable(creep.memory.storage)?.get())
       }
       resolveAndReplay(creep, {nextState: MovingState, replay: BuilderJob})
       break
@@ -154,7 +155,7 @@ function runBuildingState(creep: Creep) {
     case BuildingResult.OutOfRange:
       creep.memory.move = {
         range: 3,
-        target: toTarget(creep.memory.construction?.get())
+        target: toTarget(SerializableRoomObject.cloneNullable(creep.memory.construction)?.get())
       }
       resolveAndReplay(creep, {nextState: MovingState, replay: BuilderJob})
       break

@@ -1,4 +1,4 @@
-import {SerializableRoomObject} from "../../../../utils/Serializables";
+import {SerializablePosition, SerializableRoomObject} from "../../../../utils/Serializables";
 
 export enum DockingResult {
   NO_SOURCE,
@@ -12,12 +12,12 @@ export enum DockingResult {
 
 export function docking(creep: Creep): DockingResult {
   if (!creep.memory.source) return DockingResult.NO_SOURCE
-  if (!creep.memory.source.isVisible() || //in case of source being in another room - lets walk to that room first
-    creep.pos.getRangeTo(creep.memory.source.pos.toPos()) > 1) {
+  if (!SerializableRoomObject.clone(creep.memory.source).isVisible() || //in case of source being in another room - lets walk to that room first
+    creep.pos.getRangeTo(SerializablePosition.clone(creep.memory.source.pos).toPos()) > 1) {
     return DockingResult.SOURCE_OUT_OF_RANGE
   }
 
-  const source = creep.memory.source.get()
+  const source = SerializableRoomObject.clone(creep.memory.source).get()
   if (!source) return DockingResult.NO_SOURCE
 
   // when there is container already

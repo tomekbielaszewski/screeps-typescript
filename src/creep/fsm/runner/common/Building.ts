@@ -21,7 +21,7 @@ export function building(creep: Creep): BuildingResult {
     return BuildingResult.NoConstructionSite
   }
 
-  const construction = creep.memory.construction?.get() as ConstructionSite
+  const construction = SerializableRoomObject.cloneNullable(creep.memory.construction)?.get() as ConstructionSite
   if (!construction) {
     delete creep.memory.construction
     return BuildingResult.ConstructionSiteNoLongerExist

@@ -15,6 +15,7 @@ import {move, MovingResult, toTarget} from "./runner/common/Moving";
 import {upgradeController, UpgradeResult} from "./runner/common/UpgradingController";
 import {refillCreep, RefillingResult} from "./runner/common/RefillingCreep";
 import {getLogger} from "../../utils/Logger";
+import {SerializableRoomObject} from "../../utils/Serializables";
 
 export enum UpgraderState {
   UPGRADING = '⚡',
@@ -130,7 +131,7 @@ function runHarvestingState(creep: Creep) {
       break
     case HarvestingResult.OutOfRange:
       creep.memory.move = {
-        target: toTarget(creep.memory.source?.get())
+        target: toTarget(SerializableRoomObject.cloneNullable(creep.memory.source)?.get())
       }
       resolveAndReplay(creep, {nextState: MovingState, replay: UpgraderJob})
       break
@@ -150,7 +151,7 @@ function runRefillingState(creep: Creep) {
       break
     case RefillingResult.OutOfRange:
       creep.memory.move = {
-        target: toTarget(creep.memory.storage?.get())
+        target: toTarget(SerializableRoomObject.cloneNullable(creep.memory.storage)?.get())
       }
       resolveAndReplay(creep, {nextState: MovingState, replay: UpgraderJob})
       break

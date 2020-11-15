@@ -15,7 +15,7 @@ export function move(creep: Creep): MovingResult {
     console.log(`Moving state executed without setting target position! ${creep.name}`);
     return MovingResult.NoTargetPositionSet;
   }
-  const target = targetPos.toPos();
+  const target = SerializablePosition.clone(targetPos).toPos();
   const range = creep.memory.move?.range || 1;
 
   if (creep.pos.getRangeTo(target) > range) {

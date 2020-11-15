@@ -19,7 +19,7 @@ export function harvest(creep: Creep, checkCapacity: boolean, changeSourceWhenEm
     assignSource(creep)
   }
 
-  let source = creep.memory.source?.get() as Source | null
+  let source = SerializableRoomObject.cloneNullable(creep.memory.source)?.get() as Source | null
   if (!source) {
     assignSource(creep);
     return HarvestingResult.CouldNotFindSource

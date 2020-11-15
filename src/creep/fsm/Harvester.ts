@@ -14,6 +14,7 @@ import {move, MovingResult, toTarget} from "./runner/common/Moving"
 import {storeEnergy, StoringResult} from "./runner/common/StoringEnergy"
 import {upgradeController, UpgradeResult} from "./runner/common/UpgradingController"
 import {getLogger} from "../../utils/Logger";
+import {SerializableRoomObject} from "../../utils/Serializables";
 
 const JOB_NAME = 'HarvesterJob'
 
@@ -86,7 +87,7 @@ function runStoringState(creep: Creep) {
       break
     case StoringResult.OutOfRange:
       creep.memory.move = {
-        target: toTarget(creep.memory.storage?.get())
+        target: toTarget(SerializableRoomObject.cloneNullable(creep.memory.storage)?.get())
       }
       resolveAndReplay(creep, {nextState: MovingState, replay: HarvesterJob})
       break
@@ -114,7 +115,7 @@ function runHarvestingState(creep: Creep) {
       break
     case HarvestingResult.OutOfRange:
       creep.memory.move = {
-        target: toTarget(creep.memory.sourceTargeted?.get())
+        target: toTarget(SerializableRoomObject.cloneNullable(creep.memory.sourceTargeted)?.get())
       }
       resolveAndReplay(creep, {nextState: MovingState, replay: HarvesterJob})
       break

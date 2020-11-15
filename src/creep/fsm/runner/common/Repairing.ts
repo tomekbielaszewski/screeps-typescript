@@ -37,7 +37,7 @@ export function repairing(creep: Creep, repairFortifications: boolean): Repairin
     return RepairingResult.NothingToRepair
   }
 
-  const repairedStructure = creep.memory.repair.get() as Structure
+  const repairedStructure = SerializableRoomObject.clone(creep.memory.repair).get() as Structure
   if (!repairedStructure) {
     delete creep.memory.repair
     return RepairingResult.StructureNoLongerExists

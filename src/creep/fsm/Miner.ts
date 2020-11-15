@@ -56,7 +56,7 @@ export function MinerJob(creep: Creep): void {
 
 function runIdleState(creep: Creep) {
   if (!creep.memory.source) throw new Error('No source available for Miner')
-  const source = creep.memory.source.get() as Source
+  const source = SerializableRoomObject.clone(creep.memory.source).get() as Source
   if (!source) throw new Error('No source available for Miner')
 
   if (source.energy > 0) {
@@ -139,7 +139,7 @@ function runHarvestingState(creep: Creep) {
     case HarvestingResult.Harvesting: //then keep it up
       break
     case HarvestingResult.CreepStoreFull:
-      if (creep.memory.container && creep.memory.container.isVisible()) {
+      if (creep.memory.container && SerializableRoomObject.clone(creep.memory.container).isVisible()) {
         resolveAndReplay(creep, {nextState: StoringState, replay: MinerJob})
       } else {
         resolveAndReplay(creep, {nextState: DockingState, replay: MinerJob})
@@ -186,7 +186,7 @@ function runDockingState(creep: Creep) {
       throw new Error('Miner has no source set!')
     case DockingResult.SOURCE_OUT_OF_RANGE:
       creep.memory.move = {
-        target: toTarget(creep.memory.source?.get())
+        target: toTarget(SerializableRoomObject.cloneNullable(creep.memory.source)?.get())
       }
       resolveAndReplay(creep, {nextState: MovingState, replay: MinerJob})
       break
@@ -195,7 +195,7 @@ function runDockingState(creep: Creep) {
       break
     case DockingResult.CONTAINER_OUT_OF_RANGE:
       creep.memory.move = {
-        target: toTarget(creep.memory.container?.get())
+        target: toTarget(SerializableRoomObject.cloneNullable(creep.memory.container)?.get())
       }
       resolveAndReplay(creep, {nextState: MovingState, replay: MinerJob})
       break
@@ -204,7 +204,7 @@ function runDockingState(creep: Creep) {
       break
     case DockingResult.CONTAINER_CSITE_OUT_OF_RANGE:
       creep.memory.move = {
-        target: toTarget(creep.memory.construction?.get())
+        target: toTarget(SerializableRoomObject.cloneNullable(creep.memory.construction)?.get())
       }
       resolveAndReplay(creep, {nextState: MovingState, replay: MinerJob})
       break

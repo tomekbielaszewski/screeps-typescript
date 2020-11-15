@@ -16,13 +16,13 @@ export function storeEnergy(creep: Creep): StoringResult {
     return StoringResult.CreepStoreEmpty
   }
 
-  if (!creep.memory.storage?.get()) {
+  if (!SerializableRoomObject.cloneNullable(creep.memory.storage)?.get()) {
     const storage = findStorage(creep);
     if (!storage) return StoringResult.NoStorageSpaceAvailableInRoom
     creep.memory.storage = SerializableRoomObject.from(storage)
   }
 
-  const assignedStorage = creep.memory.storage?.get() as StructureSpawn | StructureExtension | StructureStorage | StructureContainer
+  const assignedStorage = SerializableRoomObject.cloneNullable(creep.memory.storage)?.get() as StructureSpawn | StructureExtension | StructureStorage | StructureContainer
   if (!assignedStorage) {
     delete creep.memory.storage
     return StoringResult.NoStorageSpaceAvailableInRoom
