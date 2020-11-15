@@ -14,7 +14,7 @@ import {harvest, HarvestingResult} from "./runner/common/HarvestingEnergy";
 import {move, MovingResult, toTarget} from "./runner/common/Moving";
 import {upgradeController, UpgradeResult} from "./runner/common/UpgradingController";
 import {refillCreep, RefillingResult} from "./runner/common/RefillingCreep";
-import {log} from "../../utils/Logger";
+import {getLogger} from "../../utils/Logger";
 
 export enum UpgraderState {
   UPGRADING = '⚡',
@@ -34,6 +34,8 @@ interface EnergySource {
   id: Id<Structure | Source | Resource>,
   take: EnergyTakeMethod | undefined
 }
+
+const JOB_NAME = 'UpgraderJob'
 
 export function UpgraderJob(creep: Creep): void {
   if (!creep.memory.state) {
@@ -64,7 +66,7 @@ export function UpgraderJob(creep: Creep): void {
 
 function runUpgradingState(creep: Creep) {
   const upgradeResult = upgradeController(creep)
-  log(creep.name)(`[${creep.name}] upgradeResult: ${upgradeResult}`)
+  getLogger(JOB_NAME).log(`[${creep.name}] upgradeResult: ${upgradeResult}`)
 
   switch (upgradeResult) {
     case UpgradeResult.CreepStoreEmpty:
@@ -91,7 +93,7 @@ function runUpgradingState(creep: Creep) {
 
 function runMovingState(creep: Creep) {
   const movingResult = move(creep)
-  log(creep.name)(`[${creep.name}] movingResult: ${movingResult}`)
+  getLogger(JOB_NAME).log(`[${creep.name}] movingResult: ${movingResult}`)
 
   switch (movingResult) {
     case MovingResult.CouldNotMove: //do not advance to another state and see what happens
@@ -114,7 +116,7 @@ function runMovingState(creep: Creep) {
 
 function runHarvestingState(creep: Creep) {
   const harvestingResult = harvest(creep, true, true)
-  log(creep.name)(`[${creep.name}] harvestingResult: ${harvestingResult}`)
+  getLogger(JOB_NAME).log(`[${creep.name}] harvestingResult: ${harvestingResult}`)
 
   switch (harvestingResult) {
     case HarvestingResult.CouldNotFindSource: //well... lets call it a day
@@ -137,7 +139,7 @@ function runHarvestingState(creep: Creep) {
 
 function runRefillingState(creep: Creep) {
   const refillingResult = refillCreep(creep, false)
-  log(creep.name)(`[${creep.name}] refillingResult: ${refillingResult}`)
+  getLogger(JOB_NAME).log(`[${creep.name}] refillingResult: ${refillingResult}`)
 
   switch (refillingResult) {
     case RefillingResult.CreepStoreFull:
