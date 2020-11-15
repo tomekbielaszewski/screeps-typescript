@@ -13,9 +13,11 @@ import {harvest, HarvestingResult} from "./runner/common/HarvestingEnergy"
 import {move, MovingResult, toTarget} from "./runner/common/Moving"
 import {storeEnergy, StoringResult} from "./runner/common/StoringEnergy"
 import {upgradeController, UpgradeResult} from "./runner/common/UpgradingController"
+import {getLogger} from "../../utils/Logger";
+
+const JOB_NAME = 'HarvesterJob'
 
 export function HarvesterJob(creep: Creep): void {
-  if (Memory.log.state === true) console.log(`[${Game.time}] creep[${creep.name}]: Current state: ${creep.memory.state} | Last state: ${creep.memory.lastState}`);
   if (!creep.memory.state) {
     creep.memory.state = SpawningState
   }
@@ -41,7 +43,8 @@ export function HarvesterJob(creep: Creep): void {
 
 function runIdleState(creep: Creep) {
   const upgradeResult = upgradeController(creep)
-  if (Memory.log.state === true) console.log(`[${Game.time}] creep[${creep.name}]: upgradeResult: ${upgradeResult}`);
+  getLogger(JOB_NAME).log(`[${creep.name}] upgradeResult: ${upgradeResult}`)
+
   switch (upgradeResult) {
     case UpgradeResult.CreepStoreEmpty:
       resolveAndReplay(creep, {nextState: HarvestingState, replay: HarvesterJob})
@@ -67,7 +70,8 @@ function runIdleState(creep: Creep) {
 
 function runStoringState(creep: Creep) {
   const storingResult = storeEnergy(creep)
-  if (Memory.log.state === true) console.log(`[${Game.time}] creep[${creep.name}]: storingResult: ${storingResult}`);
+  getLogger(JOB_NAME).log(`[${creep.name}] storingResult: ${storingResult}`)
+
   switch (storingResult) {
     case StoringResult.CreepStoreEmpty:
       resolveAndReplay(creep, {nextState: HarvestingState, replay: HarvesterJob})
@@ -96,7 +100,8 @@ function runStoringState(creep: Creep) {
 
 function runHarvestingState(creep: Creep) {
   const harvestingResult = harvest(creep, true, true)
-  if (Memory.log.state === true) console.log(`[${Game.time}] creep[${creep.name}]: harvestingResult: ${harvestingResult}`);
+  getLogger(JOB_NAME).log(`[${creep.name}] harvestingResult: ${harvestingResult}`)
+
   switch (harvestingResult) {
     case HarvestingResult.CouldNotFindSource: //well... lets call it a day
       // resolveAndReplay(creep, {nextState: IdleState, replay: HarvesterJob}) TODO
@@ -118,7 +123,8 @@ function runHarvestingState(creep: Creep) {
 
 function runMovingState(creep: Creep) {
   const movingResult = move(creep)
-  if (Memory.log.state === true) console.log(`[${Game.time}] creep[${creep.name}]: movingResult: ${movingResult}`);
+  getLogger(JOB_NAME).log(`[${creep.name}] movingResult: ${movingResult}`)
+
   switch (movingResult) {
     case MovingResult.CouldNotMove: //do not advance to another state and see what happens
     case MovingResult.Moving: //so keep moving

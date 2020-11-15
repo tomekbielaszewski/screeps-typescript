@@ -17,7 +17,9 @@ import {building, BuildingResult} from "./runner/common/Building"
 import {storeEnergy, StoringResult} from "./runner/common/StoringEnergy"
 import {repairing, RepairingResult} from "./runner/common/Repairing"
 import {docking, DockingResult} from "./runner/miner/Docking"
-import {log} from "../../utils/Logger";
+import {getLogger} from "../../utils/Logger";
+
+const JOB_NAME = 'MinerJob'
 
 export function MinerJob(creep: Creep): void {
   if (!creep.memory.state) {
@@ -67,7 +69,7 @@ function runIdleState(creep: Creep) {
 function runRepairingState(creep: Creep) {
   creep.memory.repair = creep.memory.container
   const repairingResult = repairing(creep, false)
-  log(creep.name)(`[${creep.name}] repairingResult: ${repairingResult}`)
+  getLogger(JOB_NAME).log(`[${creep.name}] repairingResult: ${repairingResult}`)
 
   switch (repairingResult) {
     case RepairingResult.CreepStoreEmpty: //dont harvest since source should be empty now
@@ -88,7 +90,7 @@ function runRepairingState(creep: Creep) {
 function runStoringState(creep: Creep) {
   creep.memory.storage = creep.memory.container
   const storingStateResult = storeEnergy(creep)
-  log(creep.name)(`[${creep.name}] storingStateResult: ${storingStateResult}`)
+  getLogger(JOB_NAME).log(`[${creep.name}] storingStateResult: ${storingStateResult}`)
 
   switch (storingStateResult) {
     case StoringResult.CreepStoreEmpty:
@@ -110,7 +112,7 @@ function runStoringState(creep: Creep) {
 
 function runBuildingState(creep: Creep) {
   const buildingResult = building(creep)
-  log(creep.name)(`[${creep.name}] buildingResult: ${buildingResult}`)
+  getLogger(JOB_NAME).log(`[${creep.name}] buildingResult: ${buildingResult}`)
 
   switch (buildingResult) {
     case BuildingResult.Working: //chop chop
@@ -128,7 +130,7 @@ function runBuildingState(creep: Creep) {
 
 function runHarvestingState(creep: Creep) {
   const harvestingResult = harvest(creep, false, false)
-  log(creep.name)(`[${creep.name}] harvestingResult: ${harvestingResult}`)
+  getLogger(JOB_NAME).log(`[${creep.name}] harvestingResult: ${harvestingResult}`)
 
   switch (harvestingResult) {
     case HarvestingResult.CouldNotFindSource:
@@ -154,7 +156,7 @@ function runHarvestingState(creep: Creep) {
 
 function runMovingState(creep: Creep) {
   const movingResult = move(creep)
-  log(creep.name)(`[${creep.name}] movingResult: ${movingResult}`)
+  getLogger(JOB_NAME).log(`[${creep.name}] movingResult: ${movingResult}`)
 
   switch (movingResult) {
     case MovingResult.CouldNotMove: //do not advance to another state and see what happens
@@ -177,7 +179,7 @@ function runMovingState(creep: Creep) {
 
 function runDockingState(creep: Creep) {
   const dockingResult = docking(creep)
-  log(creep.name)(`[${creep.name}] dockingResult: ${dockingResult}`)
+  getLogger(JOB_NAME).log(`[${creep.name}] dockingResult: ${dockingResult}`)
 
   switch (dockingResult) {
     case DockingResult.NO_SOURCE:

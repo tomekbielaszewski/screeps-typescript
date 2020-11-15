@@ -1,3 +1,5 @@
+import {getLogger} from "../../../../utils/Logger";
+
 export type CreepState =
   SpawningState |
   StoringState |
@@ -46,6 +48,8 @@ export interface StateResolver {
   replay?: ReplayFunction
 }
 
+const STATE_LOGGER = getLogger('state')
+
 export function resolve(creep: Creep, stateResolver: StateResolver): CreepState {
   let nextState;
   if (stateResolver.nextState) nextState = stateResolver.nextState;
@@ -57,7 +61,7 @@ export function resolve(creep: Creep, stateResolver: StateResolver): CreepState 
   creep.memory.lastState = creep.memory.state;
   creep.memory.state = nextState;
 
-  if (Memory.log.state === true) console.log(`[${Game.time}] creep[${creep.name}]: ${creep.memory.lastState} ==> ${creep.memory.state} | param ${JSON.stringify(creep.memory.move)}`);
+  STATE_LOGGER.log(`[${Game.time}] creep[${creep.name}]: ${creep.memory.lastState} ==> ${creep.memory.state} | param ${JSON.stringify(creep.memory.move)}`);
   return nextState as CreepState;
 }
 
@@ -71,7 +75,7 @@ export function resolveAndReplay(creep: Creep, stateResolver: StateResolver): vo
 }
 
 export function resolveLastState(creep: Creep): void {
-  if (Memory.log.state === true) console.log(`[${Game.time}] creep[${creep.name}]: ${creep.memory.lastState} <== ${creep.memory.state} | param ${JSON.stringify(creep.memory.move)}`);
+  STATE_LOGGER.log(`[${Game.time}] creep[${creep.name}]: ${creep.memory.lastState} <== ${creep.memory.state} | param ${JSON.stringify(creep.memory.move)}`);
   creep.memory.state = creep.memory.lastState;
 }
 

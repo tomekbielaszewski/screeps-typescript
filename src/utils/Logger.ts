@@ -20,7 +20,3 @@ class NamedLogger implements Logger {
 export function getLogger(name: string): Logger {
   return new NamedLogger(name)
 }
-
-export function log(name: string): (...messages: string[]) => void {
-  return getLogger(name).log
-}

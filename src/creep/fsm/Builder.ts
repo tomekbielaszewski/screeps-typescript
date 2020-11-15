@@ -15,7 +15,9 @@ import {move, MovingResult, toTarget} from "./runner/common/Moving"
 import {refillCreep, RefillingResult} from "./runner/common/RefillingCreep"
 import {building, BuildingResult} from "./runner/common/Building"
 import {findLowHpStructures, repairing, RepairingResult} from "./runner/common/Repairing"
-import {log} from "../../utils/Logger";
+import {getLogger} from "../../utils/Logger";
+
+const JOB_NAME = 'BuilderJob'
 
 export function BuilderJob(creep: Creep): void {
   if (!creep.memory.state) {
@@ -68,7 +70,7 @@ function runIdleState(creep: Creep) {
 
 function runMovingState(creep: Creep) {
   const movingResult = move(creep)
-  log(creep.name)(`[${creep.name}] movingResult: ${movingResult}`)
+  getLogger(JOB_NAME).log(`[${creep.name}] movingResult: ${movingResult}`)
 
   switch (movingResult) {
     case MovingResult.CouldNotMove: //do not advance to another state and see what happens
@@ -91,7 +93,7 @@ function runMovingState(creep: Creep) {
 
 function runRepairingState(creep: Creep) {
   const repairingResult = repairing(creep, Memory.repair.fortifications)
-  log(creep.name)(`[${creep.name}] repairingResult: ${repairingResult}`)
+  getLogger(JOB_NAME).log(`[${creep.name}] repairingResult: ${repairingResult}`)
 
   switch (repairingResult) {
     case RepairingResult.Working: //then keep working
@@ -119,7 +121,7 @@ function runRepairingState(creep: Creep) {
 
 function runRefillingState(creep: Creep) {
   const refillingResult = refillCreep(creep, true)
-  log(creep.name)(`[${creep.name}] refillingResult: ${refillingResult}`)
+  getLogger(JOB_NAME).log(`[${creep.name}] refillingResult: ${refillingResult}`)
 
   switch (refillingResult) {
     case RefillingResult.CreepRefilled:
@@ -144,7 +146,7 @@ function runRefillingState(creep: Creep) {
 
 function runBuildingState(creep: Creep) {
   const buildingResult = building(creep)
-  log(creep.name)(`[${creep.name}] buildingResult: ${buildingResult}`)
+  getLogger(JOB_NAME).log(`[${creep.name}] buildingResult: ${buildingResult}`)
 
   switch (buildingResult) {
     case BuildingResult.Working: //then keep working
