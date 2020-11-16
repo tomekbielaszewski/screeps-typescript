@@ -27,7 +27,7 @@ export function docking(creep: Creep): DockingResult {
     const container = containers[0]
     creep.memory.container = SerializableRoomObject.from(container as StructureContainer)
 
-    if (container.pos === creep.pos) {
+    if (container.pos.isEqualTo(creep.pos)) {
       return DockingResult.DOCKED
     } else {
       return DockingResult.CONTAINER_OUT_OF_RANGE
@@ -41,7 +41,7 @@ export function docking(creep: Creep): DockingResult {
     const containerCSite = containerCSites[0]
     creep.memory.construction = SerializableRoomObject.from(containerCSite as ConstructionSite)
 
-    if (containerCSite.pos === creep.pos) {
+    if (containerCSite.pos.isEqualTo(creep.pos)) {
       return DockingResult.READY_TO_BUILD_CONTAINER
     } else {
       return DockingResult.CONTAINER_CSITE_OUT_OF_RANGE

@@ -129,7 +129,9 @@ function runBuildingState(creep: Creep) {
 }
 
 function runHarvestingState(creep: Creep) {
-  const harvestingResult = harvest(creep, false, false)
+  const container = SerializableRoomObject.cloneNullable(creep.memory.container)?.get()
+  const creepDocked = container && container.pos.isEqualTo(creep.pos)
+  const harvestingResult = harvest(creep, !creepDocked, false)
   getLogger(JOB_NAME).log(`[${creep.name}] harvestingResult: ${harvestingResult}`)
 
   switch (harvestingResult) {
@@ -195,7 +197,8 @@ function runDockingState(creep: Creep) {
       break
     case DockingResult.CONTAINER_OUT_OF_RANGE:
       creep.memory.move = {
-        target: toTarget(SerializableRoomObject.cloneNullable(creep.memory.container)?.get())
+        target: toTarget(SerializableRoomObject.cloneNullable(creep.memory.container)?.get()),
+        range: 0
       }
       resolveAndReplay(creep, {nextState: MovingState, replay: MinerJob})
       break
@@ -204,7 +207,8 @@ function runDockingState(creep: Creep) {
       break
     case DockingResult.CONTAINER_CSITE_OUT_OF_RANGE:
       creep.memory.move = {
-        target: toTarget(SerializableRoomObject.cloneNullable(creep.memory.construction)?.get())
+        target: toTarget(SerializableRoomObject.cloneNullable(creep.memory.construction)?.get()),
+        range: 0
       }
       resolveAndReplay(creep, {nextState: MovingState, replay: MinerJob})
       break
@@ -221,6 +225,8 @@ function initialize(creep: Creep) {
   }
   resolveAndReplay(creep, {nextState: DockingState, replay: MinerJob})
 }
+
+//Game.spawns['Spawn1'].spawnCreep([WORK, WORK, WORK, WORK, CARRY, MOVE], 'TestMiner3', {memory: {role: 'Miner', source: {id:'eff307740862fd8', pos:{x:12,y:21,room:'W3N7'}}}})
 
 function getAvailableSource(creep: Creep): SerializableRoomObject<Source> {
   return new SerializableRoomObject("" as Id<Source>, new SerializablePosition(1, 1, ""))

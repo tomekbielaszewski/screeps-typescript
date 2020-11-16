@@ -16,7 +16,7 @@ export function move(creep: Creep): MovingResult {
     return MovingResult.NoTargetPositionSet;
   }
   const target = SerializablePosition.clone(targetPos).toPos();
-  const range = creep.memory.move?.range || 1;
+  const range = creep.memory.move?.range === undefined ? 1 : creep.memory.move.range;
 
   if (creep.pos.getRangeTo(target) > range) {
     const moveToResult = creep.moveTo(target, {visualizePathStyle: {stroke: '#ffaa00'}});

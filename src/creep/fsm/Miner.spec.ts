@@ -96,6 +96,7 @@ describe('Miner role', () => {
       memory: {
         state: DockingState,
         move: undefined,
+        container: undefined,
         source: serializedSource
       }
     })
