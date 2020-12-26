@@ -1,0 +1,17 @@
+@startmindmap
+* Screeps
+
+** Base
+*** Automated builder
+*** Building search cache
+**** Split buildings into categories
+**** Use tree-like structures
+***** tree per type: storages, roads, factories, mining
+**** Keep in global mem
+***** Refresh whole when miss?
+***** Refresh parts when miss?
+
+** Creeps
+** Multi room
+
+@endmindmap
