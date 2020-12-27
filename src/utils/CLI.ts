@@ -7,6 +7,10 @@ export const cli = {
     life,
     spawn,
   },
+  rooms: {
+    visible,
+    makePlan,
+  },
   buildings: {
     hits,
     repair: {
@@ -107,4 +111,19 @@ function state(setting?: boolean): string {
   if (setting === undefined) return `Sets whether to log creep state changes. Current setting: ${Memory.log.state}`
   Memory.log.state = setting
   return setting as unknown as string
+}
+
+function visible(): string {
+  return `Visible rooms:\n` +
+    Object.values(Game.rooms)
+      .map(room => `[${room.name}] controller:${room.controller?.level} owner:${room.controller?.owner?.username}`)
+      .join('\n')
+}
+
+function makePlan(roomName: string): string {
+  if (roomName === undefined) return `Schedules room planning`
+  Memory.rooms[roomName] = Memory.rooms[roomName] || {links: [], plan: {}}
+  const roomPlan = Memory.rooms[roomName].plan || {} as RoomPlanMemory
+  roomPlan.isEligible = true
+  return `Plan for room ${roomName} will be created when room will be visible`
 }

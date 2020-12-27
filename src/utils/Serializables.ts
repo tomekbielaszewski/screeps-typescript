@@ -83,8 +83,14 @@ declare global {
     }
   }
 
+  interface RoomPlanMemory {
+    isEligible: boolean
+    appliedLevel: number
+  }
+
   interface RoomMemory {
     links: { [type: string]: string }
+    plan?: RoomPlanMemory
   }
 
   interface Memory {
