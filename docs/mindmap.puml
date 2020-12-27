@@ -3,6 +3,12 @@
 
 ** Base
 *** Automated builder
+**** Planner per room type
+***** Controller room
+***** Remote mining room
+***** Source-keeper room
+***** Highway room
+***** Center room
 **** Extensions
 ***** in checker pattern
 ***** hardcoded stamps
