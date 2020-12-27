@@ -3,6 +3,9 @@
 
 ** Base
 *** Automated builder
+**** Extensions
+***** in checker pattern
+***** hardcoded stamps
 *** Building search cache
 **** Split buildings into categories
 **** Use tree-like structures
@@ -12,6 +15,12 @@
 ***** Refresh parts when miss?
 
 ** Creeps
+*** Scout
+**** Further testing
+
 ** Multi room
+*** Evaluate the room
+**** Find best place for Spawn
+**** Best resources in the room and surroundings
 
 @endmindmap
