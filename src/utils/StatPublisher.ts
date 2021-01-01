@@ -21,6 +21,42 @@ interface UpgradeEvent {
   amount: number
 }
 
+function calcStoredEnergy(room: Room) {
+  const storages = room.find(FIND_MY_STRUCTURES, {
+    filter: s => s.structureType === STRUCTURE_STORAGE
+  }) as StructureStorage[]
+  const storedEnergy = storages.map(s => s.store.energy)
+    .reduce((e1, e2) => e1 + e2, 0)
+  const storageCap = storages.map(s => s.store.getCapacity())
+    .reduce((e1, e2) => e1 + e2, 0)
+
+  const containers = room.find(FIND_STRUCTURES, {
+    filter: s => s.structureType === STRUCTURE_CONTAINER
+  }) as StructureContainer[]
+  const containersEnergy = containers.map(c => c.store.energy)
+    .reduce((e1, e2) => e1 + e2, 0)
+  const containersCap = containers.map(s => s.store.getCapacity())
+    .reduce((e1, e2) => e1 + e2, 0)
+
+  const towers = room.find(FIND_MY_STRUCTURES, {
+    filter: s => s.structureType === STRUCTURE_TOWER
+  }) as StructureTower[]
+  const towersEnergy = towers.map(c => c.store.energy)
+    .reduce((e1, e2) => e1 + e2, 0)
+  const towersCap = towers.map(s => s.store.getCapacity())
+    .map(e => e || 0)
+    .reduce((e1, e2) => e1 + e2, 0)
+
+  return {
+    storedEnergy,
+    storageCap,
+    containersEnergy,
+    containersCap,
+    towersEnergy,
+    towersCap
+  }
+}
+
 function rcl(): Record<string, any> {
   const rooms = {} as { [roomName: string]: Record<string, any> };
 
@@ -53,7 +89,8 @@ function rcl(): Record<string, any> {
       upgraded: calcUpgrade(room),
       energy: room.energyAvailable,
       energyCap: room.energyCapacityAvailable,
-      energyHarvested: calcEnergyHarvested(room)
+      energyHarvested: calcEnergyHarvested(room),
+      energyStored: calcStoredEnergy(room)
     };
   }
   return rooms
