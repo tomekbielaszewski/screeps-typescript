@@ -22,13 +22,14 @@ function unwrappedLoop(): void {
       measure(() => LinkOperator(room), `${room.name}.LinkOperator`)
     });
 
-  measure(CreepManager, "CreepManager");
-  measure(CreepWorker, "CreepWorker");
-  measure(CleanMemory, "CleanMemory");
-  measure(PixelGenerator, "PixelGenerator");
-  measure(StatPublisher, "StatPublisher");
+  const roomPlannerObj = new RoomsPlanner()
 
-  new RoomsPlanner().runOnAllRooms()
+  measure(CreepManager, "CreepManager")
+  measure(CreepWorker, "CreepWorker")
+  measure(CleanMemory, "CleanMemory")
+  measure(PixelGenerator, "PixelGenerator")
+  measure(StatPublisher, "StatPublisher")
+  measure(roomPlannerObj.runOnAllRooms.bind(roomPlannerObj), "RoomPlanner")
 }
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
