@@ -16,34 +16,38 @@ class BuildingsPlanner {
 
   public constructor() {
     this.buildingList = []
-    this.buildingList.push(...this.multipleOf(STRUCTURE_EXTENSION, 10))
-    this.buildingList.push(...this.multipleOf(STRUCTURE_TOWER, 1))
-    this.buildingList.push(...this.multipleOf(STRUCTURE_EXTENSION, 10))
-    this.buildingList.push(...this.multipleOf(STRUCTURE_STORAGE, 1))
-    this.buildingList.push(...this.multipleOf(STRUCTURE_TOWER, 1))
-    this.buildingList.push(...this.multipleOf(STRUCTURE_EXTENSION, 10))
-    this.buildingList.push(...this.multipleOf(STRUCTURE_EXTENSION, 10))
-    this.buildingList.push(...this.multipleOf(STRUCTURE_TOWER, 1))
-    this.buildingList.push(...this.multipleOf(STRUCTURE_EXTENSION, 10))
-    this.buildingList.push(...this.multipleOf(STRUCTURE_EXTENSION, 10))
-    this.buildingList.push(...this.multipleOf(STRUCTURE_TERMINAL, 1))
-    this.buildingList.push(...this.multipleOf(STRUCTURE_LAB, 10))
-    this.buildingList.push(...this.multipleOf(STRUCTURE_TOWER, 3))
-    this.buildingList.push(...this.multipleOf(STRUCTURE_OBSERVER, 1))
+    this.buildingList.push(...this.multipleOf(STRUCTURE_EXTENSION, 60))
+    // this.buildingList.push(...this.multipleOf(STRUCTURE_EXTENSION, 10))
+    // this.buildingList.push(...this.multipleOf(STRUCTURE_TOWER, 1))
+    // this.buildingList.push(...this.multipleOf(STRUCTURE_EXTENSION, 10))
+    // this.buildingList.push(...this.multipleOf(STRUCTURE_STORAGE, 1))
+    // this.buildingList.push(...this.multipleOf(STRUCTURE_TOWER, 1))
+    // this.buildingList.push(...this.multipleOf(STRUCTURE_EXTENSION, 10))
+    // this.buildingList.push(...this.multipleOf(STRUCTURE_EXTENSION, 10))
+    // this.buildingList.push(...this.multipleOf(STRUCTURE_TOWER, 1))
+    // this.buildingList.push(...this.multipleOf(STRUCTURE_EXTENSION, 10))
+    // this.buildingList.push(...this.multipleOf(STRUCTURE_EXTENSION, 10))
+    // this.buildingList.push(...this.multipleOf(STRUCTURE_TERMINAL, 1))
+    // this.buildingList.push(...this.multipleOf(STRUCTURE_LAB, 10))
+    // this.buildingList.push(...this.multipleOf(STRUCTURE_TOWER, 3))
+    // this.buildingList.push(...this.multipleOf(STRUCTURE_OBSERVER, 1))
   }
 
   public plan(room: Room, level: number): BuildingPlan {
-    const x = Game.flags.flag.pos.x
-    const y = Game.flags.flag.pos.y
-    const buildingPlan: BuildingPlan = {
+    if (!Game.flags.flag) return {
       roomName: room.name,
       level,
       buildings: []
     }
-    buildingPlan.buildings.push({
+    const x = Game.flags.flag.pos.x
+    const y = Game.flags.flag.pos.y
+    const buildings: PlannedBuilding[] = []
+
+    buildings.push({
       pos: new SerializablePosition(x, y, room.name),
       type: "spawn"
     })
+
     const blacklistedPos = this.getBlacklistedPoses(room)
     let buildingCounter = 0
     let ringCounter = 1
@@ -51,26 +55,29 @@ class BuildingsPlanner {
       const ringWidth = ringCounter * 2
       for (let dx = -ringCounter; dx <= -ringCounter + ringWidth; dx++) {
         for (let dy = -ringCounter; dy <= -ringCounter + ringWidth; dy++) {
-          if (dx === -ringCounter || dy === -ringCounter || dx === -ringCounter + ringWidth || dy === -ringCounter + ringWidth) {
-            if ((dx + dy) % 2 === 0) {
-              const pos = new SerializablePosition(x + dx, y + dy, room.name)
-              if (this.isFarFromBorder(pos, 3))
-                if (this.isWalkable(room.lookAt(pos.toPos()))) {
-                  if (!this.isInRangeOfAnyPos(blacklistedPos, 4, pos)) {
-                    buildingPlan.buildings.push({
-                      pos,
-                      type: this.buildingList[buildingCounter]
-                    })
-                    buildingCounter++
-                  }
-                }
-            }
-          }
+          if (!(dx === -ringCounter || dy === -ringCounter || dx === -ringCounter + ringWidth || dy === -ringCounter + ringWidth)) continue
+          if ((dx + dy) % 2 !== 0) continue
+
+          const pos = new SerializablePosition(x + dx, y + dy, room.name)
+
+          if (!this.isFarFromBorder(pos, 3)) continue
+          if (!this.isWalkable(room.lookAt(pos.toPos()))) continue
+          if (this.isInRangeOfAnyPos(blacklistedPos, 4, pos)) continue
+
+          buildings.push({
+            pos,
+            type: this.buildingList[buildingCounter]
+          })
+          buildingCounter++
         }
       }
       ringCounter++
     }
-    return buildingPlan
+    return {
+      buildings,
+      level,
+      roomName: room.name
+    }
   }
 
   private isWalkable(objects: LookAtResult[]): boolean {
