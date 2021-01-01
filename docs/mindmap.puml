@@ -3,6 +3,12 @@
 
 ** Base
 *** Automated builder
+**** Creating a building list with positions
+**** Building construction priority
+***** Extensions to some amount
+***** Towers
+***** Walls and ramparts
+***** Utility buildings
 **** Planner per room type
 ***** Controller room
 ***** Remote mining room
@@ -12,6 +18,7 @@
 **** Extensions
 ***** in checker pattern
 ***** hardcoded stamps
+***** More sophisticated algos
 *** Building search cache
 **** Split buildings into categories
 **** Use tree-like structures
