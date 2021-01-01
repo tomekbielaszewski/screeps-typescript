@@ -1,4 +1,5 @@
 import {SerializablePosition} from "../../../utils/Serializables";
+import {DoubleStairPattern} from "./Patterns";
 
 interface PlannedBuilding {
   pos: SerializablePosition
@@ -34,6 +35,31 @@ class BuildingsPlanner {
   }
 
   public plan(room: Room, level: number): BuildingPlan {
+    if (!Game.flags.flag) return {
+      roomName: room.name,
+      level,
+      buildings: []
+    }
+    const x = Game.flags.flag.pos.x
+    const y = Game.flags.flag.pos.y
+    const buildings: PlannedBuilding[] = []
+
+    new DoubleStairPattern(new SerializablePosition(x, y, room.name), 4).run(pos => {
+      buildings.push({
+        pos,
+        type: STRUCTURE_EXTENSION
+      })
+    })
+
+    return {
+      buildings,
+      level,
+      roomName: room.name
+    }
+  }
+
+  // eslint-disable-next-line camelcase
+  public plan_old(room: Room, level: number): BuildingPlan {
     if (!Game.flags.flag) return {
       roomName: room.name,
       level,
