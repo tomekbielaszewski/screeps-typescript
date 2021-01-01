@@ -1,5 +1,5 @@
 import {SerializablePosition} from "../../../utils/Serializables";
-import {DoubleStairPattern} from "./Patterns";
+import {DoubleStairsPattern} from "./Patterns";
 
 interface PlannedBuilding {
   pos: SerializablePosition
@@ -44,7 +44,7 @@ class BuildingsPlanner {
     const y = Game.flags.flag.pos.y
     const buildings: PlannedBuilding[] = []
 
-    new DoubleStairPattern(new SerializablePosition(x, y, room.name), 4).run(pos => {
+    new DoubleStairsPattern(new SerializablePosition(x, y, room.name), 4).run(pos => {
       buildings.push({
         pos,
         type: STRUCTURE_EXTENSION

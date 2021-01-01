@@ -90,7 +90,7 @@ export class StairsPattern implements Pattern {
   }
 }
 
-export class DoubleStairPattern implements Pattern {
+export class DoubleStairsPattern implements Pattern {
   private readonly upperStairsPattern: StairsPattern
   private readonly lowerStairsPattern: StairsPattern
 
