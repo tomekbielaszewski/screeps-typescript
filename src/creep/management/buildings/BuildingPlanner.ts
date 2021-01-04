@@ -1,5 +1,5 @@
 import {SerializablePosition} from "../../../utils/Serializables";
-import {DoubleStairsPattern} from "./Patterns";
+import {SpiralPattern} from "./Patterns";
 
 interface PlannedBuilding {
   pos: SerializablePosition
@@ -44,12 +44,17 @@ class BuildingsPlanner {
     const y = Game.flags.flag.pos.y
     const buildings: PlannedBuilding[] = []
 
-    new DoubleStairsPattern(new SerializablePosition(x, y, room.name), 4).run(pos => {
-      buildings.push({
+    const blacklistedPos = this.getBlacklistedPoses(room)
+
+    buildings.push(...new SpiralPattern(new SerializablePosition(x, y, room.name), 10)
+      .run()
+      .filter(p => this.isFarFromBorder(p, 3))
+      .filter(p => this.isWalkable(room.lookAt(p.toPos())))
+      .filter(p => !this.isInRangeOfAnyPos(blacklistedPos, 2, p))
+      .map(pos => ({
         pos,
         type: STRUCTURE_EXTENSION
-      })
-    })
+      })))
 
     return {
       buildings,

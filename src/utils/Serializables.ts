@@ -16,6 +16,10 @@ export class SerializablePosition {
     return new RoomPosition(this.x, this.y, this.room)
   }
 
+  public clone(): SerializablePosition {
+    return SerializablePosition.clone(this)
+  }
+
   public static from(pos: RoomPosition): SerializablePosition {
     return new SerializablePosition(pos.x, pos.y, pos.roomName)
   }

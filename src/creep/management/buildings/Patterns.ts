@@ -1,7 +1,7 @@
 import {SerializablePosition} from "../../../utils/Serializables";
 
 export interface Pattern {
-  run(onEach: (pos: SerializablePosition) => void): SerializablePosition[]
+  run(): SerializablePosition[]
 }
 
 export class Direction {
@@ -52,23 +52,20 @@ export class DirectionalPattern implements Pattern {
     this.directions = directions
   }
 
-  public run(onEach?: (pos: SerializablePosition) => void): SerializablePosition[] {
+  public run(): SerializablePosition[] {
     const positions: SerializablePosition[] = []
     let counter = 0
-    let currentPosition = SerializablePosition.clone(this.from)
+    let currentPosition = this.from.clone()
 
-    if (onEach) onEach(this.from)
-    positions.push(this.from)
+    positions.push(this.from.clone())
 
-    while (counter < this.length) {
-      currentPosition = SerializablePosition.clone(currentPosition)
+    while (positions.length <= this.length) {
+      currentPosition = currentPosition.clone()
       const direction = this.directions[counter % this.directions.length]
 
       direction.move(currentPosition)
 
-      if (onEach) onEach(currentPosition)
       positions.push(currentPosition)
-
       counter++
     }
 
@@ -85,8 +82,8 @@ export class StairsPattern implements Pattern {
     this.pattern = new DirectionalPattern(from, length, dir1, dir2)
   }
 
-  public run(onEach?: (pos: SerializablePosition) => void): SerializablePosition[] {
-    return this.pattern.run(onEach)
+  public run(): SerializablePosition[] {
+    return this.pattern.run()
   }
 }
 
@@ -104,10 +101,49 @@ export class DoubleStairsPattern implements Pattern {
     this.lowerStairsPattern = new StairsPattern(from2, length, dir1, dir2)
   }
 
-  public run(onEach: (pos: SerializablePosition) => void): SerializablePosition[] {
+  public run(): SerializablePosition[] {
     const positions: SerializablePosition[] = []
-    positions.push(...this.upperStairsPattern.run(onEach))
-    positions.push(...this.lowerStairsPattern.run(onEach))
+    positions.push(...this.upperStairsPattern.run())
+    positions.push(...this.lowerStairsPattern.run())
+    return positions
+  }
+}
+
+export class SpiralPattern implements Pattern {
+  private readonly start: SerializablePosition;
+  private readonly levels: number;
+
+  public constructor(from: SerializablePosition, levels: number) {
+    this.start = SerializablePosition.clone(from)
+    this.levels = levels
+  }
+
+  public run(): SerializablePosition[] {
+    const positions: SerializablePosition[] = []
+    const currentPosition: SerializablePosition = this.start.clone()
+    let currentLevel = 1
+
+    while (currentLevel < this.levels) {
+      positions.push(...this.repeat(currentPosition, Direction.UP, 1))
+      positions.push(...this.repeat(currentPosition, Direction.RIGHT, (2 * currentLevel) - 1))
+      positions.push(...this.repeat(currentPosition, Direction.DOWN, (2 * currentLevel)))
+      positions.push(...this.repeat(currentPosition, Direction.LEFT, (2 * currentLevel)))
+      positions.push(...this.repeat(currentPosition, Direction.UP, (2 * currentLevel)))
+
+      currentLevel++
+    }
+
+    return positions
+  }
+
+  private repeat(from: SerializablePosition, dir: Direction, amount: number): SerializablePosition[] {
+    const positions: SerializablePosition[] = []
+
+    for (let i = 0; i < amount; i++) {
+      dir.move(from)
+      positions.push(from.clone())
+    }
+
     return positions
   }
 }
