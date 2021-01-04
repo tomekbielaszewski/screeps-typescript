@@ -44,13 +44,17 @@ class BuildingsPlanner {
     const y = Game.flags.flag.pos.y
     const buildings: PlannedBuilding[] = []
 
-    const blacklistedPos = this.getBlacklistedPoses(room)
+    const controllerPos = room.controller ? [room.controller.pos] : []
+    const sourcesPos = room.find(FIND_SOURCES).map(s => s.pos)
+    const mineralsPos = room.find(FIND_MINERALS).map(m => m.pos)
 
     buildings.push(...new SpiralPattern(new SerializablePosition(x, y, room.name), 10)
       .run()
       .filter(p => this.isFarFromBorder(p, 3))
       .filter(p => this.isWalkable(room.lookAt(p.toPos())))
-      .filter(p => !this.isInRangeOfAnyPos(blacklistedPos, 2, p))
+      .filter(p => !this.isInRangeOf(controllerPos, 2, p))
+      .filter(p => !this.isInRangeOf(sourcesPos, 2, p))
+      .filter(p => !this.isInRangeOf(mineralsPos, 2, p))
       .filter(p => (p.x + p.y) % 2 === 0)
       .map(pos => ({
         pos,
@@ -84,23 +88,11 @@ class BuildingsPlanner {
       structure.structure?.structureType === STRUCTURE_RAMPART;
   }
 
-  private getBlacklistedPoses(room: Room) {
-    const bp = []
-    if (room.controller) bp.push(room.controller.pos)
-    room.find(FIND_SOURCES)
-      .map(s => s.pos)
-      .forEach(s => bp.push(s))
-    room.find(FIND_MINERALS)
-      .map(m => m.pos)
-      .forEach(m => bp.push(m))
-    return bp
-  }
-
-  private isInRangeOfAnyPos(positions: RoomPosition[], range: number, testedPos: SerializablePosition): boolean {
+  private isInRangeOf(positions: RoomPosition[], range: number, testedPos: SerializablePosition): boolean {
     return !!positions.find(p => testedPos.toPos().getRangeTo(p) <= range);
   }
 
-  private isFarFromBorder(pos: SerializablePosition, range: number) {
+  private isFarFromBorder(pos: SerializablePosition, range: number): boolean {
     return pos.x > range && pos.y > range && pos.x < 50 - range && pos.y < 50 - range
   }
 
