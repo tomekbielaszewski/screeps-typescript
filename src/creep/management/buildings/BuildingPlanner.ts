@@ -51,59 +51,12 @@ class BuildingsPlanner {
       .filter(p => this.isFarFromBorder(p, 3))
       .filter(p => this.isWalkable(room.lookAt(p.toPos())))
       .filter(p => !this.isInRangeOfAnyPos(blacklistedPos, 2, p))
+      .filter(p => (p.x + p.y) % 2 === 0)
       .map(pos => ({
         pos,
         type: STRUCTURE_EXTENSION
       })))
 
-    return {
-      buildings,
-      level,
-      roomName: room.name
-    }
-  }
-
-  // eslint-disable-next-line camelcase
-  public plan_old(room: Room, level: number): BuildingPlan {
-    if (!Game.flags.flag) return {
-      roomName: room.name,
-      level,
-      buildings: []
-    }
-    const x = Game.flags.flag.pos.x
-    const y = Game.flags.flag.pos.y
-    const buildings: PlannedBuilding[] = []
-
-    buildings.push({
-      pos: new SerializablePosition(x, y, room.name),
-      type: "spawn"
-    })
-
-    const blacklistedPos = this.getBlacklistedPoses(room)
-    let buildingCounter = 0
-    let ringCounter = 1
-    while (buildingCounter <= this.buildingList.length) {
-      const ringWidth = ringCounter * 2
-      for (let dx = -ringCounter; dx <= -ringCounter + ringWidth; dx++) {
-        for (let dy = -ringCounter; dy <= -ringCounter + ringWidth; dy++) {
-          if (!(dx === -ringCounter || dy === -ringCounter || dx === -ringCounter + ringWidth || dy === -ringCounter + ringWidth)) continue
-          if ((dx + dy) % 2 !== 0) continue
-
-          const pos = new SerializablePosition(x + dx, y + dy, room.name)
-
-          if (!this.isFarFromBorder(pos, 3)) continue
-          if (!this.isWalkable(room.lookAt(pos.toPos()))) continue
-          if (this.isInRangeOfAnyPos(blacklistedPos, 4, pos)) continue
-
-          buildings.push({
-            pos,
-            type: this.buildingList[buildingCounter]
-          })
-          buildingCounter++
-        }
-      }
-      ringCounter++
-    }
     return {
       buildings,
       level,
