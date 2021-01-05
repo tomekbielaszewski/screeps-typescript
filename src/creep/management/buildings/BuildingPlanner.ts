@@ -63,7 +63,7 @@ class BuildingsPlanner {
       .run()
       .filter(p => this.isFarFromBorder(p, bunkerWidth))
       .filter(p => this.isWalkable(map[p.y][p.x]))
-      .filter(p => !this.isInRangeOf(spiralOfObstacles, bunkerWidth, p))
+      .filter(p => !this.collidesWithRectangles(spiralOfObstacles, bunkerWidth, p))
 
     const drawableCandidates = bunkerCenterCandidates
       .map(pos => ({
@@ -102,9 +102,8 @@ class BuildingsPlanner {
     return !!OBSTACLE_OBJECT_TYPES.find(o => o === structure.structure?.structureType)
   }
 
-  private isInRangeOf(positions: SerializablePosition[], range: number, testedPos: SerializablePosition): boolean {
-    return !!positions.find(p => this.getSquaredRange(p, testedPos) <= range * range)
-    // return !!positions.find(p => testedPos.toPos().getRangeTo(p.toPos()) <= range)
+  private collidesWithRectangles(rectangleCenters: SerializablePosition[], rectangleWidth: number, testedPos: SerializablePosition): boolean {
+    return !!rectangleCenters.find(p => Math.abs(p.x - testedPos.x) < rectangleWidth && Math.abs(p.y - testedPos.y) < rectangleWidth)
   }
 
   private getSquaredRange(p1: SerializablePosition, p2: SerializablePosition): number {
@@ -160,9 +159,10 @@ export class RoomsPlanner {
   private savePlan(plan: BuildingPlan, room: Room) {
     const opacity = 0.3
     for (const b of plan.buildings) {
-      if (b.type)
+      if (b.type) {
         room.visual.text('X', b.pos.x, b.pos.y, {opacity})
-      room.visual.circle(b.pos.x, b.pos.y, {radius: 6, fill: "", opacity, stroke: "red"})
+        room.visual.rect(b.pos.x - 6.5, b.pos.y - 6.5, 13, 13, {fill: "", opacity, stroke: "red"})
+      }
     }
   }
 
