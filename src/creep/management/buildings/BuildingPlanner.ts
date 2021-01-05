@@ -8,88 +8,108 @@ interface PlannedBuilding {
 
 interface BuildingPlan {
   roomName: string
-  level: number
   buildings: PlannedBuilding[]
 }
 
 class BuildingsPlanner {
-  private readonly buildingList: BuildableStructureConstant[]
-
-  public constructor() {
-    this.buildingList = []
-    this.buildingList.push(...this.multipleOf(STRUCTURE_EXTENSION, 60))
-    // this.buildingList.push(...this.multipleOf(STRUCTURE_EXTENSION, 10))
-    // this.buildingList.push(...this.multipleOf(STRUCTURE_TOWER, 1))
-    // this.buildingList.push(...this.multipleOf(STRUCTURE_EXTENSION, 10))
-    // this.buildingList.push(...this.multipleOf(STRUCTURE_STORAGE, 1))
-    // this.buildingList.push(...this.multipleOf(STRUCTURE_TOWER, 1))
-    // this.buildingList.push(...this.multipleOf(STRUCTURE_EXTENSION, 10))
-    // this.buildingList.push(...this.multipleOf(STRUCTURE_EXTENSION, 10))
-    // this.buildingList.push(...this.multipleOf(STRUCTURE_TOWER, 1))
-    // this.buildingList.push(...this.multipleOf(STRUCTURE_EXTENSION, 10))
-    // this.buildingList.push(...this.multipleOf(STRUCTURE_EXTENSION, 10))
-    // this.buildingList.push(...this.multipleOf(STRUCTURE_TERMINAL, 1))
-    // this.buildingList.push(...this.multipleOf(STRUCTURE_LAB, 10))
-    // this.buildingList.push(...this.multipleOf(STRUCTURE_TOWER, 3))
-    // this.buildingList.push(...this.multipleOf(STRUCTURE_OBSERVER, 1))
+  private readonly keys: { [key: string]: BuildableStructureConstant } = {
+    'A': STRUCTURE_SPAWN,
+    'N': STRUCTURE_NUKER,
+    'K': STRUCTURE_LINK,
+    'L': STRUCTURE_LAB,
+    'E': STRUCTURE_EXTENSION,
+    'S': STRUCTURE_STORAGE,
+    'T': STRUCTURE_TOWER,
+    'O': STRUCTURE_OBSERVER,
+    'M': STRUCTURE_TERMINAL,
+    'P': STRUCTURE_POWER_SPAWN,
+    '.': STRUCTURE_ROAD,
+    'C': STRUCTURE_CONTAINER,
+    'R': STRUCTURE_RAMPART,
+    'W': STRUCTURE_WALL,
   }
 
-  public plan(room: Room, level: number): BuildingPlan {
-    if (!Game.flags.flag) return {
-      roomName: room.name,
-      level,
-      buildings: []
-    }
-    const x = Game.flags.flag.pos.x
-    const y = Game.flags.flag.pos.y
+  private readonly mainLayout: string[] = [
+    '   ......    ',
+    '   ..EEEE.   ',
+    '  .EE.AELL.  ',
+    ' .EEEE.LLLL..',
+    '.EEEE.T.LLL..',
+    '.EEE.NTA.L.E.',
+    '.EO.TS MT.AE.',
+    '.E.E.PTK.EEE.',
+    '..EEE.T.EEEE.',
+    '..EEEE.EEEE. ',
+    '  .EEEE.EE.  ',
+    '   .EEEE..   ',
+    '    ......   ',
+  ]
+
+  public plan(room: Room): BuildingPlan {
+    const bestPos = this.findBestSpot(room)
     const buildings: PlannedBuilding[] = []
+    const bunkerWidth = Math.max(Math.ceil(this.mainLayout[0].length / 2), Math.ceil(this.mainLayout.length / 2),)
 
-    const controllerPos = room.controller ? [room.controller.pos] : []
-    const sourcesPos = room.find(FIND_SOURCES).map(s => s.pos)
-    const mineralsPos = room.find(FIND_MINERALS).map(m => m.pos)
+    const map = room.lookAtArea(0, 0, 49, 49)
 
-    buildings.push(...new SpiralPattern(new SerializablePosition(x, y, room.name), 10)
+    const spiralLevels = Math.max(bestPos.x, bestPos.y, 50 - bestPos.x, 50 - bestPos.y);
+
+    const spiralOfObstacles = new SpiralPattern(bestPos, spiralLevels)
       .run()
-      .filter(p => this.isFarFromBorder(p, 3))
-      .filter(p => this.isWalkable(room.lookAt(p.toPos())))
-      .filter(p => !this.isInRangeOf(controllerPos, 2, p))
-      .filter(p => !this.isInRangeOf(sourcesPos, 2, p))
-      .filter(p => !this.isInRangeOf(mineralsPos, 2, p))
-      .filter(p => (p.x + p.y) % 2 === 0)
+      .filter(p => this.isFarFromBorder(p, 1))
+      .filter(p => !this.isWalkable(map[p.y][p.x]))
+
+    const bunkerCenterCandidates = new SpiralPattern(bestPos, spiralLevels)
+      .run()
+      .filter(p => this.isFarFromBorder(p, bunkerWidth))
+      .filter(p => this.isWalkable(map[p.y][p.x]))
+      .filter(p => !this.isInRangeOf(spiralOfObstacles, bunkerWidth, p))
+
+    const drawableCandidates = bunkerCenterCandidates
       .map(pos => ({
         pos,
         type: STRUCTURE_EXTENSION
-      })))
+      }))
+    buildings.push(...drawableCandidates)
+
+    const bunkerCenter = bunkerCenterCandidates
+      .reduce((p1, p2) => this.getSquaredRange(p1, bestPos) < this.getSquaredRange(p2, bestPos) ? p1 : p2)
+
+    buildings.push({
+      pos: bunkerCenter,
+      type: STRUCTURE_EXTENSION
+    })
 
     return {
       buildings,
-      level,
       roomName: room.name
     }
   }
 
   private isWalkable(objects: LookAtResult[]): boolean {
-    return objects
-      .filter(o =>
-        o.type === LOOK_TERRAIN && this.isNonWalkableTerrain(o) ||
-        o.type === LOOK_STRUCTURES && !this.isWalkableStructure(o) ||
-        o.type === LOOK_SOURCES
-      )
-      .length === 0;
+    return !objects.find(o =>
+      o.type === LOOK_TERRAIN && this.isNonWalkableTerrain(o) ||
+      o.type === LOOK_STRUCTURES && this.isNonWalkableStructure(o) ||
+      o.type === LOOK_SOURCES
+    )
   }
 
-  private isNonWalkableTerrain(terrain: LookAtResult) {
+  private isNonWalkableTerrain(terrain: LookAtResult): boolean {
     return terrain.terrain === "wall";
   }
 
-  private isWalkableStructure(structure: LookAtResult) {
-    return structure.structure?.structureType === STRUCTURE_CONTAINER ||
-      structure.structure?.structureType === STRUCTURE_ROAD ||
-      structure.structure?.structureType === STRUCTURE_RAMPART;
+  private isNonWalkableStructure(structure: LookAtResult): boolean {
+    return !!OBSTACLE_OBJECT_TYPES.find(o => o === structure.structure?.structureType)
   }
 
-  private isInRangeOf(positions: RoomPosition[], range: number, testedPos: SerializablePosition): boolean {
-    return !!positions.find(p => testedPos.toPos().getRangeTo(p) <= range);
+  private isInRangeOf(positions: SerializablePosition[], range: number, testedPos: SerializablePosition): boolean {
+    return !!positions.find(p => this.getSquaredRange(p, testedPos) <= range * range)
+    // return !!positions.find(p => testedPos.toPos().getRangeTo(p.toPos()) <= range)
+  }
+
+  private getSquaredRange(p1: SerializablePosition, p2: SerializablePosition): number {
+    return Math.abs(p1.x - p2.x) * Math.abs(p1.x - p2.x) +
+      Math.abs(p1.y - p2.y) * Math.abs(p1.y - p2.y)
   }
 
   private isFarFromBorder(pos: SerializablePosition, range: number): boolean {
@@ -103,6 +123,18 @@ class BuildingsPlanner {
     }
     return arr
   }
+
+  private findBestSpot(room: Room): SerializablePosition {
+    const pos: RoomPosition[] = []
+    pos.push(...room.find(FIND_SOURCES).map(s => s.pos))
+    pos.push(...room.find(FIND_MINERALS).map(s => s.pos))
+    if (room.controller) pos.push(room.controller.pos)
+
+    const x = Math.floor(pos.map(p => p.x).reduce((x1, x2) => x1 + x2, 0) / pos.length)
+    const y = Math.floor(pos.map(p => p.y).reduce((y1, y2) => y1 + y2, 0) / pos.length)
+
+    return new SerializablePosition(x, y, room.name)
+  }
 }
 
 export class RoomsPlanner {
@@ -113,38 +145,24 @@ export class RoomsPlanner {
   }
 
   private run(room: Room): void {
-    const desiredRoomLevel = this.evaluateRoomLevel(room)
-    const actualRoomLevel = 0//this.getActualRoomLevel(room)
-    if (desiredRoomLevel === 0) console.log(`Room ${room.name} has no controller or controller is on level 0`)
-    if (desiredRoomLevel > actualRoomLevel) {
-      const plan = this.getSavedBuildingPlan(room) || this.createBuildingPlan(room, desiredRoomLevel)
-      this.applyPlan(plan, room)
-    }
-  }
-
-  private evaluateRoomLevel(room: Room): number {
-    return room.controller?.level || 0
-  }
-
-  private getActualRoomLevel(room: Room): number {
-    const appliedLevel = Memory.rooms[room.name]?.plan?.appliedLevel;
-    return appliedLevel || 0
+    const plan = this.getSavedBuildingPlan(room) || this.createBuildingPlan(room)
+    this.savePlan(plan, room)
   }
 
   private getSavedBuildingPlan(room: Room): BuildingPlan | undefined {
     return undefined
   }
 
-
-  private createBuildingPlan(room: Room, level: number): BuildingPlan {
-    return new BuildingsPlanner().plan(room, level)
+  private createBuildingPlan(room: Room): BuildingPlan {
+    return new BuildingsPlanner().plan(room)
   }
 
-  private applyPlan(plan: BuildingPlan, room: Room) {
+  private savePlan(plan: BuildingPlan, room: Room) {
     const opacity = 0.3
     for (const b of plan.buildings) {
       if (b.type)
-        room.visual.text(b.type.substr(0, 3), b.pos.toPos(), {opacity})
+        room.visual.text('X', b.pos.x, b.pos.y, {opacity})
+      room.visual.circle(b.pos.x, b.pos.y, {radius: 6, fill: "", opacity, stroke: "red"})
     }
   }
 

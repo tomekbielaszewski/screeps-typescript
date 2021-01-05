@@ -13,6 +13,8 @@ import {RoomsPlanner} from "creep/management/buildings/BuildingPlanner"
 
 GlobalsInitialization()
 
+const roomPlanner = new RoomsPlanner()
+
 function unwrappedLoop(): void {
   MemHack.pretick()
 
@@ -22,14 +24,12 @@ function unwrappedLoop(): void {
       measure(() => LinkOperator(room), `${room.name}.LinkOperator`)
     });
 
-  const roomPlannerObj = new RoomsPlanner()
-
   measure(CreepManager, "CreepManager")
   measure(CreepWorker, "CreepWorker")
   measure(CleanMemory, "CleanMemory")
   measure(PixelGenerator, "PixelGenerator")
   measure(StatPublisher, "StatPublisher")
-  measure(roomPlannerObj.runOnAllRooms.bind(roomPlannerObj), "RoomPlanner")
+  measure(roomPlanner.runOnAllRooms.bind(roomPlanner), "RoomPlanner")
 }
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
