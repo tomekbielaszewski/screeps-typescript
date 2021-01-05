@@ -12,6 +12,10 @@ export class SerializablePosition {
     this.room = room;
   }
 
+  public getRangeTo(pos: SerializablePosition | RoomPosition): number {
+    return Math.max(Math.abs(pos.x - this.x), Math.abs(pos.y - this.y))
+  }
+
   public toPos(): RoomPosition {
     return new RoomPosition(this.x, this.y, this.room)
   }

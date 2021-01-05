@@ -12,6 +12,8 @@ interface BuildingPlan {
 }
 
 class BuildingsPlanner {
+  private readonly BORDER_MARGIN: number = 4;
+
   private readonly keys: { [key: string]: BuildableStructureConstant } = {
     'A': STRUCTURE_SPAWN,
     'N': STRUCTURE_NUKER,
@@ -28,7 +30,6 @@ class BuildingsPlanner {
     'R': STRUCTURE_RAMPART,
     'W': STRUCTURE_WALL,
   }
-
   private readonly mainLayout: string[] = [
     '   ......    ',
     '   ..EEEE.   ',
@@ -48,7 +49,7 @@ class BuildingsPlanner {
   public plan(room: Room): BuildingPlan {
     const bestPos = this.findBestSpot(room)
     const buildings: PlannedBuilding[] = []
-    const bunkerWidth = Math.max(Math.ceil(this.mainLayout[0].length / 2), Math.ceil(this.mainLayout.length / 2),)
+    const bunkerWidth = Math.max(Math.floor(this.mainLayout[0].length / 2), Math.floor(this.mainLayout.length / 2),)
 
     const map = room.lookAtArea(0, 0, 49, 49)
 
@@ -61,9 +62,9 @@ class BuildingsPlanner {
 
     const bunkerCenterCandidates = new SpiralPattern(bestPos, spiralLevels)
       .run()
-      .filter(p => this.isFarFromBorder(p, bunkerWidth))
+      .filter(p => this.isFarFromBorder(p, bunkerWidth + this.BORDER_MARGIN))
       .filter(p => this.isWalkable(map[p.y][p.x]))
-      .filter(p => !this.collidesWithRectangles(spiralOfObstacles, bunkerWidth, p))
+      .filter(p => !this.isInRangeOf(spiralOfObstacles, bunkerWidth, p))
 
     const drawableCandidates = bunkerCenterCandidates
       .map(pos => ({
@@ -73,7 +74,7 @@ class BuildingsPlanner {
     buildings.push(...drawableCandidates)
 
     const bunkerCenter = bunkerCenterCandidates
-      .reduce((p1, p2) => this.getSquaredRange(p1, bestPos) < this.getSquaredRange(p2, bestPos) ? p1 : p2)
+      .reduce((p1, p2) => p1.getRangeTo(bestPos) < p2.getRangeTo(bestPos) ? p1 : p2)
 
     buildings.push({
       pos: bunkerCenter,
@@ -102,25 +103,12 @@ class BuildingsPlanner {
     return !!OBSTACLE_OBJECT_TYPES.find(o => o === structure.structure?.structureType)
   }
 
-  private collidesWithRectangles(rectangleCenters: SerializablePosition[], rectangleWidth: number, testedPos: SerializablePosition): boolean {
-    return !!rectangleCenters.find(p => Math.abs(p.x - testedPos.x) < rectangleWidth && Math.abs(p.y - testedPos.y) < rectangleWidth)
-  }
-
-  private getSquaredRange(p1: SerializablePosition, p2: SerializablePosition): number {
-    return Math.abs(p1.x - p2.x) * Math.abs(p1.x - p2.x) +
-      Math.abs(p1.y - p2.y) * Math.abs(p1.y - p2.y)
+  private isInRangeOf(positions: SerializablePosition[], range: number, testedPos: SerializablePosition): boolean {
+    return !!positions.find(p => p.getRangeTo(testedPos) <= range)
   }
 
   private isFarFromBorder(pos: SerializablePosition, range: number): boolean {
     return pos.x > range && pos.y > range && pos.x < 50 - range && pos.y < 50 - range
-  }
-
-  private multipleOf(obj: BuildableStructureConstant, amount: number): BuildableStructureConstant[] {
-    const arr: BuildableStructureConstant[] = []
-    for (let i = 0; i < amount; i++) {
-      arr.push(obj)
-    }
-    return arr
   }
 
   private findBestSpot(room: Room): SerializablePosition {
