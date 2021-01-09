@@ -11,7 +11,7 @@ interface BuildingPlan {
   buildings: PlannedBuilding[]
 }
 
-class BuildingsPlanner {
+class BunkerPlanner {
   private readonly BORDER_MARGIN: number = 4;
 
   private readonly keys: { [key: string]: BuildableStructureConstant } = {
@@ -30,6 +30,7 @@ class BuildingsPlanner {
     'R': STRUCTURE_RAMPART,
     'W': STRUCTURE_WALL,
   }
+
   private readonly mainLayout: string[] = [
     '   ......    ',
     '   ..EEEE.   ',
@@ -46,9 +47,8 @@ class BuildingsPlanner {
     '    ......   ',
   ]
 
-  public plan(room: Room): BuildingPlan {
+  public findBunkerPosition(room: Room): SerializablePosition {
     const bestPos = this.findBestSpot(room)
-    const buildings: PlannedBuilding[] = []
     const bunkerWidth = Math.max(Math.floor(this.mainLayout[0].length / 2), Math.floor(this.mainLayout.length / 2),)
 
     const map = room.lookAtArea(0, 0, 49, 49)
@@ -66,25 +66,38 @@ class BuildingsPlanner {
       .filter(p => this.isWalkable(map[p.y][p.x]))
       .filter(p => !this.isInRangeOf(spiralOfObstacles, bunkerWidth, p))
 
-    const drawableCandidates = bunkerCenterCandidates
-      .map(pos => ({
-        pos,
-        type: STRUCTURE_EXTENSION
-      }))
-    buildings.push(...drawableCandidates)
-
-    const bunkerCenter = bunkerCenterCandidates
+    return bunkerCenterCandidates
       .reduce((p1, p2) => p1.getRangeTo(bestPos) < p2.getRangeTo(bestPos) ? p1 : p2)
+  }
 
-    buildings.push({
-      pos: bunkerCenter,
-      type: STRUCTURE_EXTENSION
-    })
-
-    return {
-      buildings,
-      roomName: room.name
+  public setupBunkerLayout(bunkerPosition: SerializablePosition): BuildingPlan {
+    const plan: BuildingPlan = {
+      roomName: bunkerPosition.room,
+      buildings: []
     }
+    const xOffset = this.mainLayout[0].length / 2
+    const yOffset = this.mainLayout.length / 2
+
+    for (let i = 0; i < this.mainLayout.length; i++) {
+      const bunkerLine = this.mainLayout[i]
+      const buildings = bunkerLine.split('')
+      for (let j = 0; j < buildings.length; j++) {
+        const buildingKey = buildings[j];
+        if (buildingKey === ' ') continue
+        const buildingType = this.keys[buildingKey]
+
+        plan.buildings.push({
+          type: buildingType,
+          pos: new SerializablePosition(
+            bunkerPosition.x + j - xOffset,
+            bunkerPosition.y + i - yOffset,
+            bunkerPosition.room
+          )
+        })
+      }
+    }
+
+    return plan
   }
 
   private isWalkable(objects: LookAtResult[]): boolean {
@@ -141,16 +154,15 @@ export class RoomsPlanner {
   }
 
   private createBuildingPlan(room: Room): BuildingPlan {
-    return new BuildingsPlanner().plan(room)
+    const bunkerPlanner = new BunkerPlanner();
+    const bunkerPos = bunkerPlanner.findBunkerPosition(room)
+    return bunkerPlanner.setupBunkerLayout(bunkerPos)
   }
 
   private savePlan(plan: BuildingPlan, room: Room) {
     const opacity = 0.3
     for (const b of plan.buildings) {
-      if (b.type) {
-        room.visual.text('X', b.pos.x, b.pos.y, {opacity})
-        room.visual.rect(b.pos.x - 6.5, b.pos.y - 6.5, 13, 13, {fill: "", opacity, stroke: "red"})
-      }
+      room.visual.text(b.type.substr(0, 1), b.pos.x, b.pos.y, {opacity})
     }
   }
 
