@@ -8,12 +8,12 @@ export interface StateResolver {
 export abstract class FSM {
   protected game: Game
   private replay: boolean
-  private replyCounter: number
-  private replyLimit = 5;
+  private replayCounter: number
+  private replayLimit = 5;
 
   protected constructor() {
     this.replay = false
-    this.replyCounter = 0
+    this.replayCounter = 0
     this.game = Game
   }
 
@@ -22,13 +22,13 @@ export abstract class FSM {
   }
 
   public start(creep: Creep): void {
-    while (this.replay && this.replyCounter < this.replyLimit) {
+    while (this.replay && this.replayCounter < this.replayLimit) {
       this.replay = false
       this.work(creep)
-      this.replyCounter++
+      this.replayCounter++
     }
 
-    this.replyCounter = 0
+    this.replayCounter = 0
   }
 
   abstract work(creep: Creep): void
