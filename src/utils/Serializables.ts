@@ -85,6 +85,7 @@ declare global {
     room: string
     state?: string
     lastState?: string
+    pastStates?: string[]
     move?: {
       target: SerializablePosition
       range?: number
