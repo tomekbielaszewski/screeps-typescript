@@ -1,8 +1,13 @@
 export class BuildingSearch {
-  private readonly lowHpStructures: { [id: string]: Structure[] }
-  private readonly myConstructionSites: { [id: string]: ConstructionSite[] }
+  private lowHpStructures: { [id: string]: Structure[] }
+  private myConstructionSites: { [id: string]: ConstructionSite[] }
 
   public constructor() {
+    this.lowHpStructures = {}
+    this.myConstructionSites = {}
+  }
+
+  public resetCache(): void {
     this.lowHpStructures = {}
     this.myConstructionSites = {}
   }

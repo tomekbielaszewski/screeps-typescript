@@ -11,19 +11,19 @@ import {move, MovingResult, toTarget} from "./runner/common/Moving"
 import {refillCreep, RefillingResult} from "./runner/common/RefillingCreep"
 import {building, BuildingResult} from "./runner/common/Building"
 import {repairing, RepairingResult} from "./runner/common/Repairing"
-import {getLogger} from "../../utils/Logger";
 import {SerializableRoomObject} from "../../utils/Serializables";
 import {FSM} from "./FSM";
-import {BuildingSearch} from "../cache/BuildingSearch";
+import {BuildingSearch} from "../../cache/BuildingSearch";
+import {NamedLogger} from "../../utils/Logger";
 
-const JOB_NAME = 'BuilderJob'
-
-class BuilderFSM extends FSM {
+export class BuilderFSM extends FSM {
   private buildingSearch: BuildingSearch;
+  private logger: NamedLogger;
 
   public constructor(buildingSearch: BuildingSearch) {
     super()
     this.buildingSearch = buildingSearch
+    this.logger = new NamedLogger('BuilderFSM')
   }
 
   public work(creep: Creep): void {
@@ -62,7 +62,7 @@ class BuilderFSM extends FSM {
 
   private runRefillingState(creep: Creep): void {
     const refillingResult = refillCreep(creep, true)
-    getLogger(JOB_NAME).log(`[${creep.name}] refillingResult: ${refillingResult}`)
+    this.logger.log(`[${creep.name}] refillingResult: ${refillingResult}`)
 
     switch (refillingResult) {
       case RefillingResult.CreepRefilled:
@@ -87,7 +87,7 @@ class BuilderFSM extends FSM {
 
   private runMovingState(creep: Creep): void {
     const movingResult = move(creep)
-    getLogger(JOB_NAME).log(`[${creep.name}] movingResult: ${movingResult}`)
+    this.logger.log(`[${creep.name}] movingResult: ${movingResult}`)
 
     switch (movingResult) {
       case MovingResult.CouldNotMove: //do not advance to another state and see what happens
@@ -110,7 +110,7 @@ class BuilderFSM extends FSM {
 
   private runBuildingState(creep: Creep): void {
     const buildingResult = building(creep)
-    getLogger(JOB_NAME).log(`[${creep.name}] buildingResult: ${buildingResult}`)
+    this.logger.log(`[${creep.name}] buildingResult: ${buildingResult}`)
 
     switch (buildingResult) {
       case BuildingResult.Working: //then keep working
@@ -136,7 +136,7 @@ class BuilderFSM extends FSM {
 
   private runRepairingState(creep: Creep): void {
     const repairingResult = repairing(creep, Memory.repair.fortifications)
-    getLogger(JOB_NAME).log(`[${creep.name}] repairingResult: ${repairingResult}`)
+    this.logger.log(`[${creep.name}] repairingResult: ${repairingResult}`)
 
     switch (repairingResult) {
       case RepairingResult.Working: //then keep working

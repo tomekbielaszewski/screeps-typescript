@@ -1,4 +1,4 @@
-import {getLogger} from "../../../../utils/Logger";
+import {NamedLogger} from "../../../../utils/Logger";
 
 export type CreepState =
   SpawningState |
@@ -48,7 +48,7 @@ export interface StateResolver {
   replay?: ReplayFunction
 }
 
-const STATE_LOGGER = getLogger('state')
+const STATE_LOGGER = new NamedLogger('state')
 
 export function resolve(creep: Creep, stateResolver: StateResolver): CreepState {
   let nextState;

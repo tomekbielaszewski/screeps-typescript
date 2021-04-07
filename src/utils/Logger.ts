@@ -1,8 +1,4 @@
-export interface Logger {
-  log: (...messages: string[]) => void
-}
-
-class NamedLogger implements Logger {
+export class NamedLogger {
   private readonly name: string
 
   public constructor(name: string) {
@@ -17,8 +13,4 @@ class NamedLogger implements Logger {
       Memory.log[this.name] = false
     }
   }
-}
-
-export function getLogger(name: string): Logger {
-  return new NamedLogger(name)
 }
