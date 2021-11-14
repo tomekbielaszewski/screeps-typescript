@@ -8,6 +8,7 @@ interface PlannedBuilding {
 
 interface BuildingPlan {
   roomName: string
+  pos: SerializablePosition
   buildings: PlannedBuilding[]
 }
 
@@ -56,23 +57,24 @@ class BunkerPlanner {
     const spiralLevels = Math.max(bestPos.x, bestPos.y, 50 - bestPos.x, 50 - bestPos.y);
 
     const spiralOfObstacles = new SpiralPattern(bestPos, spiralLevels)
-      .run()
-      .filter(p => this.isFarFromBorder(p, 1))
-      .filter(p => !this.isWalkable(map[p.y][p.x]))
+    .run()
+    .filter(p => this.isFarFromBorder(p, 1))
+    .filter(p => !this.isWalkable(map[p.y][p.x]))
 
     const bunkerCenterCandidates = new SpiralPattern(bestPos, spiralLevels)
-      .run()
-      .filter(p => this.isFarFromBorder(p, bunkerWidth + this.BORDER_MARGIN))
-      .filter(p => this.isWalkable(map[p.y][p.x]))
-      .filter(p => !this.isInRangeOf(spiralOfObstacles, bunkerWidth, p))
+    .run()
+    .filter(p => this.isFarFromBorder(p, bunkerWidth + this.BORDER_MARGIN))
+    .filter(p => this.isWalkable(map[p.y][p.x]))
+    .filter(p => !this.isInRangeOf(spiralOfObstacles, bunkerWidth, p))
 
     return bunkerCenterCandidates
-      .reduce((p1, p2) => p1.getRangeTo(bestPos) < p2.getRangeTo(bestPos) ? p1 : p2)
+    .reduce((p1, p2) => p1.getRangeTo(bestPos) < p2.getRangeTo(bestPos) ? p1 : p2)
   }
 
   public setupBunkerLayout(bunkerPosition: SerializablePosition): BuildingPlan {
     const plan: BuildingPlan = {
       roomName: bunkerPosition.room,
+      pos: bunkerPosition,
       buildings: []
     }
     const xOffset = this.mainLayout[0].length / 2
@@ -138,35 +140,82 @@ class BunkerPlanner {
 }
 
 export class RoomsPlanner {
+  private readonly bunkerPlanner = new BunkerPlanner();
+
   public runOnAllRooms(): void {
     Object.values(Game.rooms)
-      // .filter(this.isEligibleForPlanning)
-      .forEach(room => this.run(room))
+    .forEach(this.initializeRoomMemory) //TODO move this outside to main maybe
+
+    Object.values(Game.rooms)
+    .filter(r => !this.hasAnyPlan(r))
+    .forEach(this.initializeEmptyPlan)
+
+    Object.values(Game.rooms)
+    .filter(this.isEligibleForPlanning)
+    .filter(r => !this.isAlreadyPlanned(r))
+    .forEach(room => {
+      const bunkerPos = this.bunkerPlanner.findBunkerPosition(room)
+      this.savePlan(bunkerPos)
+      Memory.rooms[room.name].plan.isPlanned = true
+    })
+
+    console.log(Memory.features.BuildingPlanVisualization)
+    if (Memory.features.BuildingPlanVisualization) {
+      Object.values(Game.rooms)
+      .forEach(r => this.visualizePlan(r))
+    } else {
+      Memory.features.BuildingPlanVisualization = false
+    }
   }
 
-  private run(room: Room): void {
-    const plan = this.getSavedBuildingPlan(room) || this.createBuildingPlan(room)
-    this.savePlan(plan, room)
-  }
-
-  private getSavedBuildingPlan(room: Room): BuildingPlan | undefined {
+  public getBuildingPlan(room: Room): BuildingPlan | undefined {
+    const planPos = Memory.rooms[room.name].plan.pos;
+    if (planPos.exists()) {
+      return this.bunkerPlanner.setupBunkerLayout(planPos)
+    }
     return undefined
   }
 
-  private createBuildingPlan(room: Room): BuildingPlan {
-    const bunkerPlanner = new BunkerPlanner();
-    const bunkerPos = bunkerPlanner.findBunkerPosition(room)
-    return bunkerPlanner.setupBunkerLayout(bunkerPos)
+  private visualizePlan(room: Room): void {
+    const plan = this.bunkerPlanner.setupBunkerLayout(Memory.rooms[room.name].plan.pos);
+    for (const b of plan.buildings) {
+      room.visual.text(b.type.substr(0, 1), b.pos.x, b.pos.y, {opacity: 0.3})
+    }
   }
 
-  private savePlan(plan: BuildingPlan, room: Room) {
-    const opacity = 0.3
-    for (const b of plan.buildings) {
-      room.visual.text(b.type.substr(0, 1), b.pos.x, b.pos.y, {opacity})
+  private savePlan(bunkerPos: SerializablePosition) {
+    Memory.rooms[bunkerPos.room].plan = {
+      isEligible: true,
+      isPlanned: true,
+      pos: bunkerPos
     }
   }
 
   private isEligibleForPlanning(room: Room): boolean {
-    return Memory.rooms[room.name]?.plan?.isEligible || false
+    return Memory.rooms[room.name].plan.isEligible
+  }
+
+  private isAlreadyPlanned(room: Room): boolean {
+    return Memory.rooms[room.name].plan.isPlanned
+  }
+
+  private initializeRoomMemory(room: Room): void {
+    Memory.rooms = Memory.rooms || {}
+    Memory.rooms[room.name] = Memory.rooms[room.name] || {
+      plan: undefined,
+      links: undefined
+    }
+  }
+
+  private hasAnyPlan(room: Room): boolean {
+    return !!Memory.rooms[room.name].plan
+  }
+
+  private initializeEmptyPlan(room: Room): void {
+    Memory.rooms[room.name].plan = {
+      isEligible: false,
+      isPlanned: false,
+      pos: SerializablePosition.NON_EXISTING_L
+    }
   }
 }

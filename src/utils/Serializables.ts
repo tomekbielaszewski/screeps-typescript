@@ -2,6 +2,9 @@ export interface IdentifiableRoomObject extends _HasId, _HasRoomPosition {
 }
 
 export class SerializablePosition {
+  public static NON_EXISTING_L = new SerializablePosition(-1,-1, "");
+  public static NON_EXISTING_H = new SerializablePosition(50,50, "");
+
   public x: number
   public y: number
   public room: string
@@ -22,6 +25,13 @@ export class SerializablePosition {
 
   public clone(): SerializablePosition {
     return SerializablePosition.clone(this)
+  }
+
+  public exists(): boolean {
+    return this !== SerializablePosition.NON_EXISTING_L &&
+      this !== SerializablePosition.NON_EXISTING_H &&
+      this.x >= 0 && this.y >= 0 &&
+      this.x < 50 && this.y < 50
   }
 
   public static from(pos: RoomPosition): SerializablePosition {
@@ -94,12 +104,13 @@ declare global {
 
   interface RoomPlanMemory {
     isEligible: boolean
-    appliedLevel: number
+    isPlanned: boolean
+    pos: SerializablePosition
   }
 
   interface RoomMemory {
     links: { [type: string]: string }
-    plan?: RoomPlanMemory
+    plan: RoomPlanMemory
   }
 
   interface Memory {
