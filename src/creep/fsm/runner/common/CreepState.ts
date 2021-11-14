@@ -61,7 +61,7 @@ export function resolve(creep: Creep, stateResolver: StateResolver): CreepState 
   creep.memory.lastState = creep.memory.state;
   creep.memory.state = nextState;
 
-  STATE_LOGGER.log(`[${Game.time}] creep[${creep.name}]: ${creep.memory.lastState} ==> ${creep.memory.state} | param ${JSON.stringify(creep.memory.move)}`);
+  STATE_LOGGER.log(`creep[${creep.name}]: ${creep.memory.lastState} ==> ${creep.memory.state} | param ${JSON.stringify(creep.memory.move)}`);
   return nextState as CreepState;
 }
 
@@ -75,7 +75,7 @@ export function resolveAndReplay(creep: Creep, stateResolver: StateResolver): vo
 }
 
 export function resolveLastState(creep: Creep): void {
-  STATE_LOGGER.log(`[${Game.time}] creep[${creep.name}]: ${creep.memory.lastState} <== ${creep.memory.state} | param ${JSON.stringify(creep.memory.move)}`);
+  STATE_LOGGER.log(`creep[${creep.name}]: ${creep.memory.lastState} <== ${creep.memory.state} | param ${JSON.stringify(creep.memory.move)}`);
   creep.memory.state = creep.memory.lastState;
 }
 
