@@ -14,7 +14,7 @@ const builder = new BuilderFSM(buildingSearch)
 const workers: Record<CreepRole, (creep: Creep) => void> = {
   [CreepRole.HARVESTER]: HarvesterJob,
   [CreepRole.UPGRADER]: UpgraderJob,
-  [CreepRole.BUILDER]: builder.work,
+  [CreepRole.BUILDER]: builder.work.bind(builder),
   [CreepRole.MINER]: MinerJob,
   [CreepRole.CARRIER]: CarrierJob,
   [CreepRole.CLEANER]: CleanerJob,
