@@ -13,7 +13,7 @@ import {harvest, HarvestingResult} from "./runner/common/HarvestingEnergy"
 import {move, MovingResult, toTarget} from "./runner/common/Moving"
 import {storeEnergy, StoringResult} from "./runner/common/StoringEnergy"
 import {upgradeController, UpgradeResult} from "./runner/common/UpgradingController"
-import {getLogger} from "../../utils/Logger";
+import {NamedLogger} from "../../utils/Logger";
 import {SerializableRoomObject} from "../../utils/Serializables";
 
 const JOB_NAME = 'HarvesterJob'
@@ -44,7 +44,7 @@ export function HarvesterJob(creep: Creep): void {
 
 function runIdleState(creep: Creep) {
   const upgradeResult = upgradeController(creep)
-  getLogger(JOB_NAME).log(`[${creep.name}] upgradeResult: ${upgradeResult}`)
+  new NamedLogger(JOB_NAME).log(`[${creep.name}] upgradeResult: ${upgradeResult}`)
 
   switch (upgradeResult) {
     case UpgradeResult.CreepStoreEmpty:
@@ -71,7 +71,7 @@ function runIdleState(creep: Creep) {
 
 function runStoringState(creep: Creep) {
   const storingResult = storeEnergy(creep)
-  getLogger(JOB_NAME).log(`[${creep.name}] storingResult: ${storingResult}`)
+  new NamedLogger(JOB_NAME).log(`[${creep.name}] storingResult: ${storingResult}`)
 
   switch (storingResult) {
     case StoringResult.CreepStoreEmpty:
@@ -101,7 +101,7 @@ function runStoringState(creep: Creep) {
 
 function runHarvestingState(creep: Creep) {
   const harvestingResult = harvest(creep, true, true)
-  getLogger(JOB_NAME).log(`[${creep.name}] harvestingResult: ${harvestingResult}`)
+  new NamedLogger(JOB_NAME).log(`[${creep.name}] harvestingResult: ${harvestingResult}`)
 
   switch (harvestingResult) {
     case HarvestingResult.CouldNotFindSource: //well... lets call it a day
@@ -124,7 +124,7 @@ function runHarvestingState(creep: Creep) {
 
 function runMovingState(creep: Creep) {
   const movingResult = move(creep)
-  getLogger(JOB_NAME).log(`[${creep.name}] movingResult: ${movingResult}`)
+  new NamedLogger(JOB_NAME).log(`[${creep.name}] movingResult: ${movingResult}`)
 
   switch (movingResult) {
     case MovingResult.CouldNotMove: //do not advance to another state and see what happens
