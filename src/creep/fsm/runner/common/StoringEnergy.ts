@@ -53,7 +53,8 @@ function findStorage(creep: Creep): Structure | undefined {
     findClosestExtension(creep) ||
     findClosestLink(creep) ||
     findClosestContainer(creep) ||
-    findClosestStorage(creep);
+    findClosestStorage(creep) ||
+    findTerminal(creep);
 }
 
 function findSpawn(creep: Creep): Structure | undefined {
@@ -102,6 +103,16 @@ function findClosestStorage(creep: Creep): Structure | undefined {
   const storages = creep.room.find(FIND_STRUCTURES, {
     filter: s => (
       s.structureType === STRUCTURE_STORAGE && s.my && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+    )
+  });
+  if (storages && storages.length) return storages[0];
+  return undefined;
+}
+
+function findTerminal(creep: Creep): Structure | undefined {
+  const storages = creep.room.find(FIND_MY_STRUCTURES, {
+    filter: s => (
+      s.structureType === STRUCTURE_TERMINAL && s.my && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
     )
   });
   if (storages && storages.length) return storages[0];
