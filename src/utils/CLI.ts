@@ -2,6 +2,7 @@ import {findLowHpStructures} from "../creep/fsm/runner/common/Repairing";
 
 export const cli = {
   help,
+  sellEnergy,
   creeps: {
     body,
     life,
@@ -126,4 +127,22 @@ function makePlan(roomName: string): string {
   const roomPlan = Memory.rooms[roomName].plan || {} as RoomPlanMemory
   roomPlan.isEligible = true
   return `Plan for room ${roomName} will be created when room will be visible`
+}
+
+function sellEnergy(amount: number, roomName: string): string {
+  if (amount === undefined) return `Sells given amount of energy to best deal. sellEnergy(amount, roomName)`
+
+  const orders = Game.market.getAllOrders({type: ORDER_BUY, resourceType: RESOURCE_ENERGY})
+  .filter(o => o.price < 10)
+  .map(o => ({ ...o, cost: Game.market.calcTransactionCost(amount, roomName, o.roomName as string)}))
+  .map(o => ({ ...o, gain: (amount * o.price) - o.cost}))
+  .sort((o1,o2) => o2.gain - o1.gain)
+
+  const best = orders[0];
+  const result = Game.market.deal(best.id, amount, roomName)
+
+  if(result === OK)
+    return `You sold ${amount} of energy for price of ${best.price} gaining ${best.gain} (transaction fee included ${best.cost})`
+  else
+    return `Result from the deal was not successful: ${result}`
 }
