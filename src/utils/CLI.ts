@@ -33,6 +33,7 @@ export const cli = {
 const log = new NamedLogger("CLI")
 
 function help(): string {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return JSON.stringify(cli, (key, val) => (typeof val === 'function') ? 'f()' : val, 4);
 }
 
@@ -182,7 +183,7 @@ function checkTerminal(roomName: string): string {
   const terminal = Game.rooms[roomName].terminal;
   if (!terminal) return "No terminal in room"
 
-  return (terminal.cooldown ? `Cooldown: \t\t${terminal.cooldown}\n` : "") + Object.keys(terminal.store)
-  .map(r => `${r}:\t\t${(terminal.store as { [resource: string]: any })[r]}`)
+  return (terminal.cooldown ? `Cooldown: \t\t${terminal.cooldown}\n` : "") + Object.entries(terminal.store)
+  .map(([resource, amount]) => `${resource}:\t${amount}`)
   .join("\n")
 }
