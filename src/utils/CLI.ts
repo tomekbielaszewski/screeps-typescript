@@ -74,32 +74,37 @@ function hits(): string {
 }
 
 function fortifications(setting?: boolean): string {
-  if (setting === undefined) return `Sets if fortifications will be repaired. Current setting: ${Memory.repair.fortifications}`
+  if (!setting) return `Sets if fortifications will be repaired. Current setting: ${Memory.repair.fortifications}`
+
   Memory.repair.fortifications = setting
   return setting as unknown as string
 }
 
 function wall(setting?: number): string {
-  if (setting === undefined) return `Sets max hp to which wall will be repaired. Current setting: ${Memory.repair.wall}`
+  if (!setting) return `Sets max hp to which wall will be repaired. Current setting: ${Memory.repair.wall}`
+
   Memory.repair.wall = setting
   return setting as unknown as string
 }
 
 function rampart(setting?: number): string {
-  if (setting === undefined) return `Sets max hp to which rampart will be repaired. Current setting: ${Memory.repair.rampart}`
+  if (!setting) return `Sets max hp to which rampart will be repaired. Current setting: ${Memory.repair.rampart}`
+
   Memory.repair.rampart = setting
   return setting as unknown as string
 }
 
 function lowhp(setting?: number): string {
-  if (setting === undefined) return `Sets HP percentage which is considered low HP and should be repaired. Current setting: ${Memory.repair.lowHP}`
+  if (!setting) return `Sets HP percentage which is considered low HP and should be repaired. Current setting: ${Memory.repair.lowHP}`
+
   Memory.repair.lowHP = setting
   return setting as unknown as string
 }
 
 function findLowhp(roomName?: string, repairFortification?: boolean): string {
-  if (roomName === undefined) return `Shows a list of low HP structures in room. Usage findLowhp(roomName:string, repairFortification: boolean)`
-  if (repairFortification === undefined) repairFortification = (Memory.repair.fortifications === true)
+  if (!roomName) return `Shows a list of low HP structures in room. Usage findLowhp(roomName:string, repairFortification: boolean)`
+  if (!repairFortification) repairFortification = (Memory.repair.fortifications === true)
+
   return findLowHpStructures(Game.rooms[roomName], repairFortification)
   .sort((s1, s2) => (s1.hits / s1.hitsMax) - (s2.hits / s2.hitsMax))
   .map(c => `[${c.room.name}] ${c.structureType}: ${c.hits}/${c.hitsMax} [${(c.hits / c.hitsMax).toFixed(2)}]`)
@@ -107,13 +112,15 @@ function findLowhp(roomName?: string, repairFortification?: boolean): string {
 }
 
 function hysteresis(setting?: number): string {
-  if (setting === undefined) return `Sets HP repair hysteresis. Current setting: ${Memory.repair.hysteresis}`
+  if (!setting) return `Sets HP repair hysteresis. Current setting: ${Memory.repair.hysteresis}`
+
   Memory.repair.hysteresis = setting
   return setting as unknown as string
 }
 
 function state(setting?: boolean): string {
-  if (setting === undefined) return `Sets whether to log creep state changes. Current setting: ${Memory.log.state}`
+  if (!setting) return `Sets whether to log creep state changes. Current setting: ${Memory.log.state}`
+
   Memory.log.state = setting
   return setting as unknown as string
 }
@@ -126,7 +133,8 @@ function visible(): string {
 }
 
 function makePlan(roomName: string): string {
-  if (roomName === undefined) return `Schedules room planning`
+  if (!roomName) return `Schedules room planning`
+
   Memory.rooms[roomName] = Memory.rooms[roomName] || {links: [], plan: {}}
   const roomPlan = Memory.rooms[roomName].plan || {} as RoomPlanMemory
   roomPlan.isEligible = true
@@ -134,7 +142,7 @@ function makePlan(roomName: string): string {
 }
 
 function sellEnergy(amount: number, roomName: string): string {
-  if (amount === undefined || roomName === undefined) return `Sells given amount of energy to best deal. sellEnergy(amount, roomName)`
+  if (!amount || !roomName) return `Sells given amount of energy to best deal. sellEnergy(amount, roomName)`
 
   const orders = Game.market.getAllOrders({type: ORDER_BUY, resourceType: RESOURCE_ENERGY})
   .map(o => ({
@@ -169,10 +177,10 @@ function sellEnergy(amount: number, roomName: string): string {
 }
 
 function checkTerminal(roomName: string): string {
-  if (roomName === undefined) return `Checks resources in terminal: checkTerminal(roomName)`
+  if (!roomName) return `Checks resources in terminal: checkTerminal(roomName)`
 
   const terminal = Game.rooms[roomName].terminal;
-  if (terminal === undefined) return "No terminal in room"
+  if (!terminal) return "No terminal in room"
 
   return (terminal.cooldown ? `Cooldown: \t\t${terminal.cooldown}\n` : "") + Object.keys(terminal.store)
   .map(r => `${r}:\t\t${(terminal.store as { [resource: string]: any })[r]}`)
