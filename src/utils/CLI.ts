@@ -1,4 +1,5 @@
 import {findLowHpStructures} from "../creep/fsm/runner/common/Repairing";
+import {NamedLogger} from "./Logger";
 
 export const cli = {
   help,
@@ -27,6 +28,8 @@ export const cli = {
     state,
   }
 }
+
+const log = new NamedLogger("CLI")
 
 function help(): string {
   return JSON.stringify(cli, (key, val) => (typeof val === 'function') ? 'f()' : val, 4);
@@ -130,46 +133,36 @@ function makePlan(roomName: string): string {
 }
 
 function sellEnergy(amount: number, roomName: string): string {
-  if (amount === undefined) return `Sells given amount of energy to best deal. sellEnergy(amount, roomName)`
+  if (amount === undefined || roomName === undefined) return `Sells given amount of energy to best deal. sellEnergy(amount, roomName)`
 
   const orders = Game.market.getAllOrders({type: ORDER_BUY, resourceType: RESOURCE_ENERGY})
-  .filter(o => o.price < 10)
   .map(o => ({
     ...o,
-    cost: Game.market.calcTransactionCost(Math.min(o.amount, amount), roomName, o.roomName as string)
+    cost: Game.market.calcTransactionCost(Math.min(o.remainingAmount, amount), roomName, o.roomName as string)
   }))
-  .map(o => ({...o, gain: Math.min(amount, o.amount) * o.price}))
+  .map(o => ({...o, gain: Math.min(o.remainingAmount, amount) * o.price}))
   .sort((o1, o2) => o2.gain - (o2.cost * o2.price) - o1.gain - (o1.cost * o1.price))
 
-  let count = 0
-  let totalAmount = 0
-  let totalCost = 0
-  let totalGain = 0
-  let additionalMessage = ""
+  log.log(`Found ${orders.length} transactions on market`)
 
-  for (const order of orders) {
-    count++
-    const currentAmount = Math.min(amount - totalAmount, order.amount)
-    const result = Game.market.deal(order.id, currentAmount, roomName)
+  const best = orders[0]
 
-    if (result === OK) {
-      totalAmount += currentAmount
-      totalCost += order.cost
-      totalGain += order.gain
-    } else {
-      additionalMessage = `Transaction number ${count} resulted with error ${result}\n`
-      break;
-    }
+  log.log(`Trying to make a deal ${best.id}: ${Math.min(best.remainingAmount, amount)} energy for ${best.price} and it will cost ${best.cost}`)
 
-    if (totalAmount >= amount) break;
-    if (count >= 10) break
+  const result = Game.market.deal(best.id, Math.min(best.remainingAmount, amount), roomName)
+
+  switch (result) {
+    case OK:
+      return `You sold ${Math.min(best.remainingAmount, amount)} of energy gaining ${best.gain} credits. Price ${best.price}. Transaction energy fee ${best.cost})`
+    case ERR_NOT_ENOUGH_RESOURCES:
+      return "Not enough resources"
+    case ERR_TIRED:
+      return "Still cooling down"
+    case ERR_NOT_OWNER:
+      return `No terminal in room ${roomName}`
+    case ERR_FULL:
+      return "To many deals in one tick"
   }
-  // const best = orders[0];
-  // const result = Game.market.deal(best.id, amount, roomName)
 
-  return additionalMessage + `You sold ${totalAmount} of energy gaining ${totalGain} credits in ${count} transactions. Avg price ${totalGain / totalAmount}. Transaction energy fee ${totalCost})`
-  // else if(result === ERR_NOT_ENOUGH_RESOURCES)
-  //   return `You don't have enough energy to cover transaction cost. Amount to sell ${amount} + transaction cost ${best.cost} = ${amount + best.cost}`
-  // else
-  //   return `Result from the deal was not successful: ${result}`
+  return "This shouldn't happen"
 }
