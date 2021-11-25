@@ -4,6 +4,7 @@ import {NamedLogger} from "./Logger";
 export const cli = {
   help,
   sellEnergy,
+  checkTerminal,
   creeps: {
     body,
     life,
@@ -165,4 +166,15 @@ function sellEnergy(amount: number, roomName: string): string {
   }
 
   return "This shouldn't happen"
+}
+
+function checkTerminal(roomName: string): string {
+  if (roomName === undefined) return `Checks resources in terminal: checkTerminal(roomName)`
+
+  const terminal = Game.rooms[roomName].terminal;
+  if (terminal === undefined) return "No terminal in room"
+
+  return (terminal.cooldown ? `Cooldown: \t\t${terminal.cooldown}\n` : "") + Object.keys(terminal.store)
+  .map(r => `${r}:\t\t${(terminal.store as { [resource: string]: any })[r]}`)
+  .join("\n")
 }
