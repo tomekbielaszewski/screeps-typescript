@@ -146,28 +146,30 @@ function sellEnergy(amount: number, roomName: string): string {
   if (!amount || !roomName) return `Sells given amount of energy to best deal. sellEnergy(amount, roomName)`
 
   const orders = Game.market.getAllOrders({type: ORDER_BUY, resourceType: RESOURCE_ENERGY})
-  .map(o => ({
-    ...o,
-    cost: Game.market.calcTransactionCost(Math.min(o.remainingAmount, amount), roomName, o.roomName as string)
-  }))
-  .map(o => ({...o, gain: Math.min(o.remainingAmount, amount) * o.price}))
-  .sort((o1, o2) => o2.gain - (o2.cost * o2.price) - o1.gain - (o1.cost * o1.price))
+  .map(o => ({...o, transactionAmount: Math.min(o.remainingAmount, amount)}))
+  .map(o => ({...o, cost: Game.market.calcTransactionCost(o.transactionAmount, roomName, o.roomName as string)}))
+  .map(o => ({...o, energySpent: o.transactionAmount + o.cost}))
+  .map(o => ({...o, gain: o.transactionAmount * o.price}))
+  .map(o => ({...o, netPrice: o.gain / o.energySpent}))
+  .map(o => ({...o, sortedBy: o.netPrice}))
+  .sort((o1, o2) => o2.sortedBy - o1.sortedBy)
 
   log.log(`Found ${orders.length} transactions on market`)
 
   const best = orders[0]
 
-  log.log(`Trying to make a deal ${best.id}: ${Math.min(best.remainingAmount, amount)} energy for ${best.price} and it will cost ${best.cost}`)
+  log.log(`Trying to make a deal ${best.id}: ${best.transactionAmount} energy for ${best.price} and it will cost ${best.cost}`)
 
-  const result = Game.market.deal(best.id, Math.min(best.remainingAmount, amount), roomName)
+  const result = Game.market.deal(best.id, best.transactionAmount, roomName)
+  const terminal = Game.rooms[roomName].terminal
 
   switch (result) {
     case OK:
-      return `You sold ${Math.min(best.remainingAmount, amount)} of energy gaining ${best.gain} credits. Price ${best.price}. Transaction energy fee ${best.cost})`
+      return `You sold ${best.transactionAmount} of energy gaining ${best.gain} credits. Price ${best.price} (Net price ${best.netPrice}). Transaction energy fee ${best.cost}. Cooldown finishes at ${Game.time + 10})`//\n
     case ERR_NOT_ENOUGH_RESOURCES:
-      return "Not enough resources"
+      return `Not enough resources. There is ${terminal?.store.energy} energy left on terminal`
     case ERR_TIRED:
-      return "Still cooling down"
+      return `Still cooling down. Will be ready at ${(terminal?.cooldown || 0) + Game.time}`
     case ERR_NOT_OWNER:
       return `No terminal in room ${roomName}`
     case ERR_FULL:
