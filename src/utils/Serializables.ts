@@ -122,6 +122,14 @@ declare global {
       rampart: number
       rampartLow: number
     }
+    watch?: {
+      expressions?: {
+        [exp: string]: string
+      }
+      values?: {
+        [val: string]: string
+      }
+    }
     minEnergyAvailable: number
     features: { [name: string]: boolean }
     creeps: { [name: string]: CreepMemory }
