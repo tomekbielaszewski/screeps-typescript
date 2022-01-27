@@ -150,8 +150,8 @@ function sellEnergy(amount: number, roomName: string): string {
   .map(o => ({...o, cost: Game.market.calcTransactionCost(o.transactionAmount, roomName, o.roomName as string)}))
   .map(o => ({...o, energySpent: o.transactionAmount + o.cost}))
   .map(o => ({...o, gain: o.transactionAmount * o.price}))
-  .map(o => ({...o, netPrice: o.gain / o.energySpent}))
-  .map(o => ({...o, sortedBy: o.netPrice}))
+  .map(o => ({...o, grossPrice: o.gain / o.energySpent}))
+  .map(o => ({...o, sortedBy: o.grossPrice}))
   .sort((o1, o2) => o2.sortedBy - o1.sortedBy)
 
   log.log(`Found ${orders.length} transactions on market`)
@@ -165,7 +165,7 @@ function sellEnergy(amount: number, roomName: string): string {
 
   switch (result) {
     case OK:
-      return `You sold ${best.transactionAmount} of energy gaining ${best.gain} credits. Price ${best.price} (Net price ${best.netPrice}). Transaction energy fee ${best.cost}. Cooldown finishes at ${Game.time + 10})`//\n
+      return `You sold ${best.transactionAmount} of energy gaining ${best.gain} credits. Price ${best.price} (Gross price ${best.grossPrice}). Transaction energy fee ${best.cost}`
     case ERR_NOT_ENOUGH_RESOURCES:
       return `Not enough resources. There is ${terminal?.store.energy} energy left on terminal`
     case ERR_TIRED:
