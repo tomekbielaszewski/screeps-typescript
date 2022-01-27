@@ -10,6 +10,7 @@ import {defendRoom} from "utils/RoomDefense";
 import {LinkOperator} from "./creep/management/LinkOperator";
 import MemHack from "utils/MemHack";
 import {RoomsPlanner} from "creep/management/buildings/BuildingPlanner"
+import {MultimeterWatcher} from "utils/WatchClient";
 
 GlobalsInitialization()
 
@@ -30,6 +31,7 @@ function unwrappedLoop(): void {
   measure(PixelGenerator, "PixelGenerator")
   measure(StatPublisher, "StatPublisher")
   measure(roomPlanner.runOnAllRooms.bind(roomPlanner), "RoomPlanner")
+  measure(MultimeterWatcher, "MultimeterWatcher")
 }
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
