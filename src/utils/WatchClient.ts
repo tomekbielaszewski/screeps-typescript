@@ -5,11 +5,11 @@ export function MultimeterWatcher(): void {
   if (!(Memory.watch.expressions && typeof Memory.watch.expressions == "object")) {
     Memory.watch.expressions = {};
   }
-  if (!(Memory.watch.values && typeof Memory.watch.values !== "object")) {
+  if (!(Memory.watch.values && typeof Memory.watch.values == "object")) {
     Memory.watch.values = {};
   }
 
-  for (const [exp, out] of Object.entries(Memory.watch.expressions)) {
+  for (const [out, exp] of Object.entries(Memory.watch.expressions)) {
     if (!exp) return;
     let result;
     try {
