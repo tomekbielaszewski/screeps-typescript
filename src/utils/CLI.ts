@@ -142,10 +142,14 @@ function makePlan(roomName: string): string {
   return `Plan for room ${roomName} will be created when room will be visible`
 }
 
-function sellEnergy(amount: number, roomName: string): string {
+function sellEnergy(amount: number, roomName: string, minGrossPrice: number): string {
   if (!amount || !roomName) return `Sells given amount of energy to best deal. sellEnergy(amount, roomName)`
+  if (!minGrossPrice) {
+    log.log(`No minimum gross price. You will sell for any price`)
+    minGrossPrice = 0
+  }
 
-  const orders = Game.market.getAllOrders({type: ORDER_BUY, resourceType: RESOURCE_ENERGY})
+  let orders = Game.market.getAllOrders({type: ORDER_BUY, resourceType: RESOURCE_ENERGY})
   .map(o => ({...o, transactionAmount: Math.min(o.remainingAmount, amount)}))
   .map(o => ({...o, cost: Game.market.calcTransactionCost(o.transactionAmount, roomName, o.roomName as string)}))
   .map(o => ({...o, energySpent: o.transactionAmount + o.cost}))
@@ -155,10 +159,14 @@ function sellEnergy(amount: number, roomName: string): string {
   .sort((o1, o2) => o2.sortedBy - o1.sortedBy)
 
   log.log(`Found ${orders.length} transactions on market`)
+  orders = orders.filter(o => o.grossPrice >= minGrossPrice)
+  log.log(`And ${orders.length} are matching your criteria of minimum gross price ${minGrossPrice}`)
+
+  if (!orders.length) return "No matching orders on the market"
 
   const best = orders[0]
 
-  log.log(`Trying to make a deal ${best.id}: ${best.transactionAmount} energy for ${best.price} and it will cost ${best.cost}`)
+  log.log(`Trying to make a deal ${best.id}: ${best.transactionAmount} energy for ${best.price} and it will cost ${best.cost}...`)
 
   const result = Game.market.deal(best.id, best.transactionAmount, roomName)
   const terminal = Game.rooms[roomName].terminal
