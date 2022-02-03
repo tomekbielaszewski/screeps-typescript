@@ -193,7 +193,13 @@ function checkTerminal(roomName: string): string {
   const terminal = Game.rooms[roomName].terminal;
   if (!terminal) return "No terminal in room"
 
-  return (terminal.cooldown ? `Cooldown: \t\t${terminal.cooldown}\n` : "") + Object.entries(terminal.store)
-  .map(([resource, amount]) => `${resource}:\t${amount}`)
-  .join("\n")
+  const resources = Object.entries(terminal.store)
+  .map(([resource, amount]) => `${resource}: ${amount}`)
+  .join("; ")
+
+  const cooldown = terminal.cooldown ? `Cooldown: ${terminal.cooldown}\n` : ""
+
+  const credits = Game.market.credits
+
+  return `${resources} credits: ${credits} ${cooldown}`
 }
