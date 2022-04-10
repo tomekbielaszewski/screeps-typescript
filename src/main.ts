@@ -11,6 +11,7 @@ import {LinkOperator} from "./creep/management/LinkOperator";
 import MemHack from "utils/MemHack";
 import {RoomsPlanner} from "creep/management/buildings/BuildingPlanner"
 import {MultimeterWatcher} from "utils/WatchClient";
+import {cli} from "./utils/CLI";
 
 GlobalsInitialization()
 
@@ -32,6 +33,14 @@ function unwrappedLoop(): void {
   measure(StatPublisher, "StatPublisher")
   measure(roomPlanner.runOnAllRooms.bind(roomPlanner), "RoomPlanner")
   measure(MultimeterWatcher, "MultimeterWatcher")
+
+  if(Game.time % 10 === 0 &&
+    Game.rooms.W24N13.terminal &&
+    Game.rooms.W24N13.terminal.cooldown === 0 &&
+    Game.rooms.W24N13.terminal.store.energy > 20000
+  ) {
+    console.log(cli.sellEnergy(10000, "W24N13", 1.5))
+  }
 }
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
