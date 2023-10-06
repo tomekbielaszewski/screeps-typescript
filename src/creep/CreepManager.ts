@@ -1,4 +1,7 @@
 import "lodash"
+import {getLogger} from "../utils/Logger";
+
+const JOB_NAME = 'CreepManager'
 
 class CreepDefinition {
   public readonly type: CreepRole;
@@ -90,7 +93,7 @@ const creepDefinitions: Record<CreepRole, CreepDefinition[]> = {
     new CreepDefinition(CreepRole.CARRIER, [MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY], 550),
   ],
   [CreepRole.CLEANER]: [
-    new CreepDefinition(CreepRole.CARRIER, [MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY], 550),
+    new CreepDefinition(CreepRole.CLEANER, [MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY], 550),
   ],
 };
 
@@ -133,6 +136,7 @@ export function CreepManager(): void {
             }
 
             if (spawningPredicate) {
+              getLogger(JOB_NAME).log(`[Spawn: ${spawn.name}] spawning ${creepDef.type} worth ${creepDef.cost}`)
               spawn.spawnCreep(creepDef.parts, `${role}:${Game.time}`, {
                 memory: {
                   role: _role,
