@@ -55,18 +55,7 @@ function runIdleState(creep: Creep) {
     return
   }
   creep.say('🚬')
-  const idleFlag = Object.values(Game.flags)
-    .filter(f => f.pos.roomName === creep.room.name)
-    .find(f => f.name.toLowerCase() === 'idle')
-  if (idleFlag) {
-    if (creep.pos.getRangeTo(idleFlag.pos) > 3) {
-      creep.memory.move = {
-        range: 3,
-        target: toTarget(idleFlag)
-      }
-      resolveAndReplay(creep, {nextState: MovingState, replay: BuilderJob})
-    }
-  }
+  moveToIdleFlag(creep)
 }
 
 function runMovingState(creep: Creep) {
@@ -133,6 +122,7 @@ function runRefillingState(creep: Creep) {
       break
     case RefillingResult.NoResourcesInStorage: //do not advance to another state
       creep.say('!💸')
+      moveToIdleFlag(creep)
       break
     case RefillingResult.CouldNotWithdraw: //do not advance to another state
       break
@@ -178,6 +168,21 @@ function buildingOrRepairing(creep: Creep) {
     const constructionSites = creep.room.find(FIND_MY_CONSTRUCTION_SITES)
     if (constructionSites.length) return BuildingState
     return IdleState
+  }
+}
+
+function moveToIdleFlag(creep: Creep) {
+  const idleFlag = Object.values(Game.flags)
+    .filter(f => f.pos.roomName === creep.room.name)
+    .find(f => f.name.toLowerCase() === 'idle')
+  if (idleFlag) {
+    if (creep.pos.getRangeTo(idleFlag.pos) > 3) {
+      creep.memory.move = {
+        range: 3,
+        target: toTarget(idleFlag)
+      }
+      resolveAndReplay(creep, {nextState: MovingState, replay: BuilderJob})
+    }
   }
 }
 
