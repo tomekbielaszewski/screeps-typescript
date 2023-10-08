@@ -1,4 +1,7 @@
 import "lodash"
+import {getLogger} from "../utils/Logger";
+
+const JOB_NAME = 'CreepManager'
 
 class CreepDefinition {
   public readonly type: CreepRole;
@@ -54,6 +57,16 @@ const creepRoleOrder = [
   CreepRole.CLEANER,
 ];
 
+/*
+RCL 1: max energy capacity = 300
+RCL 2: max energy capacity = 550
+RCL 3: max energy capacity = 800
+RCL 4: max energy capacity = 1300
+RCL 5: max energy capacity = 1800
+RCL 6: max energy capacity = 2300
+RCL 7: max energy capacity = 5600
+RCL 8: max energy capacity = 12900
+*/
 const creepDefinitions: Record<CreepRole, CreepDefinition[]> = {
   [CreepRole.HARVESTER]: [
     new CreepDefinition(CreepRole.HARVESTER, [MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, WORK, WORK, WORK, WORK, CARRY, CARRY], 800),
@@ -80,13 +93,13 @@ const creepDefinitions: Record<CreepRole, CreepDefinition[]> = {
     new CreepDefinition(CreepRole.CARRIER, [MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY], 550),
   ],
   [CreepRole.CLEANER]: [
-    new CreepDefinition(CreepRole.CARRIER, [MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY], 550),
+    new CreepDefinition(CreepRole.CLEANER, [MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY], 550),
   ],
 };
 
 const creepAmounts: Record<CreepRole, number> = {
   [CreepRole.HARVESTER]: 4,
-  [CreepRole.UPGRADER]: 2,
+  [CreepRole.UPGRADER]: 3,
   [CreepRole.BUILDER]: 2,
   [CreepRole.MINER]: 0,
   [CreepRole.CARRIER]: 0,
@@ -108,13 +121,22 @@ export function CreepManager(): void {
     else {
       for (const _role of creepRoleOrder) {
         const role = _role as CreepRole
-        const amountOfLive = _.filter(Game.creeps, creep => creep && creep.memory.role === role)
-          .filter(creep => creep.memory.room === spawn.room.name)
-          .length;
+        const amountOfLive = countCreepsByRole(role, spawn)
         if (amountOfLive < creepAmounts[role]) {
           for (const creepDef of creepDefinitions[role]) {
-            const availableEnergy = spawn.room.energyAvailable;
-            if (availableEnergy >= creepDef.cost && !spawn.spawning) {
+
+            let spawningPredicate
+            if (role == CreepRole.HARVESTER && amountOfLive <= 2) {
+              spawningPredicate = spawn.room.energyAvailable >= creepDef.cost
+                && !spawn.spawning
+            } else {
+              spawningPredicate = spawn.room.energyAvailable >= spawn.room.energyCapacityAvailable * 0.8
+                && spawn.room.energyAvailable >= creepDef.cost
+                && !spawn.spawning
+            }
+
+            if (spawningPredicate) {
+              getLogger(JOB_NAME).log(`[Spawn: ${spawn.name}] spawning ${creepDef.type} worth ${creepDef.cost}`)
               spawn.spawnCreep(creepDef.parts, `${role}:${Game.time}`, {
                 memory: {
                   role: _role,
@@ -138,7 +160,7 @@ export function CreepManager(): void {
         creepSymbol,
         spawn.pos.x + 1,
         spawn.pos.y,
-        {align: 'left', opacity: 0.8});
+        { align: 'left', opacity: 0.8 });
     }
   }
 
@@ -147,5 +169,11 @@ export function CreepManager(): void {
       const spawn = Game.spawns[spawnName];
       onSpawn(spawn);
     }
+  }
+
+  function countCreepsByRole(role: CreepRole, spawn: StructureSpawn): number {
+    return _.filter(Game.creeps, creep => creep && creep.memory.role === role)
+      .filter(creep => creep.memory.room === spawn.room.name)
+      .length;
   }
 }
