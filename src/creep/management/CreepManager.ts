@@ -30,7 +30,7 @@ function newDecisionTree(room: Room): RoomSpawningDecision {
     context: {
       room: room.name,
       spawns: room.find(FIND_MY_SPAWNS)
-        .map(s => s.id),
+        .map(s => s.id), //TODO: What if spawns change (destroy? build new?) after creating decision tree for given room?
       sources: room.find(FIND_SOURCES)
         .map(s => s.id),
     },
@@ -60,7 +60,7 @@ export function CreepManager(): void {
 
 function notSpawning(ctx: SpawningContext): BTNodeResult {
   const spawns = ctx.spawns.map(id => Game.getObjectById(id))
-    .filter(spawn => !!spawn);
+    .filter(spawn => !!spawn?.spawning);
   return spawns.length > 0 ? BTNodeResult.SUCCESS : BTNodeResult.FAILURE;
 }
 
