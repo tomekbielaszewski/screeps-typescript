@@ -1,7 +1,10 @@
 enum LinkType {
-  MINE = 'mine',
+  MINERAL = 'mineral',
+  SOURCE1 = 'source1',
+  SOURCE2 = 'source2',
   UPGRADE = 'upgrade',
-  STORAGE = 'storage',
+  STORAGE1 = 'storage1',
+  STORAGE2 = 'storage2',
 }
 
 export function LinkOperator(room: Room) {
@@ -9,12 +12,19 @@ export function LinkOperator(room: Room) {
   if (room.controller.level < 5) return
   room.memory.links = room.memory.links || {}
 
-  const mine = getLink(LinkType.MINE, room)
+  const mineral = getLink(LinkType.MINERAL, room)
+  const source1 = getLink(LinkType.SOURCE1, room)
+  const source2 = getLink(LinkType.SOURCE2, room)
   const upgrade = getLink(LinkType.UPGRADE, room)
-  const storage = getLink(LinkType.STORAGE, room)
+  const storage1 = getLink(LinkType.STORAGE1, room)
+  const storage2 = getLink(LinkType.STORAGE2, room)
 
-  transfer(mine, upgrade)
-  transfer(mine, storage)
+  transfer(source1, upgrade)
+  transfer(source1, storage1)
+  transfer(source2, upgrade)
+  transfer(source2, storage2)
+  transfer(mineral, storage1)
+  transfer(mineral, storage2)
 }
 
 function transfer(from: StructureLink | undefined, to: StructureLink | undefined) {
