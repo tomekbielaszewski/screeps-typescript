@@ -1,4 +1,4 @@
-import {findLowHpStructures} from "../creep/fsm/runner/common/Repairing";
+import { findLowHpStructures } from "../creep/fsm/runner/common/Repairing";
 
 export const cli = {
   help,
@@ -106,7 +106,10 @@ function hysteresis(setting?: number): string {
 }
 
 function log(name?: string, setting?: boolean): string {
-  if (name === undefined || setting === undefined) return `Sets whether to enable logger with a given name or not. cli.log("state", true)`
+  if (name === undefined || setting === undefined) {
+    return Object.keys(Memory.log)
+      .reduce((a, b) => a + " " + b, `Sets whether to enable logger with a given name or not. cli.log("state", true)\nLog names available:\n`);
+  }
   Memory.log[name] = setting
   return setting as unknown as string
 }
