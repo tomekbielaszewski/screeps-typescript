@@ -12,7 +12,7 @@ class NamedLogger implements Logger {
   public log(...messages: string[]): void {
     if (_.get(Memory.log, this.name) === true) {
       const message = messages.reduce((a, b) => a + " " + b, "")
-      console.log(`[${Game.time}] ${message}`)
+      console.log(`[TIME:${Game.time}][CPU:${Game.cpu.getUsed()}] ${message}`)
     } else {
       Memory.log[this.name] = false
     }
