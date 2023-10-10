@@ -9,7 +9,7 @@ export const cli = {
   },
   rooms: {
     visible,
-    makePlan,
+    removePlan
   },
   buildings: {
     hits,
@@ -22,9 +22,7 @@ export const cli = {
       findLowhp,
     }
   },
-  log: {
-    state,
-  }
+  log
 }
 
 function help(): string {
@@ -107,9 +105,9 @@ function hysteresis(setting?: number): string {
   return setting as unknown as string
 }
 
-function state(setting?: boolean): string {
-  if (setting === undefined) return `Sets whether to log creep state changes. Current setting: ${Memory.log.state}`
-  Memory.log.state = setting
+function log(name?: string, setting?: boolean): string {
+  if (name === undefined || setting === undefined) return `Sets whether to enable logger with a given name or not. cli.log("state", true)`
+  Memory.log[name] = setting
   return setting as unknown as string
 }
 
@@ -120,10 +118,8 @@ function visible(): string {
       .join('\n')
 }
 
-function makePlan(roomName: string): string {
-  if (roomName === undefined) return `Schedules room planning`
-  Memory.rooms[roomName] = Memory.rooms[roomName] || {links: [], plan: {}}
-  const roomPlan = Memory.rooms[roomName].plan || {} as RoomPlanMemory
-  roomPlan.isEligible = true
-  return `Plan for room ${roomName} will be created when room will be visible`
+function removePlan(roomName?: string): string {
+  if (roomName === undefined) return `Removes room building layout plan. It will be recreated in next tick if the room is owned. cli.rooms.removePlan("W8N8")`
+  delete Memory.rooms[roomName].plan
+  return `Plan from room ${roomName} removed`
 }

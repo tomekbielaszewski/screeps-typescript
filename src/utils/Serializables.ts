@@ -91,9 +91,14 @@ declare global {
     }
   }
 
+  interface PlannedBuilding {
+    pos: SerializablePosition
+    type: BuildableStructureConstant
+  }
+
   interface RoomPlanMemory {
-    isEligible: boolean
-    appliedLevel: number
+    bunkerPosition: SerializablePosition
+    layout: PlannedBuilding[]
   }
 
   interface RoomMemory {

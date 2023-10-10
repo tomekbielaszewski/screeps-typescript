@@ -1,14 +1,48 @@
-import {SerializablePosition} from "../../../utils/Serializables";
-import {SpiralPattern} from "./Patterns";
+import { SerializablePosition } from "../../../utils/Serializables";
+import { SpiralPattern } from "./Patterns";
+import { getLogger, Logger } from "./../../../utils/Logger"
 
 interface PlannedBuilding {
   pos: SerializablePosition
   type: BuildableStructureConstant
 }
 
-interface BuildingPlan {
-  roomName: string
-  buildings: PlannedBuilding[]
+export class RoomPlanner {
+  private readonly logger: Logger = getLogger("RoomPlanner")
+  private readonly bunkerPlanner: BunkerPlanner = new BunkerPlanner()
+
+  public findPlaceForBunker(room: Room): SerializablePosition {
+    let bunkerPosition = this.getSavedBunkerPosition(room)
+    if (!bunkerPosition) {
+      this.logger.log(`No saved bunker position for room ${room.name}. Running BunkerPlanner...`)
+      bunkerPosition = this.bunkerPlanner.findBunkerPosition(room)
+      this.saveBunkerPosition(bunkerPosition, room)
+      this.logger.log(`Bunker will be positioned at ${bunkerPosition.x} ${bunkerPosition.y}`)
+    }
+    return bunkerPosition
+  }
+
+  public setupBuildingsLayout(bunkerPos: SerializablePosition): PlannedBuilding[] {
+    let layout = Memory.rooms[bunkerPos.room].plan!.layout
+    if(!layout || layout.length === 0) {
+      this.logger.log(`No saved bunker layout for room ${bunkerPos.room}. Running BunkerPlanner...`)
+      layout = this.bunkerPlanner.setupBunkerLayout(bunkerPos)
+      Memory.rooms[bunkerPos.room].plan!.layout = layout
+      this.logger.log(`Bunker layout generated`)
+    }
+    return layout
+  }
+
+  private getSavedBunkerPosition(room: Room): SerializablePosition | undefined {
+    return Memory.rooms[room.name]?.plan?.bunkerPosition
+  }
+
+  private saveBunkerPosition(bunkerPos: SerializablePosition, room: Room) {
+    Memory.rooms[room.name].plan = {
+      bunkerPosition: bunkerPos,
+      layout: []
+    }
+  }
 }
 
 class BunkerPlanner {
@@ -70,23 +104,20 @@ class BunkerPlanner {
       .reduce((p1, p2) => p1.getRangeTo(bestPos) < p2.getRangeTo(bestPos) ? p1 : p2)
   }
 
-  public setupBunkerLayout(bunkerPosition: SerializablePosition): BuildingPlan {
-    const plan: BuildingPlan = {
-      roomName: bunkerPosition.room,
-      buildings: []
-    }
+  public setupBunkerLayout(bunkerPosition: SerializablePosition): PlannedBuilding[] {
+    const buildings: PlannedBuilding[] = []
     const xOffset = this.mainLayout[0].length / 2
     const yOffset = this.mainLayout.length / 2
 
     for (let i = 0; i < this.mainLayout.length; i++) {
       const bunkerLine = this.mainLayout[i]
-      const buildings = bunkerLine.split('')
-      for (let j = 0; j < buildings.length; j++) {
-        const buildingKey = buildings[j];
+      const buildingKeys = bunkerLine.split('')
+      for (let j = 0; j < buildingKeys.length; j++) {
+        const buildingKey = buildingKeys[j];
         if (buildingKey === ' ') continue
         const buildingType = this.keys[buildingKey]
 
-        plan.buildings.push({
+        buildings.push({
           type: buildingType,
           pos: new SerializablePosition(
             bunkerPosition.x + j - xOffset,
@@ -97,7 +128,7 @@ class BunkerPlanner {
       }
     }
 
-    return plan
+    return buildings
   }
 
   private isWalkable(objects: LookAtResult[]): boolean {
@@ -134,39 +165,5 @@ class BunkerPlanner {
     const y = Math.floor(pos.map(p => p.y).reduce((y1, y2) => y1 + y2, 0) / pos.length)
 
     return new SerializablePosition(x, y, room.name)
-  }
-}
-
-export class RoomsPlanner {
-  public runOnAllRooms(): void {
-    Object.values(Game.rooms)
-      // .filter(this.isEligibleForPlanning)
-      .forEach(room => this.run(room))
-  }
-
-  private run(room: Room): void {
-    const plan = this.getSavedBuildingPlan(room) || this.createBuildingPlan(room)
-    this.savePlan(plan, room)
-  }
-
-  private getSavedBuildingPlan(room: Room): BuildingPlan | undefined {
-    return undefined
-  }
-
-  private createBuildingPlan(room: Room): BuildingPlan {
-    const bunkerPlanner = new BunkerPlanner();
-    const bunkerPos = bunkerPlanner.findBunkerPosition(room)
-    return bunkerPlanner.setupBunkerLayout(bunkerPos)
-  }
-
-  private savePlan(plan: BuildingPlan, room: Room) {
-    const opacity = 0.3
-    for (const b of plan.buildings) {
-      room.visual.text(b.type.substr(0, 1), b.pos.x, b.pos.y, {opacity})
-    }
-  }
-
-  private isEligibleForPlanning(room: Room): boolean {
-    return Memory.rooms[room.name]?.plan?.isEligible || false
   }
 }
