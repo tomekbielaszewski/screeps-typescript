@@ -29,6 +29,10 @@ export class RoomPlanner {
       layout = this.bunkerPlanner.setupBunkerLayout(bunkerPos)
       Memory.rooms[bunkerPos.room].plan!.layout = layout
       this.logger.log(`Bunker layout generated`)
+      this.logger.log(`Finding bunker exit points...`)
+      let exitPoints = this.bunkerPlanner.getExitPoints(bunkerPos)
+      Memory.rooms[bunkerPos.room].plan!.exits = exitPoints
+      this.logger.log(`Exit points found`)
     }
     return layout
   }
@@ -40,7 +44,8 @@ export class RoomPlanner {
   private saveBunkerPosition(bunkerPos: SerializablePosition, room: Room) {
     Memory.rooms[room.name].plan = {
       bunkerPosition: bunkerPos,
-      layout: []
+      layout: [],
+      exits: []
     }
   }
 }
@@ -65,20 +70,23 @@ class BunkerPlanner {
     'W': STRUCTURE_WALL,
   }
 
+  private readonly EXIT_POINT: string = "*"
+
+  // exit points are marked with `*`
   private readonly mainLayout: string[] = [
-    '   ......    ',
-    '   ..EEEE.   ',
+    '    .....    ',
+    '   .*EEEE.   ',
     '  .EE.AELL.  ',
-    ' .EEEE.LLLL..',
-    '.EEEE.T.LLL..',
+    ' .EEEE.LLLL. ',
+    '.EEEE.T.LLL*.',
     '.EEE.NTA.L.E.',
     '.EO.TS MT.AE.',
     '.E.E.PTK.EEE.',
-    '..EEE.T.EEEE.',
-    '..EEEE.EEEE. ',
+    '.*EEE.T.EEEE.',
+    ' .EEEE.EEEE. ',
     '  .EEEE.EE.  ',
-    '   .EEEE..   ',
-    '    ......   ',
+    '   .EEEE*.   ',
+    '    .....    ',
   ]
 
   public findBunkerPosition(room: Room): SerializablePosition {
@@ -114,8 +122,8 @@ class BunkerPlanner {
       const buildingKeys = bunkerLine.split('')
       for (let j = 0; j < buildingKeys.length; j++) {
         const buildingKey = buildingKeys[j];
-        if (buildingKey === ' ') continue
         const buildingType = this.keys[buildingKey]
+        if (!buildingType) continue
 
         buildings.push({
           type: buildingType,
@@ -129,6 +137,29 @@ class BunkerPlanner {
     }
 
     return buildings
+  }
+
+  public getExitPoints(bunkerPosition: SerializablePosition): SerializablePosition[] {
+    const exitPoints: SerializablePosition[] = []
+    const xOffset = this.mainLayout[0].length / 2
+    const yOffset = this.mainLayout.length / 2
+
+    for (let i = 0; i < this.mainLayout.length; i++) {
+      const bunkerLine = this.mainLayout[i]
+      const buildingKeys = bunkerLine.split('')
+      for (let j = 0; j < buildingKeys.length; j++) {
+        const buildingKey = buildingKeys[j];
+        if (buildingKey !== this.EXIT_POINT) continue
+
+        exitPoints.push(new SerializablePosition(
+            bunkerPosition.x + j - xOffset,
+            bunkerPosition.y + i - yOffset,
+            bunkerPosition.room
+          ))
+      }
+    }
+
+    return exitPoints
   }
 
   private isWalkable(objects: LookAtResult[]): boolean {

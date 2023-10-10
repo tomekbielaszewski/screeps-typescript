@@ -99,6 +99,7 @@ declare global {
   interface RoomPlanMemory {
     bunkerPosition: SerializablePosition
     layout: PlannedBuilding[]
+    exits: SerializablePosition[]
   }
 
   interface RoomMemory {
