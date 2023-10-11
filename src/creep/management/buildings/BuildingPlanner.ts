@@ -24,15 +24,33 @@ export class RoomPlanner {
 
   public setupBuildingsLayout(bunkerPos: SerializablePosition): PlannedBuilding[] {
     let layout = Memory.rooms[bunkerPos.room].plan!.layout
-    if(!layout || layout.length === 0) {
+    if (!layout || layout.length === 0) {
       this.logger.log(`No saved bunker layout for room ${bunkerPos.room}. Running BunkerPlanner...`)
       layout = this.bunkerPlanner.setupBunkerLayout(bunkerPos)
       Memory.rooms[bunkerPos.room].plan!.layout = layout
       this.logger.log(`Bunker layout generated`)
+
       this.logger.log(`Finding bunker exit points...`)
       let exitPoints = this.bunkerPlanner.getExitPoints(bunkerPos)
       Memory.rooms[bunkerPos.room].plan!.exits = exitPoints
       this.logger.log(`Exit points found`)
+
+      this.logger.log(`Generating paths to resources...`)
+      let room = Game.rooms[bunkerPos.room]
+      let sources = room.find(FIND_SOURCES)
+      let exitPoses = exitPoints.map(e => e.toPos())
+      for (const source of sources) {
+        const closestExitPoint = source.pos.findClosestByPath(exitPoses)!
+        let roadToSource = source.pos.findPathTo(closestExitPoint)
+          .map(pathStep => {
+            return {
+              pos: new SerializablePosition(pathStep.x, pathStep.y, bunkerPos.room),
+              type: STRUCTURE_ROAD
+            } as PlannedBuilding
+          })
+        layout.push(...roadToSource)
+      }
+      this.logger.log(`Paths generated`)
     }
     return layout
   }
@@ -128,8 +146,8 @@ class BunkerPlanner {
         buildings.push({
           type: buildingType,
           pos: new SerializablePosition(
-            bunkerPosition.x + j - xOffset,
-            bunkerPosition.y + i - yOffset,
+            Math.floor(bunkerPosition.x + j - xOffset),
+            Math.floor(bunkerPosition.y + i - yOffset),
             bunkerPosition.room
           )
         })
@@ -152,10 +170,10 @@ class BunkerPlanner {
         if (buildingKey !== this.EXIT_POINT) continue
 
         exitPoints.push(new SerializablePosition(
-            bunkerPosition.x + j - xOffset,
-            bunkerPosition.y + i - yOffset,
-            bunkerPosition.room
-          ))
+          bunkerPosition.x + j - xOffset,
+          bunkerPosition.y + i - yOffset,
+          bunkerPosition.room
+        ))
       }
     }
 

@@ -1,15 +1,15 @@
-import {ErrorMapper} from "utils/ErrorMapper";
-import {CreepManager} from "creep/CreepManager";
-import {CreepWorker} from "creep/Worker";
-import {StatPublisher} from "utils/StatPublisher";
-import {PixelGenerator} from "utils/PixelGenerator";
-import {CleanMemory} from "utils/MemoryCleaner";
-import {measure} from "utils/Profiler";
-import {GlobalsInitialization, RoomMemoryInitialization} from "utils/GlobalsInitialization";
-import {defendRoom} from "utils/RoomDefense";
-import {LinkOperator} from "./creep/management/LinkOperator";
+import { ErrorMapper } from "utils/ErrorMapper";
+import { CreepManager } from "creep/CreepManager";
+import { CreepWorker } from "creep/Worker";
+import { StatPublisher } from "utils/StatPublisher";
+import { PixelGenerator } from "utils/PixelGenerator";
+import { CleanMemory } from "utils/MemoryCleaner";
+import { measure } from "utils/Profiler";
+import { GlobalsInitialization, RoomMemoryInitialization } from "utils/GlobalsInitialization";
+import { defendRoom } from "utils/RoomDefense";
+import { LinkOperator } from "./creep/management/LinkOperator";
 import MemHack from "utils/MemHack";
-import {RoomPlanner} from "creep/management/buildings/BuildingPlanner"
+import { RoomPlanner } from "creep/management/buildings/BuildingPlanner"
 
 GlobalsInitialization()
 
@@ -27,8 +27,8 @@ function unwrappedLoop(): void {
         let layout = roomPlanner.setupBuildingsLayout(bunkerPos)
 
         const opacity = 0.3
-          for (const b of layout) {
-            room.visual.text(b.type.substr(0, 1), b.pos.x, b.pos.y, { opacity })
+        for (const b of layout) {
+          room.visual.text(b.type.substr(0, 1), b.pos.x, b.pos.y, { opacity })
         }
       }, `${room.name}.RoomPlanner`)
     });
