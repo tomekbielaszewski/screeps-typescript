@@ -1,7 +1,6 @@
 import { SerializablePosition } from "../../../utils/Serializables";
 import { SpiralPattern } from "./Patterns";
 import { getLogger, Logger } from "./../../../utils/Logger"
-import { ServerOptions } from "https";
 
 interface PlannedBuilding {
   pos: SerializablePosition
