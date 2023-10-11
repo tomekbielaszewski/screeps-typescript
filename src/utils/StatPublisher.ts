@@ -105,5 +105,5 @@ export function StatPublisher() {
     cpu: cpu(),
     controller: rcl(),
     gcl: gcl()
-  });
+  }, undefined, 1);
 }
