@@ -24,6 +24,10 @@ export class SerializablePosition {
     return SerializablePosition.clone(this)
   }
 
+  public toString(): string {
+    return `${this.x}x${this.y}${this.room}`
+  }
+
   public static from(pos: RoomPosition): SerializablePosition {
     return new SerializablePosition(pos.x, pos.y, pos.roomName)
   }

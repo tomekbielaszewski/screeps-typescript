@@ -28,7 +28,6 @@ export class RoomPlanner {
     if (!layout || layout.length === 0) {
       this.logger.log(`No saved bunker layout for room ${bunkerPos.room}. Running BunkerPlanner...`)
       layout = this.bunkerPlanner.setupBunkerLayout(bunkerPos)
-      Memory.rooms[bunkerPos.room].plan!.layout = layout
       this.logger.log(`Bunker layout generated`)
 
       this.logger.log(`Finding bunker exit points...`)
@@ -43,7 +42,17 @@ export class RoomPlanner {
       layout.push(...roadPlanner.setupRoadToController(room))
       layout.push(...roadPlanner.setupRoadToMineral(room))
       this.logger.log(`Paths generated`)
+
+      this.logger.log(`Removing duplicated positions from room layout. Plan size (${layout.length})...`)
+      layout = [...layout.reduce(function(acc, building) {
+        if (!acc.get(building.pos.toString())) {
+          acc.set(building.pos.toString(), building)
+        }
+        return acc;
+      }, new Map<string, PlannedBuilding>()).values()]
+      this.logger.log(`Duplicated positions removed. Plan size (${layout.length})`)
     }
+    Memory.rooms[bunkerPos.room].plan!.layout = layout
     return layout
   }
 
