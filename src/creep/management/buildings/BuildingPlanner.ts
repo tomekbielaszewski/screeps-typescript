@@ -1,6 +1,7 @@
 import { SerializablePosition } from "../../../utils/Serializables";
 import { SpiralPattern } from "./Patterns";
 import { getLogger, Logger } from "./../../../utils/Logger"
+import { ServerOptions } from "https";
 
 interface PlannedBuilding {
   pos: SerializablePosition
@@ -37,19 +38,10 @@ export class RoomPlanner {
 
       this.logger.log(`Generating paths to resources...`)
       let room = Game.rooms[bunkerPos.room]
-      let sources = room.find(FIND_SOURCES)
-      let exitPoses = exitPoints.map(e => e.toPos())
-      for (const source of sources) {
-        const closestExitPoint = source.pos.findClosestByPath(exitPoses)!
-        let roadToSource = source.pos.findPathTo(closestExitPoint)
-          .map(pathStep => {
-            return {
-              pos: new SerializablePosition(pathStep.x, pathStep.y, bunkerPos.room),
-              type: STRUCTURE_ROAD
-            } as PlannedBuilding
-          })
-        layout.push(...roadToSource)
-      }
+      let roadPlanner = new RoadConnectionsPlanner(exitPoints)
+      layout.push(...roadPlanner.setupRoadsToSources(room))
+      layout.push(...roadPlanner.setupRoadToController(room))
+      layout.push(...roadPlanner.setupRoadToMineral(room))
       this.logger.log(`Paths generated`)
     }
     return layout
@@ -65,6 +57,44 @@ export class RoomPlanner {
       layout: [],
       exits: []
     }
+  }
+}
+
+class RoadConnectionsPlanner {
+  private readonly bunkerExitPoints: RoomPosition[]
+
+  constructor(bunkerExitPoints: SerializablePosition[]) {
+    this.bunkerExitPoints = bunkerExitPoints.map(e => e.toPos())
+  }
+
+  public setupRoadsToSources(room: Room): PlannedBuilding[] {
+    const roads = [] as PlannedBuilding[]
+    const sources = room.find(FIND_SOURCES)
+    for (const source of sources) {
+      roads.push(...this.setupPathTo(source.pos))
+    }
+    return roads
+  }
+
+  public setupRoadToController(room: Room): PlannedBuilding[] {
+    const controller = room.controller!
+    return this.setupPathTo(controller.pos)
+  }
+
+  public setupRoadToMineral(room: Room): PlannedBuilding[] {
+    const mineral = room.find(FIND_MINERALS)[0]
+    return this.setupPathTo(mineral.pos)
+  }
+
+  private setupPathTo(pos: RoomPosition): PlannedBuilding[] {
+    const closestExitPoint = pos.findClosestByPath(this.bunkerExitPoints)!
+    return pos.findPathTo(closestExitPoint)
+      .map(pathStep => {
+        return {
+          pos: new SerializablePosition(pathStep.x, pathStep.y, pos.roomName),
+          type: STRUCTURE_ROAD
+        } as PlannedBuilding
+      })
   }
 }
 
