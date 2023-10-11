@@ -28,7 +28,7 @@ function unwrappedLoop(): void {
 
         const opacity = 0.3
         for (const b of layout) {
-          room.visual.text(b.type.substr(0, 1), b.pos.x, b.pos.y, { opacity })
+          room.visual.text(b.type[0], b.pos.x, b.pos.y, { opacity })
         }
       }, `${room.name}.RoomPlanner`)
     });
