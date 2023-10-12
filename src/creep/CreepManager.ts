@@ -69,6 +69,7 @@ RCL 8: max energy capacity = 12900
 */
 const creepDefinitions: Record<CreepRole, CreepDefinition[]> = {
   [CreepRole.HARVESTER]: [
+    new CreepDefinition(CreepRole.HARVESTER, [MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY], 10*50 + 4*100 + 6*50),
     new CreepDefinition(CreepRole.HARVESTER, [MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, WORK, WORK, WORK, WORK, CARRY, CARRY], 800),
     new CreepDefinition(CreepRole.HARVESTER, [MOVE, MOVE, MOVE, MOVE, WORK, WORK, CARRY, CARRY], 500),
     new CreepDefinition(CreepRole.HARVESTER, [MOVE, MOVE, MOVE, MOVE, WORK, WORK, CARRY], 450),
@@ -76,13 +77,14 @@ const creepDefinitions: Record<CreepRole, CreepDefinition[]> = {
     new CreepDefinition(CreepRole.HARVESTER, [MOVE, WORK, CARRY], 200),
   ],
   [CreepRole.UPGRADER]: [
+    new CreepDefinition(CreepRole.UPGRADER, [MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY], 9*50 + 3*100 + 6*50),
     new CreepDefinition(CreepRole.UPGRADER, [MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, WORK, WORK, WORK, CARRY, CARRY, CARRY], 800),
     new CreepDefinition(CreepRole.UPGRADER, [MOVE, MOVE, MOVE, MOVE, WORK, WORK, CARRY, CARRY], 500),
     new CreepDefinition(CreepRole.UPGRADER, [MOVE, MOVE, MOVE, WORK, CARRY], 300),
     new CreepDefinition(CreepRole.UPGRADER, [MOVE, WORK, CARRY], 200),
   ],
   [CreepRole.BUILDER]: [
-    new CreepDefinition(CreepRole.BUILDER, [MOVE, MOVE, MOVE, MOVE, MOVE, WORK, WORK, CARRY, CARRY], 550),
+    new CreepDefinition(CreepRole.BUILDER, [MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, WORK, WORK, CARRY, CARRY, CARRY, CARRY], 300+200+200),
     new CreepDefinition(CreepRole.BUILDER, [MOVE, MOVE, MOVE, MOVE, WORK, CARRY, CARRY, CARRY], 450),
     new CreepDefinition(CreepRole.BUILDER, [MOVE, MOVE, MOVE, WORK, CARRY], 300),
   ],
