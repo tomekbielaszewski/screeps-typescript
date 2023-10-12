@@ -9,12 +9,14 @@ import { GlobalsInitialization, RoomMemoryInitialization } from "utils/GlobalsIn
 import { defendRoom } from "utils/RoomDefense";
 import { LinkOperator } from "./creep/management/LinkOperator";
 import MemHack from "utils/MemHack";
+import { getLogger, Logger } from "./utils/Logger"
 import { RoomPlanner } from "creep/management/buildings/BuildingPlanner"
 
 GlobalsInitialization()
 
 function unwrappedLoop(): void {
   MemHack.pretick()
+  getLogger("time").log("")
 
   Object.values(Game.rooms)
     .forEach(room => {
@@ -30,6 +32,7 @@ function unwrappedLoop(): void {
         for (const b of layout) {
           room.visual.text(b.type[0], b.pos.x, b.pos.y, { opacity })
         }
+        roomPlanner.placeConstructionSites(layout, room)
       }, `${room.name}.RoomPlanner`)
     });
 
