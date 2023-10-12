@@ -11,6 +11,23 @@ export class RoomPlanner {
   private readonly logger: Logger = getLogger("RoomPlanner")
   private readonly bunkerPlanner: BunkerPlanner = new BunkerPlanner()
 
+  private readonly buildingPriority: { [key: string]: number } = {
+    STRUCTURE_SPAWN: 1,
+    STRUCTURE_EXTENSION: 1,
+    STRUCTURE_TOWER: 1,
+    STRUCTURE_CONTAINER: 2,
+    STRUCTURE_LINK: 3,
+    STRUCTURE_ROAD: 3,
+    STRUCTURE_WALL: 4,
+    STRUCTURE_RAMPART: 4,
+    STRUCTURE_STORAGE: 4,
+    STRUCTURE_OBSERVER: 4,
+    STRUCTURE_TERMINAL: 4,
+    STRUCTURE_POWER_SPAWN: 4,
+    STRUCTURE_LAB: 4,
+    STRUCTURE_NUKER: 4
+  }
+
   public findPlaceForBunker(room: Room): SerializablePosition {
     let bunkerPosition = this.getSavedBunkerPosition(room)
     if (!bunkerPosition) {
@@ -51,36 +68,51 @@ export class RoomPlanner {
       }, new Map<string, PlannedBuilding>()).values()]
       this.logger.log(`Duplicated positions removed. Plan size (${layout.length})`)
     }
-    Memory.rooms[bunkerPos.room].plan!.layout = layout
+    Memory.rooms[bunkerPos.room].plan!.layout = layout.sort((a, b) => this.buildingPriority[a.type] - this.buildingPriority[b.type])
     return layout
   }
 
+  /*
+  Issues & ideas:
+  - lack of priorities - roads should be build when there is no more needed buildings like extensions
+  - reset CSites at RCL change
+  - container at source should be built first of all
+  - containers should be allowed to be placed at roads
+   */
   public placeConstructionSites(layout: PlannedBuilding[], room: Room) {
-    if (room.find(FIND_CONSTRUCTION_SITES).length == 0) //TODO: it wont work correctly when layout is fully finished or no new CS can be placed (low RCL)
-      layout.forEach(pb => {
-        pb.pos = SerializablePosition.clone(pb.pos)
-        let look1 = pb.pos.toPos().lookFor("structure")
-        if (look1.length) {
-          let struct = look1[0].structureType
-          if (struct !== pb.type) {
-            this.logger.log(`There is conflicting structure at ${pb.pos.toString()}. It's ${struct}, but should be ${pb.type} according to plan`)
-          }
-          return
+    if (room.find(FIND_CONSTRUCTION_SITES).length == 0) { //TODO: it wont work correctly when layout is fully finished or no new CS can be placed (low RCL)
+      let maxPriority = 10;
+    layout.forEach(pb => {
+      let pbPriority = this.buildingPriority[pb.type]
+      if (pbPriority > maxPriority)
+        return
+      pb.pos = SerializablePosition.clone(pb.pos)
+      let look1 = pb.pos.toPos().lookFor("structure")
+      if (look1.length) {
+        let struct = look1[0].structureType
+        if (struct !== pb.type) {
+          this.logger.log(`There is conflicting structure at ${pb.pos.toString()}. It's ${struct}, but should be ${pb.type} according to plan`)
         }
+        return
+      }
 
-        let look2 = pb.pos.toPos().lookFor("constructionSite")
-        if (look2.length) {
-          let struct = look2[0].structureType
-          if (struct !== pb.type) {
-            this.logger.log(`There is conflicting construction site at ${pb.pos.toString()}. It's ${struct}, but should be ${pb.type} according to plan`)
-          }
-          return
+      let look2 = pb.pos.toPos().lookFor("constructionSite")
+      if (look2.length) {
+        let struct = look2[0].structureType
+        if (struct !== pb.type) {
+          this.logger.log(`There is conflicting construction site at ${pb.pos.toString()}. It's ${struct}, but should be ${pb.type} according to plan`)
         }
+        return
+      }
 
-        let result = room.createConstructionSite(pb.pos.toPos(), pb.type)
-        this.logger.log(`CSite placement result: ${result}`)
+      let result = room.createConstructionSite(pb.pos.toPos(), pb.type)
+      if (result === OK) {
+        maxPriority = this.buildingPriority[pb.type]
+      }
+      this.logger.log(`CSite placement result: ${result}`)
 
-      });
+    });
+  }
   }
 
   private getSavedBunkerPosition(room: Room): SerializablePosition | undefined {
@@ -107,30 +139,34 @@ class RoadConnectionsPlanner {
     const roads = [] as PlannedBuilding[]
     const sources = room.find(FIND_SOURCES)
     for (const source of sources) {
-      roads.push(...this.setupPathTo(source.pos))
+      roads.push(...this.setupPathTo(source.pos, true))
     }
     return roads
   }
 
   public setupRoadToController(room: Room): PlannedBuilding[] {
     const controller = room.controller!
-    return this.setupPathTo(controller.pos)
+    return this.setupPathTo(controller.pos, true)
   }
 
   public setupRoadToMineral(room: Room): PlannedBuilding[] {
     const mineral = room.find(FIND_MINERALS)[0]
-    return this.setupPathTo(mineral.pos)
+    return this.setupPathTo(mineral.pos, false)
   }
 
-  private setupPathTo(pos: RoomPosition): PlannedBuilding[] {
+  private setupPathTo(pos: RoomPosition, containerAtEnd: boolean): PlannedBuilding[] {
     const closestExitPoint = pos.findClosestByPath(this.bunkerExitPoints)!
-    return pos.findPathTo(closestExitPoint)
+    const road = pos.findPathTo(closestExitPoint)
       .map(pathStep => {
         return {
           pos: new SerializablePosition(pathStep.x, pathStep.y, pos.roomName),
           type: STRUCTURE_ROAD
         } as PlannedBuilding
       })
+    if (containerAtEnd) {
+      road[road.length - 1].type = STRUCTURE_CONTAINER
+    }
+    return road
   }
 }
 
