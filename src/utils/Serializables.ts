@@ -84,6 +84,7 @@ declare global {
     container?: SerializableRoomObject<StructureContainer>
     storage?: SerializableRoomObject<Structure>
     source?: SerializableRoomObject<Source>
+    spawn?: SerializableRoomObject<StructureSpawn>
     sourceTargeted?: SerializableRoomObject<Source>
     role: string
     room: string

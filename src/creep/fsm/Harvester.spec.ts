@@ -22,6 +22,7 @@ describe('Harvester role', () => {
   describe('SpawningState', () => {
     it('should do nothing when spawning', () => {
       const creep = mockInstanceOf<Creep>({
+        ticksToLive: 1500,
         memory: {
           state: undefined
         },
@@ -37,6 +38,7 @@ describe('Harvester role', () => {
       const serializedSource = new SerializableRoomObject("id" as Id<Source>, new SerializablePosition(1, 2, ""))
       const creep = mockInstanceOf<Creep>({
         name: 'creepName',
+        ticksToLive: 1500,
         memory: {
           state: undefined,
           move: undefined,
@@ -72,6 +74,7 @@ describe('Harvester role', () => {
     xit('should switch to Moving when out of reach', () => {
       const serializedSource = new SerializableRoomObject("id" as Id<Source>, new SerializablePosition(1, 2, ""))
       const creep = mockInstanceOf<Creep>({
+        ticksToLive: 1500,
         memory: {
           state: DockingState,
           source: serializedSource
@@ -103,6 +106,7 @@ describe('Harvester role', () => {
   xit('should switch to Harvesting when docked', () => {
     const serializedSource = new SerializableRoomObject("id" as Id<Source>, new SerializablePosition(1, 2, ""))
     const creep = mockInstanceOf<Creep>({
+      ticksToLive: 1500,
       memory: {
         state: DockingState,
         source: serializedSource

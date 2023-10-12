@@ -12,6 +12,7 @@ export type CreepState =
   RepairingState |
   MovingState |
   DockingState |
+  RenewingState |
   IdleState;
 
 export type SpawningState = "spawning-state"
@@ -25,6 +26,7 @@ export type BuildingState = "building-state"
 export type RepairingState = "repairing-state"
 export type UpgradingState = "upgrading-state"
 export type DockingState = "docking-state"
+export type RenewingState = "renewing-state"
 export type IdleState = "idle-state"
 
 export const SpawningState: SpawningState = "spawning-state"
@@ -38,6 +40,7 @@ export const BuildingState: BuildingState = "building-state"
 export const RepairingState: RepairingState = "repairing-state"
 export const UpgradingState: UpgradingState = "upgrading-state"
 export const DockingState: DockingState = "docking-state"
+export const RenewingState: RenewingState = "renewing-state"
 export const IdleState: IdleState = "idle-state"
 
 export type ReplayFunction = (creep: Creep) => void;

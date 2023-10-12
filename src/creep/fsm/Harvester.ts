@@ -2,6 +2,7 @@ import {
   HarvestingState,
   IdleState,
   MovingState,
+  RenewingState,
   resolve,
   resolveAndReplay,
   resolveLastStateAndReplay,
@@ -9,12 +10,13 @@ import {
   StateResolver,
   StoringState
 } from "./runner/common/CreepState"
-import {harvest, HarvestingResult} from "./runner/common/HarvestingEnergy"
-import {move, MovingResult, toTarget} from "./runner/common/Moving"
-import {storeEnergy, StoringResult} from "./runner/common/StoringEnergy"
-import {upgradeController, UpgradeResult} from "./runner/common/UpgradingController"
-import {getLogger} from "../../utils/Logger";
-import {SerializableRoomObject} from "../../utils/Serializables";
+import { harvest, HarvestingResult } from "./runner/common/HarvestingEnergy"
+import { move, MovingResult, toTarget } from "./runner/common/Moving"
+import { storeEnergy, StoringResult } from "./runner/common/StoringEnergy"
+import { upgradeController, UpgradeResult } from "./runner/common/UpgradingController"
+import { renew, RenewingResult } from "./runner/common/Renewing"
+import { getLogger } from "../../utils/Logger";
+import { SerializableRoomObject } from "../../utils/Serializables";
 
 const JOB_NAME = 'HarvesterJob'
 
@@ -23,9 +25,20 @@ export function HarvesterJob(creep: Creep): void {
     creep.memory.state = SpawningState
   }
 
+  if (creep.memory.state !== MovingState
+    && creep.memory.state !== RenewingState
+    && creep.ticksToLive
+    && creep.ticksToLive < 150) {
+    resolveAndReplay(creep, { nextState: RenewingState, replay: HarvesterJob })
+    return
+  }
+
   switch (creep.memory.state) {
     case SpawningState:
-      initialize(creep, {nextState: HarvestingState, replay: HarvesterJob})
+      initialize(creep, { nextState: HarvestingState, replay: HarvesterJob })
+      break
+    case RenewingState:
+      runRenewingState(creep)
       break
     case MovingState:
       runMovingState(creep)
@@ -48,7 +61,7 @@ function runIdleState(creep: Creep) {
 
   switch (upgradeResult) {
     case UpgradeResult.CreepStoreEmpty:
-      resolveAndReplay(creep, {nextState: HarvestingState, replay: HarvesterJob})
+      resolveAndReplay(creep, { nextState: HarvestingState, replay: HarvesterJob })
       break
     case UpgradeResult.NoControllerInRoom:
       creep.say('💤')
@@ -61,7 +74,7 @@ function runIdleState(creep: Creep) {
           range: 3,
           target: toTarget(creep.room.controller)
         }
-        resolveAndReplay(creep, {nextState: MovingState, replay: HarvesterJob})
+        resolveAndReplay(creep, { nextState: MovingState, replay: HarvesterJob })
       }
       break
     case UpgradeResult.CouldNotUpgrade:
@@ -75,24 +88,24 @@ function runStoringState(creep: Creep) {
 
   switch (storingResult) {
     case StoringResult.CreepStoreEmpty:
-      resolveAndReplay(creep, {nextState: HarvestingState, replay: HarvesterJob})
+      resolveAndReplay(creep, { nextState: HarvestingState, replay: HarvesterJob })
       break
     case StoringResult.NoStorageSpaceAvailableInRoom:
-      resolveAndReplay(creep, {nextState: IdleState, replay: HarvesterJob})
+      resolveAndReplay(creep, { nextState: IdleState, replay: HarvesterJob })
       break
     case StoringResult.Storing: //keep it up
       break
     case StoringResult.StoringFinished:
-      resolve(creep, {nextState: HarvestingState})
+      resolve(creep, { nextState: HarvestingState })
       break
     case StoringResult.OutOfRange:
       creep.memory.move = {
         target: toTarget(SerializableRoomObject.cloneNullable(creep.memory.storage)?.get())
       }
-      resolveAndReplay(creep, {nextState: MovingState, replay: HarvesterJob})
+      resolveAndReplay(creep, { nextState: MovingState, replay: HarvesterJob })
       break
     case StoringResult.AssignedStorageFull: //try again immediately
-      resolveAndReplay(creep, {nextState: StoringState, replay: HarvesterJob})
+      resolveAndReplay(creep, { nextState: StoringState, replay: HarvesterJob })
       break
     case StoringResult.CouldNotTransfer: //try again next tick and see what happens
       break
@@ -111,13 +124,36 @@ function runHarvestingState(creep: Creep) {
     case HarvestingResult.Harvesting: //then keep it up
       break
     case HarvestingResult.CreepStoreFull:
-      resolveAndReplay(creep, {nextState: StoringState, replay: HarvesterJob})
+      resolveAndReplay(creep, { nextState: StoringState, replay: HarvesterJob })
       break
     case HarvestingResult.OutOfRange:
       creep.memory.move = {
         target: toTarget(SerializableRoomObject.cloneNullable(creep.memory.sourceTargeted)?.get())
       }
-      resolveAndReplay(creep, {nextState: MovingState, replay: HarvesterJob})
+      resolveAndReplay(creep, { nextState: MovingState, replay: HarvesterJob })
+      break
+  }
+}
+
+function runRenewingState(creep: Creep) {
+  const renewingResult = renew(creep)
+  getLogger(JOB_NAME).log(`[${creep.name}] renewingResult: ${renewingResult}`)
+
+  switch (renewingResult) {
+    case RenewingResult.CouldNotFindSpawn: //well... what else if not just die?
+    case RenewingResult.CouldNotRenew: //try again next tick
+    case RenewingResult.Renewing: //then keep it up
+      break
+    case RenewingResult.SpawnSpawning: //c'mon im dying!
+    case RenewingResult.SpawnEmpty: //should I find another one? Or wait to be filled up?
+    case RenewingResult.CreepRenewed: //all good. Back to work!
+      resolveAndReplay(creep, { nextState: HarvestingState, replay: HarvesterJob })
+      break
+    case RenewingResult.OutOfRange:
+      creep.memory.move = {
+        target: toTarget(SerializableRoomObject.cloneNullable(creep.memory.spawn)?.get())
+      }
+      resolveAndReplay(creep, { nextState: MovingState, replay: HarvesterJob })
       break
   }
 }
@@ -134,10 +170,10 @@ function runMovingState(creep: Creep) {
       creep.say('🗺️🤔')
       break
     case MovingResult.NoTargetPositionSet:
-      resolveLastStateAndReplay(creep, {replay: HarvesterJob})
+      resolveLastStateAndReplay(creep, { replay: HarvesterJob })
       break
     case MovingResult.ReachedDestination:
-      resolveLastStateAndReplay(creep, {replay: HarvesterJob})
+      resolveLastStateAndReplay(creep, { replay: HarvesterJob })
       break
     case MovingResult.Tired:
       creep.say('😩')
