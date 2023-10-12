@@ -43,7 +43,7 @@ export class RoomPlanner {
       this.logger.log(`Paths generated`)
 
       this.logger.log(`Removing duplicated positions from room layout. Plan size (${layout.length})...`)
-      layout = [...layout.reduce(function(acc, building) {
+      layout = [...layout.reduce(function (acc, building) {
         if (!acc.get(building.pos.toString())) {
           acc.set(building.pos.toString(), building)
         }
@@ -53,6 +53,34 @@ export class RoomPlanner {
     }
     Memory.rooms[bunkerPos.room].plan!.layout = layout
     return layout
+  }
+
+  public placeConstructionSites(layout: PlannedBuilding[], room: Room) {
+    if (room.find(FIND_CONSTRUCTION_SITES).length == 0) //TODO: it wont work correctly when layout is fully finished or no new CS can be placed (low RCL)
+      layout.forEach(pb => {
+        pb.pos = SerializablePosition.clone(pb.pos)
+        let look1 = pb.pos.toPos().lookFor("structure")
+        if (look1.length) {
+          let struct = look1[0].structureType
+          if (struct !== pb.type) {
+            this.logger.log(`There is conflicting structure at ${pb.pos.toString()}. It's ${struct}, but should be ${pb.type} according to plan`)
+          }
+          return
+        }
+
+        let look2 = pb.pos.toPos().lookFor("constructionSite")
+        if (look2.length) {
+          let struct = look2[0].structureType
+          if (struct !== pb.type) {
+            this.logger.log(`There is conflicting construction site at ${pb.pos.toString()}. It's ${struct}, but should be ${pb.type} according to plan`)
+          }
+          return
+        }
+
+        let result = room.createConstructionSite(pb.pos.toPos(), pb.type)
+        this.logger.log(`CSite placement result: ${result}`)
+
+      });
   }
 
   private getSavedBunkerPosition(room: Room): SerializablePosition | undefined {
@@ -121,6 +149,7 @@ class BunkerPlanner {
     'M': STRUCTURE_TERMINAL,
     'P': STRUCTURE_POWER_SPAWN,
     '.': STRUCTURE_ROAD,
+    '*': STRUCTURE_ROAD,
     'C': STRUCTURE_CONTAINER,
     'R': STRUCTURE_RAMPART,
     'W': STRUCTURE_WALL,
