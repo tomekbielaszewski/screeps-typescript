@@ -9,7 +9,8 @@ export const cli = {
   },
   rooms: {
     visible,
-    removePlan
+    removePlan,
+    removeCSites
   },
   buildings: {
     hits,
@@ -125,4 +126,13 @@ function removePlan(roomName?: string): string {
   if (roomName === undefined) return `Removes room building layout plan. It will be recreated in next tick if the room is owned. cli.rooms.removePlan("W8N8")`
   delete Memory.rooms[roomName].plan
   return `Plan from room ${roomName} removed`
+}
+
+function removeCSites(roomName?: string): string {
+  if (roomName === undefined) return `Removes all construction sites in a given room. cli.rooms.removeCSites("W8N8")`
+  Game.rooms[roomName].find(FIND_CONSTRUCTION_SITES)
+  .forEach(cs => {
+    cs.remove()
+  })
+  return `All construction sites from room ${roomName} removed`
 }
