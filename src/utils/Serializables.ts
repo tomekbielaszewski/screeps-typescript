@@ -88,6 +88,9 @@ declare global {
     sourceTargeted?: SerializableRoomObject<Source>
     role: string
     room: string
+    cost: number
+    totalRenewedCost?: number
+    totalRenewedTicks?: number
     state?: string
     lastState?: string
     renewing?: boolean

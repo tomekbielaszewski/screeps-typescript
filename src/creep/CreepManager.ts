@@ -142,7 +142,8 @@ export function CreepManager(): void {
               spawn.spawnCreep(creepDef.parts, `${role}:${Game.time}`, {
                 memory: {
                   role: _role,
-                  room: spawn.room.name
+                  room: spawn.room.name,
+                  cost: creepDef.cost
                 }
               });
               return;
