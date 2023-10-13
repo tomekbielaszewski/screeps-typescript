@@ -24,6 +24,7 @@ describe('Harvester role', () => {
       const creep = mockInstanceOf<Creep>({
         ticksToLive: 1500,
         memory: {
+          renewing: false,
           state: undefined
         },
         spawning: true,
@@ -40,6 +41,7 @@ describe('Harvester role', () => {
         name: 'creepName',
         ticksToLive: 1500,
         memory: {
+          renewing: false,
           state: undefined,
           move: undefined,
           source: serializedSource,
@@ -76,6 +78,7 @@ describe('Harvester role', () => {
       const creep = mockInstanceOf<Creep>({
         ticksToLive: 1500,
         memory: {
+          renewing: false,
           state: DockingState,
           source: serializedSource
         }
@@ -108,6 +111,7 @@ describe('Harvester role', () => {
     const creep = mockInstanceOf<Creep>({
       ticksToLive: 1500,
       memory: {
+        renewing: false,
         state: DockingState,
         source: serializedSource
       }

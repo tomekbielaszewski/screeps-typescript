@@ -1,4 +1,5 @@
 import { SerializableRoomObject } from "../../../../utils/Serializables";
+import { RenewingState } from "./CreepState";
 
 export enum RenewingResult {
   Renewing,
@@ -10,9 +11,21 @@ export enum RenewingResult {
   SpawnSpawning,
 }
 
+export const RENEW_FROM = 150
+export const RENEW_UPTO = 1400
+
+export function shouldRenew(creep: Creep): boolean {
+  const isDying = !!(creep.ticksToLive && creep.ticksToLive < RENEW_FROM)
+  if (!creep.memory.renewing && isDying) {
+    return creep.memory.renewing = isDying
+  }
+  return false
+}
+
 export function renew(creep: Creep): RenewingResult {
-  if (creep.ticksToLive && creep.ticksToLive > 1400) {
+  if (creep.ticksToLive && creep.ticksToLive > RENEW_UPTO) {
     delete creep.memory.spawn
+    delete creep.memory.renewing
     return RenewingResult.CreepRenewed
   }
 
@@ -43,6 +56,6 @@ export function renew(creep: Creep): RenewingResult {
 
 function assignSpawn(creep: Creep) {
   creep.room.find(FIND_MY_SPAWNS)
-    .sort((s1, s2) => creep.pos.getRangeTo(s1.pos) - creep.pos.getRangeTo(s2.pos))
+    .sort((s1, s2) => s1.store.energy - s2.store.energy)
     .find(spawn => creep.memory.spawn = SerializableRoomObject.from(spawn));
 }

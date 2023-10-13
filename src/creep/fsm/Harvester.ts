@@ -14,7 +14,7 @@ import { harvest, HarvestingResult } from "./runner/common/HarvestingEnergy"
 import { move, MovingResult, toTarget } from "./runner/common/Moving"
 import { storeEnergy, StoringResult } from "./runner/common/StoringEnergy"
 import { upgradeController, UpgradeResult } from "./runner/common/UpgradingController"
-import { renew, RenewingResult } from "./runner/common/Renewing"
+import { renew, RENEW_FROM, RenewingResult, shouldRenew } from "./runner/common/Renewing"
 import { getLogger } from "../../utils/Logger";
 import { SerializableRoomObject } from "../../utils/Serializables";
 
@@ -25,12 +25,8 @@ export function HarvesterJob(creep: Creep): void {
     creep.memory.state = SpawningState
   }
 
-  if (creep.memory.state !== MovingState
-    && creep.memory.state !== RenewingState
-    && creep.ticksToLive
-    && creep.ticksToLive < 150) {
-    resolveAndReplay(creep, { nextState: RenewingState, replay: HarvesterJob })
-    return
+  if (shouldRenew(creep)) {
+    resolve(creep, { nextState: RenewingState })
   }
 
   switch (creep.memory.state) {
@@ -147,7 +143,8 @@ function runRenewingState(creep: Creep) {
     case RenewingResult.SpawnSpawning: //c'mon im dying!
     case RenewingResult.SpawnEmpty: //should I find another one? Or wait to be filled up?
     case RenewingResult.CreepRenewed: //all good. Back to work!
-      resolveAndReplay(creep, { nextState: HarvestingState, replay: HarvesterJob })
+      if (creep.ticksToLive && creep.ticksToLive > RENEW_FROM)
+        resolveAndReplay(creep, { nextState: HarvestingState, replay: HarvesterJob })
       break
     case RenewingResult.OutOfRange:
       creep.memory.move = {
