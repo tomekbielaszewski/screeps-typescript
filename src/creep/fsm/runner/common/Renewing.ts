@@ -41,11 +41,13 @@ export function renew(creep: Creep): RenewingResult {
   const renewResult = spawn.renewCreep(creep)
   switch (renewResult) {
     case OK:
-      if(!creep.memory.totalRenewedTicks) creep.memory.totalRenewedTicks = 0
-      if(!creep.memory.totalRenewedCost) creep.memory.totalRenewedCost = 0
-      creep.memory.totalRenewedTicks += Math.floor(600/creep.body.length)
-      creep.memory.totalRenewedCost += Math.ceil(creep.memory.cost/2.5/creep.body.length)
+      if (!creep.memory.totalRenewedTicks) creep.memory.totalRenewedTicks = 0
+      if (!creep.memory.totalRenewedCost) creep.memory.totalRenewedCost = 0
+      creep.memory.totalRenewedTicks += Math.floor(600 / creep.body.length)
+      creep.memory.totalRenewedCost += Math.ceil(creep.memory.cost / 2.5 / creep.body.length)
       return RenewingResult.Renewing
+    case ERR_FULL:
+      return RenewingResult.CreepRenewed
     case ERR_NOT_IN_RANGE:
       return RenewingResult.OutOfRange
     case ERR_NOT_ENOUGH_ENERGY:
