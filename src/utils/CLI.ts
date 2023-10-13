@@ -47,6 +47,7 @@ function spawn(spawnName: string, bodyParts: string[], role: string): string {
   const structureSpawn = Game.spawns[spawnName]
   const result = structureSpawn.spawnCreep(bodyParts as BodyPartConstant[], `${Game.time}:${role}`, {
     memory: {
+      cost: 0,
       role,
       room: structureSpawn.room.name
     }
@@ -131,8 +132,8 @@ function removePlan(roomName?: string): string {
 function removeCSites(roomName?: string): string {
   if (roomName === undefined) return `Removes all construction sites in a given room. cli.rooms.removeCSites("W8N8")`
   Game.rooms[roomName].find(FIND_CONSTRUCTION_SITES)
-  .forEach(cs => {
-    cs.remove()
-  })
+    .forEach(cs => {
+      cs.remove()
+    })
   return `All construction sites from room ${roomName} removed`
 }
